@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path, PurePosixPath
@@ -40,42 +41,69 @@ def _changed_lines(before: bytes, after: bytes, *, keep_ends: bool) -> int:
 
 
 def _safe_relative_path(value: str) -> str:
+    if re.match(r"^[A-Za-z]:", value) or value.startswith(("\\\\", "//")):
+        raise ValueError(f"path must stay inside the repository: {value}")
     candidate = PurePosixPath(value.replace("\\", "/"))
     if candidate.is_absolute() or not candidate.parts or ".." in candidate.parts:
         raise ValueError(f"path must stay inside the repository: {value}")
     return candidate.as_posix()
 
 
-def _git_blob(repo: Path, against: str, relative_path: str) -> bytes | None:
+def _resolved_commit(repo: Path, against: str) -> str:
+    if (
+        not against
+        or against != against.strip()
+        or against.startswith("-")
+        or len(against) > 200
+        or any(ord(char) < 32 for char in against)
+    ):
+        raise ValueError("comparison revision is invalid")
     completed = subprocess.run(
-        ["git", "-C", str(repo), "show", f"{against}:{relative_path}"],
+        ["git", "-C", str(repo), "rev-parse", "--verify", f"{against}^{{commit}}"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    commit = completed.stdout.strip().lower()
+    if completed.returncode != 0 or re.fullmatch(r"[0-9a-f]{40,64}", commit) is None:
+        raise RuntimeError(f"cannot resolve comparison revision: {against}")
+    return commit
+
+
+def _git_blob(repo: Path, commit: str, relative_path: str) -> bytes | None:
+    completed = subprocess.run(
+        ["git", "-C", str(repo), "show", f"{commit}:{relative_path}"],
         check=False,
         capture_output=True,
     )
     if completed.returncode == 0:
         return completed.stdout
-    missing = subprocess.run(
-        ["git", "-C", str(repo), "cat-file", "-e", f"{against}^{{commit}}"],
+    inventory = subprocess.run(
+        ["git", "-C", str(repo), "ls-tree", "--name-only", commit, "--", relative_path],
         check=False,
         capture_output=True,
     )
-    if missing.returncode != 0:
-        raise RuntimeError(f"cannot resolve comparison revision: {against}")
-    return None
+    if inventory.returncode == 0 and not inventory.stdout.strip():
+        return None
+    raise RuntimeError(f"cannot read comparison blob: {relative_path}")
 
 
 def inspect_path(
     repo: Path,
     relative_path: str,
     *,
-    against: str,
+    commit: str,
     allow_line_ending_change: bool,
 ) -> dict[str, Any]:
-    current_path = repo / Path(relative_path)
+    current_path = (repo / Path(relative_path)).resolve()
+    try:
+        current_path.relative_to(repo)
+    except ValueError as exc:
+        raise ValueError(f"path resolves outside the repository: {relative_path}") from exc
     if not current_path.is_file():
         raise RuntimeError(f"changed path is not a file: {relative_path}")
     current = current_path.read_bytes()
-    base = _git_blob(repo, against, relative_path)
+    base = _git_blob(repo, commit, relative_path)
     issues: list[str] = []
     current_styles = _newline_styles(current)
     if len(current_styles) > 1:
@@ -95,15 +123,27 @@ def inspect_path(
         "issues": issues,
     }
     if base is None:
+        report["status"] = "invalid" if issues else "new_file"
         return report
-    if b"\0" in base or b"\0" in current:
-        report["status"] = "binary_skipped"
+
+    base_is_text = b"\0" not in base
+    current_is_text = b"\0" not in current
+    if base_is_text:
+        try:
+            base.decode("utf-8", errors="strict")
+        except UnicodeDecodeError:
+            base_is_text = False
+    if current_is_text:
+        try:
+            current.decode("utf-8", errors="strict")
+        except UnicodeDecodeError:
+            current_is_text = False
+    if base_is_text and not current_is_text:
+        issues.append("tracked_utf8_text_became_binary_or_non_utf8")
+        report["status"] = "invalid"
         return report
-    try:
-        base.decode("utf-8", errors="strict")
-        current.decode("utf-8", errors="strict")
-    except UnicodeDecodeError:
-        report["status"] = "non_utf8_skipped"
+    if not base_is_text or not current_is_text:
+        report["status"] = "binary_or_non_utf8_skipped"
         return report
 
     normalized_base = _normalize_newlines(base)
@@ -134,6 +174,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         repo = args.repo.resolve()
+        commit = _resolved_commit(repo, args.against)
         paths = [_safe_relative_path(item) for item in args.path]
         allowed = {
             _safe_relative_path(item) for item in args.allow_line_ending_change
@@ -148,7 +189,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             inspect_path(
                 repo,
                 path,
-                against=args.against,
+                commit=commit,
                 allow_line_ending_change=path in allowed,
             )
             for path in paths
@@ -156,6 +197,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = {
             "schema": "wisdom.changed_text_preflight.v1",
             "against": args.against,
+            "against_commit": commit,
             "valid": all(not report["issues"] for report in reports),
             "files": reports,
         }

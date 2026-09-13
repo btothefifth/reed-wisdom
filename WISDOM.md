@@ -4,7 +4,7 @@ Author: Reed Armstrong
 
 Last updated: 2026-09-13 (America/New_York)
 
-Product version: 1.0.0
+Product version: 1.0.1
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be

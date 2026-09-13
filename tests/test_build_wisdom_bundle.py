@@ -73,7 +73,7 @@ def test_bundle_rejects_version_without_matching_changelog_entry(tmp_path: Path)
         destination = root / source_path
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((REPO_ROOT / source_path).read_bytes())
-    (root / "VERSION").write_text("1.0.1\n", encoding="ascii")
+    (root / "VERSION").write_text("9.9.9\n", encoding="ascii")
 
     with pytest.raises(bundle.WisdomBundleError, match="CHANGELOG"):
         bundle.build_archive_bytes(root)

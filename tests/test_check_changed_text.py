@@ -91,3 +91,42 @@ def test_mixed_current_line_endings_are_rejected(tmp_path: Path) -> None:
 
     assert completed.returncode == 1
     assert "mixed_current_line_endings" in completed.stdout
+
+
+def test_tracked_utf8_text_becoming_utf16_is_rejected(tmp_path: Path) -> None:
+    repo = _repo(tmp_path, b"alpha\nbeta\n")
+    (repo / "sample.txt").write_text("alpha\nbeta\n", encoding="utf-16")
+
+    completed = _run(repo)
+
+    assert completed.returncode == 1
+    assert "tracked_utf8_text_became_binary_or_non_utf8" in completed.stdout
+
+
+def test_option_shaped_revision_is_rejected_before_git(tmp_path: Path) -> None:
+    repo = _repo(tmp_path, b"alpha\nbeta\n")
+
+    completed = _run(repo, "--against=--quiet")
+
+    assert completed.returncode == 2
+    assert "comparison revision is invalid" in completed.stderr
+
+
+def test_windows_drive_path_is_rejected(tmp_path: Path) -> None:
+    repo = _repo(tmp_path, b"alpha\nbeta\n")
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repo",
+            str(repo),
+            "--path",
+            r"C:\Windows\win.ini",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 2
+    assert "path must stay inside the repository" in completed.stderr
