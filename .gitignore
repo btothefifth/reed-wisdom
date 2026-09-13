@@ -1,0 +1,4 @@
+/.pytest_cache/
+/.wisdom-cache/
+/**/__pycache__/
+*.pyc
