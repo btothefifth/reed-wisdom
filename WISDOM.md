@@ -2,9 +2,9 @@
 
 Author: Reed Armstrong
 
-Last updated: 2026-09-13 (America/New_York)
+Last updated: 2026-09-15 (America/New_York)
 
-Product version: 1.0.1
+Product version: 1.1.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -25,7 +25,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "reed-armstrong-wisdom",
-  "semantic_revision": 8,
+  "semantic_revision": 9,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -127,6 +127,7 @@ completion rules.
       "id": "recursive_contract",
       "heading": "Recursively audit the contract before implementation",
       "rule_ids": [
+        "DATA-01",
         "PLANE-01",
         "UPGRADE-01",
         "TEST-01",
@@ -1707,6 +1708,170 @@ transition. It may be narrowed only by a named rule; it may not be silently
 widened, discarded, or replaced by anonymous `None`, wildcard, global, default,
 or ambient authority. Missing identity remains typed missing evidence rather
 than becoming permission.
+
+### Design data ownership and access paths before choosing storage
+
+**`DATA-01` binds storage design to workloads and effective capabilities.**
+Before creating or materially changing a persistent store, schema, query,
+index, cache, archive, migration, backend, or deployment topology, freeze the
+logical workload, operating environment, scale path, and recovery contract that
+the design must serve. Do not select SQL, key-value, document, object,
+event-log, or in-memory technology by fashion, file size, an isolated
+microbenchmark, or hypothetical scale. Record this contract inside the existing
+system and criteria ledger rather than creating another architecture artifact:
+
+```yaml
+data_workload_contract:
+  scope_and_consumers: logical operations, decisions, reports, repair and recovery users
+  data_classes_and_authority: canonical facts, immutable evidence, projections, history, caches
+  access_patterns: equality/range predicates, joins, ordering, grouping, whole-object reads, writes
+  scale_and_shape: cardinality, row/object and result bytes, skew, rates, retention, growth
+  semantics: consistency, transaction and ordering boundaries, freshness, idempotency, invariants
+  deployment_envelope: hardware, OS/runtime, filesystem/network, container/process topology, ceilings
+  scalability: vertical and horizontal path, contention, partitioning, replication, operating cost
+  resource_ownership: connection or pool, transaction, locks, maintenance, deadlines, retry owner
+  representation_and_backend: candidates, required capabilities, rejected alternatives, tradeoffs
+  schema_evolution: version/genesis, compatibility, backfill, cutover, interruption, rollback
+  retention_and_recovery: deletion, archive, backup, restore, coherent generation, time-to-recover
+  proof_and_reopen: cold/warm/load witnesses, budgets, go-red mutations, assumption expiry
+```
+
+Classify stored material by semantics before physical layout:
+
+- **authoritative transactional state** owns current decisions and invariants;
+- **immutable event or evidence history** explains what happened without
+  silently becoming current authority;
+- **derived projections or read models** accelerate a named consumer and are
+  reproducible from a named generation or have an explicit repair contract;
+- **analytical or bulk history** serves scans, replay, aggregation, or research
+  without punishing the operational path; and
+- **reconstructable cache or object payloads** may be discarded only when the
+  rebuild source, cost, freshness, and admission policy are explicit.
+
+Give each fact one canonical authority even when several representations exist.
+A bounded immutable object fetched as a whole may remain one document. A
+recurring predicate, join, ordering key, aggregation dimension, authority gate,
+or repair selector must be efficiently addressable and constraint-enforceable
+for its real workload; it must not require accidental whole-history hydration
+or repeated decoding unless representative evidence proves that work remains
+within budget. A field inside a document can satisfy this when the engine gives
+it a stable, proven access path. Do not normalize speculative fields, split one
+coherent object into an unbounded entity-attribute-value surface, or replace a
+relational model with key-value records merely because either structure sounds
+more flexible. Keep large payloads behind narrow typed keys or projections when
+consumers usually need only a small decision surface.
+
+Treat the intended hardware and environment as part of product design. Record
+CPU and memory ceilings, storage latency/throughput and persistence semantics,
+filesystem and network placement, operating-system and runtime constraints,
+container/process isolation, competing workloads, observability, and restart
+and replacement behavior. Prove the minimum supported environment and at least
+one credible growth step. State whether growth is served by a larger node,
+additional readers or workers, partitioning, replication, archival, or a
+backend change, and identify the semantic and operational boundary of each.
+Performance that passes only on an oversized quiet development host is not
+product performance; evaluate terminal user behavior under realistic resource
+contention, cold start, maintenance, failure, and recovery.
+
+Measure one causal logical operation from its real outer entrypoint through its
+terminal consumer. Attribute connection acquisition and setup, statements or
+requests, rows and bytes visited and returned, decoding and serialization,
+copies and hashes, lock and transaction wait, transaction body and commit,
+journal/checkpoint/compaction work, retries, cache fills, and child work. Record
+stable operation signatures so repeated hidden work is countable. Compare
+representative scale and skew under cold start, warm steady state, simultaneous
+misses, expiry or invalidation waves, concurrent readers and writers, sustained
+background work, restart, and storage pressure. Report result cardinality,
+rows/objects and bytes scanned or hydrated, temporary work, and p50/p95/p99
+terminal latency where those distributions can change the decision. Cold and
+warm semantic parity is necessary but does not prove bounded cold latency or
+bounded duplicate work.
+
+Use a query plan, access trace, or backend-equivalent independent evidence for
+every recurring consequential access path. An index, partition, materialized
+view, denormalization, or secondary key is accepted only when the read benefit
+outweighs write, storage, maintenance, backup, and recovery amplification on the
+same workload. A faster isolated query is not a system improvement if it moves
+more cost into commits, checkpoints, compaction, replication, restore, or a
+different consumer. Prefer selecting narrow keys and required fields before
+hydrating large payloads when the semantics allow it.
+
+Name the owner and bounded lifetime of every connection or session, pool slot,
+transaction, cursor/iterator, lock, retry, and maintenance action. Verify the
+actual driver's thread/process sharing rules; a pool size or shared handle is
+not concurrency proof. Acquisition, cancellation, exception, exhaustion, and
+restart paths must release their resource at the real boundary. Do not hold a
+transaction, connection-bound lock, or scarce pool slot across external I/O or
+an unbounded await unless the exact atomicity contract requires it and provides
+a deadline, interruption outcome, and recovery owner. Journal checkpointing,
+log truncation, compaction, vacuuming, statistics maintenance, or their
+equivalent are product-owned lifecycle work: schedule and observe them against
+the foreground workload instead of treating them as invisible engine cleanup.
+
+Attest the **effective** storage capability rather than a configured label.
+Record the loaded engine and driver identity and verify required isolation,
+durability, atomic constraints, locking and writer model, journal/checkpoint or
+recovery behavior, filesystem or network placement, concurrency limits,
+backup/restore/replication behavior, operational inspection, and maintenance.
+Read back consequential settings when possible. A requested mode, accepted
+configuration file, engine brand, or successful connection cannot prove those
+properties. Optional tuning may fail or be rejected without weakening a
+required guarantee; unknown capability remains a failed gate, not an optimistic
+default.
+
+Give persistent schema evolution one migration owner. Record an explicit
+version and reviewed genesis for legacy state, refuse unsupported future state
+before mutation, make each boundary transactional or interruption-safe, and
+define dual-read, differential, backfill, cutover, and retirement behavior
+without creating dual authority. Prove interrupted migration, reopen, backup,
+restore, and forward or rollback recovery across every required store as one
+coherent generation. A backup file, table count, or process restart is not
+recovery proof; restore it into the supported topology and exercise the
+authoritative consumer.
+
+Choose or replace a backend only through the same semantic API and lifecycle
+suite. Compare total operating cost, deployment and observability, concurrency,
+consistency, retention, recovery, portability, scaling path, supported hardware
+and environments, and administrator burden, not only throughput. A specialized
+store must satisfy a measured requirement that the simpler design cannot meet
+and retain a removal condition if its benefit no longer pays for the extra
+owner, synchronization, and recovery surface. Reopen the decision when access
+patterns, scale/skew, topology, capability, durability, recovery target,
+supported deployment envelope, or measured budget changes materially.
+
+Retain these representative cases or equivalent go-red assertions:
+
+| Case | Acceptance | Go-red condition |
+| --- | --- | --- |
+| recurring selective read over growing history | identical bounded result while two larger histories keep rows/bytes decoded and terminal latency within the declared envelope | remove the access path or force full payload hydration; the gate fails even if the result is correct |
+| bounded immutable whole-object read | one coherent object remains accepted when its size, retention, and cold/warm cost are proved | a blanket normalization or SQL-only rule rejects a justified document |
+| connection loss, pool exhaustion, cancellation, or long reader/writer overlap | typed bounded outcome, no leaked owner, and required foreground progress or explicit admission failure | a hidden shared connection, orphan transaction, or unbounded wait survives |
+| configured durability or journal mode is unavailable or ineffective | capability readback rejects promotion or selects a proved nearest safe mode without reducing guarantees | configuration intent is treated as runtime fact |
+| index or secondary representation | net read gain survives measured write, maintenance, storage, checkpoint/compaction, backup, and restore costs | an isolated read benchmark approves system-wide regression |
+| minimum supported hardware plus one growth step | terminal user budgets survive representative contention and the declared vertical or horizontal transition preserves semantics | only a quiet high-end development host is measured, or scale-out creates split authority |
+| interrupted migration or restore | one supported coherent version reopens, unsupported future state refuses mutation, and the real consumer passes | partial genesis, dual authority, or table/file presence is called recovery |
+| warm cache hides an unbounded cold path or expiry wave | cold, warm, simultaneous-miss, expiry, restart, and sustained-background envelopes are separately reported | one warm median is generalized to lifecycle performance |
+| candidate backend is faster but weakens semantics or operability | candidate is rejected until it preserves invariants, recovery, deployment, and inspection | backend name or synthetic throughput substitutes for lifecycle proof |
+
+Engine documentation provides evidence about a candidate, never a portable
+default. For example, the official [SQLite WAL
+documentation](https://www.sqlite.org/wal.html) describes a separate checkpoint
+lifecycle, concurrent readers but only one writer, same-host shared state, and
+growth under long readers; its [appropriate-uses
+guidance](https://www.sqlite.org/whentouse.html) points many concurrent writers
+or direct multi-host access toward client/server designs. PostgreSQL documents
+the resource cost of [connection
+counts](https://www.postgresql.org/docs/current/runtime-config-connection.html),
+the sharing boundary of [one connection
+object](https://www.postgresql.org/docs/current/libpq-threading.html), and the
+workload cost of [vacuum and statistics
+maintenance](https://www.postgresql.org/docs/current/routine-vacuuming.html).
+DynamoDB's [data-modeling
+guidance](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/data-modeling-schemas.html)
+starts with entities, volumes, throughput, access patterns, and retention.
+Verify the current authoritative documentation for the chosen engine and keep
+its exact settings, limits, and operational procedure in the project-local
+contract.
 
 **`PLANE-01` separates semantic inputs from proof and validator state.** Keep
 canonical serialized carriers separate from enriched validation views.

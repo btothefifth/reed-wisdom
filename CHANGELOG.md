@@ -4,6 +4,16 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.1.0 - 2026-09-15
+
+- Require workload, deployment-envelope, and access-pattern evidence before
+  selecting a storage representation or backend.
+- Bind connection, transaction, maintenance, query-plan, schema-evolution,
+  capability, scalability, and recovery proof into one backend-neutral data
+  contract.
+- Preserve justified SQL, key-value, document, event, and cache designs while
+  rejecting technology-by-fashion and warm-microbenchmark promotion.
+
 ## 1.0.1 - 2026-09-13
 
 - Reject Git option-shaped comparison revisions before invoking Git.

@@ -653,18 +653,19 @@ def test_portable_source_visibly_explains_reconstruction_and_fallback() -> None:
     assert "RESUME-01" in text
 
 
-def test_operational_semantics_revision_8_preserves_bounded_loading_topology(
+def test_operational_semantics_revision_9_preserves_bounded_loading_topology(
     tmp_path: Path,
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 8
+    assert parsed.manifest["semantic_revision"] == 9
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",
     )
     assert parsed.section_by_id["metacognition"].rule_ids == ("FRAME-01",)
     assert "OPT-02" in parsed.section_by_id["process_cost"].rule_ids
+    assert "DATA-01" in parsed.section_by_id["recursive_contract"].rule_ids
     assert len(parsed.manifest["allowed_tags"]) == 31
     assert len(parsed.manifest["modules"]) == 13
     assert "bounded_operating_loop" in parsed.manifest["kernel_sections"]
@@ -707,6 +708,13 @@ def test_operational_semantics_revision_8_preserves_bounded_loading_topology(
     assert b"explicitly declared compatible or stale-" in focused_content
     assert b"hit status does not" in focused_content
     assert b"prove this contract" in focused_content
+    assert b"DATA-01" not in focused_content
+
+    storage_plan = dict(loader.load_plan(SOURCE, cache, mode="focused", tags=["storage"]))
+    storage_content = loader.read_plan_content(storage_plan)
+    assert b"DATA-01" in storage_content
+    assert b"workloads and effective capabilities" in storage_content
+    assert b"minimum supported hardware plus one growth step" in storage_content
 
     substantial_plan = dict(loader.load_plan(SOURCE, cache, mode="substantial"))
     substantial_content = loader.read_plan_content(substantial_plan)
@@ -725,6 +733,7 @@ def test_operational_semantics_revision_8_preserves_bounded_loading_topology(
     assert b"future_path_comparison" in substantial_content
     assert b"Exclude sunk" in substantial_content
     assert b"authorized replacement proves" in substantial_content
+    assert b"DATA-01" in substantial_content
 
     full_plan = dict(loader.load_plan(SOURCE, cache, mode="full"))
     _assert_full_source_only(full_plan, SOURCE)
