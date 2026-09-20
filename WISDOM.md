@@ -2,9 +2,9 @@
 
 Author: Reed Armstrong
 
-Last updated: 2026-09-15 (America/New_York)
+Last updated: 2026-09-20 (America/New_York)
 
-Product version: 1.1.0
+Product version: 1.2.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -25,7 +25,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "reed-armstrong-wisdom",
-  "semantic_revision": 9,
+  "semantic_revision": 10,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -1787,6 +1787,25 @@ terminal latency where those distributions can change the decision. Cold and
 warm semantic parity is necessary but does not prove bounded cold latency or
 bounded duplicate work.
 
+Distinguish work before storage from engine work and contention: expensive
+payload construction, canonicalization, compression, or hashing is not query
+latency; many individually fast writes can still monopolize a writer. Count
+logical mutations, physical writes, secondary-index/trigger maintenance, and
+writer occupancy alongside foreground wait and terminal latency. Prepare
+independent expensive work outside the scarce write boundary where safe, then
+revalidate its material dependencies inside the owning transaction. Batch only
+within measured work and foreground-latency budgets. Preserve required atomicity:
+an oversized all-or-nothing operation needs bounded admission or a separately
+proved resumable protocol, not invisible intermediate commits. Connection reuse,
+new indexes, weaker durability, or a different engine is not a substitute for
+identifying the dominant cost; never weaken a required guarantee as a tuning step.
+
+Keep essential performance counters available outside special research modes,
+with bounded dimensions, retention, and overhead. Do not log sensitive payloads,
+create unbounded identity labels, or add a blocking durable write per event.
+Expensive traces may remain sampled or explicitly enabled. Prove observability
+does not materially change the workload it is intended to measure.
+
 Use a query plan, access trace, or backend-equivalent independent evidence for
 every recurring consequential access path. An index, partition, materialized
 view, denormalization, or secondary key is accepted only when the read benefit
@@ -1852,6 +1871,7 @@ Retain these representative cases or equivalent go-red assertions:
 | interrupted migration or restore | one supported coherent version reopens, unsupported future state refuses mutation, and the real consumer passes | partial genesis, dual authority, or table/file presence is called recovery |
 | warm cache hides an unbounded cold path or expiry wave | cold, warm, simultaneous-miss, expiry, restart, and sustained-background envelopes are separately reported | one warm median is generalized to lifecycle performance |
 | candidate backend is faster but weakens semantics or operability | candidate is rejected until it preserves invariants, recovery, deployment, and inspection | backend name or synthetic throughput substitutes for lifecycle proof |
+| batching improves aggregate throughput under foreground contention | required atomicity and foreground tail-latency budgets both survive representative concurrent load | larger batches starve foreground work, or hidden intermediate commits make a partial operation visible |
 
 Engine documentation provides evidence about a candidate, never a portable
 default. For example, the official [SQLite WAL
@@ -2898,6 +2918,22 @@ before polishing individual calls. Avoid repeated parsing, normalization,
 serialization, hashing, object traversal, allocation, locking, and provider
 work. Batch, vectorize, compile, cache, or coalesce only where measurement shows
 that the change improves the end-to-end path.
+
+Budget integrity and validation work as part of that same path. Count bytes
+traversed and canonicalized, digest computations, repeated dependency-closure
+walks, and proof construction per logical operation, not merely per helper.
+Prefer one canonical immutable representation and reuse its verified digest or
+validation result within the exact source-bound generation and ownership
+lifetime. An immutable wrapper does not make its backing source immutable.
+Do not reuse by filename, size, modification time, or a cache's self-hash alone;
+material content, schema, code, membership, and source-identity changes must
+invalidate affected evidence. Preserve independent checks at trust boundaries
+and current authority/freshness checks at consumption. Avoid whole-tree rehashes
+at every descendant consumer when a verified sealed closure can safely carry
+the same evidence; do not narrow that closure merely to make hashing cheaper.
+Acceptance must pair identical-result and tamper/invalidation counterexamples
+with measured traversal/hash multiplicity and terminal-cost reduction. A warm
+hit that hides changed input or shifts duplicate work to another owner fails.
 
 Treat a cache as a producer-carrier-consumer contract before relying on its
 speed. Close its key over every material semantic input plus only the code,

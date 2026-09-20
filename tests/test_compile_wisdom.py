@@ -653,12 +653,12 @@ def test_portable_source_visibly_explains_reconstruction_and_fallback() -> None:
     assert "RESUME-01" in text
 
 
-def test_operational_semantics_revision_9_preserves_bounded_loading_topology(
+def test_operational_semantics_revision_10_preserves_bounded_loading_topology(
     tmp_path: Path,
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 9
+    assert parsed.manifest["semantic_revision"] == 10
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",
@@ -708,6 +708,9 @@ def test_operational_semantics_revision_9_preserves_bounded_loading_topology(
     assert b"explicitly declared compatible or stale-" in focused_content
     assert b"hit status does not" in focused_content
     assert b"prove this contract" in focused_content
+    assert b"Budget integrity and validation work" in focused_content
+    assert b"An immutable wrapper does not make its backing source immutable" in focused_content
+    assert b"do not narrow that closure merely to make hashing cheaper" in focused_content
     assert b"DATA-01" not in focused_content
 
     storage_plan = dict(loader.load_plan(SOURCE, cache, mode="focused", tags=["storage"]))
@@ -715,6 +718,9 @@ def test_operational_semantics_revision_9_preserves_bounded_loading_topology(
     assert b"DATA-01" in storage_content
     assert b"workloads and effective capabilities" in storage_content
     assert b"minimum supported hardware plus one growth step" in storage_content
+    assert b"writer occupancy alongside foreground wait and terminal latency" in storage_content
+    assert b"not invisible intermediate commits" in storage_content
+    assert b"bounded dimensions, retention, and overhead" in storage_content
 
     substantial_plan = dict(loader.load_plan(SOURCE, cache, mode="substantial"))
     substantial_content = loader.read_plan_content(substantial_plan)

@@ -4,6 +4,16 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.2.0 - 2026-09-20
+
+- Budget canonicalization, hashing, dependency traversal, and validation work
+  per logical operation; reuse only exact source-bound evidence without
+  weakening trust-boundary, freshness, or invalidation checks.
+- Separate payload processing, physical write amplification, writer occupancy,
+  foreground contention, and durability cost before selecting optimizations.
+- Bound batching without silently splitting atomic operations, and retain
+  low-overhead, bounded-cardinality performance counters outside research modes.
+
 ## 1.1.0 - 2026-09-15
 
 - Require workload, deployment-envelope, and access-pattern evidence before
