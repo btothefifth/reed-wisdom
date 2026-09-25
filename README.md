@@ -9,7 +9,7 @@ optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
 **Download:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
-or the pinned [v1.3.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.3.0/reed-wisdom.zip).
+or the pinned [v1.4.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.4.0/reed-wisdom.zip).
 
 ## Start
 
