@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-25 (America/New_York)
 
-Product version: 1.4.0
+Product version: 1.5.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 12,
+  "semantic_revision": 13,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -190,7 +190,7 @@ completion rules.
     {
       "id": "implementation",
       "heading": "Implement, integrate, and re-audit in vertical slices",
-      "rule_ids": []
+      "rule_ids": ["SCOPE-01"]
     },
     {
       "id": "performance",
@@ -3110,6 +3110,74 @@ integration, publication, deployment, and external mutation. Parallelize only
 disjoint reads, files, experiments, and falsification surfaces whose contention
 cannot invalidate one another.
 
+**`SCOPE-01` assigns review by ownership and semantic reach, not repository
+size.** Keep context scope, mutation scope, review scope, validation scope, and
+integration scope distinct. Reading unchanged code to understand a change does
+not make that code part of the owned delta or create a duty to re-review it from
+scratch.
+
+For every code-changing lane, freeze an exact assignment baseline and derive:
+
+- **owned delta:** every file, hunk, generated artifact, test, fixture, and
+  contract changed by this lane since that baseline, including its uncommitted
+  changes;
+- **semantic frontier:** unchanged producers, callers, consumers, state owners,
+  schemas, interfaces, configuration, tests, and operational surfaces whose
+  behavior can change because of the owned delta;
+- **integration delta:** the complete feature or branch change from its declared
+  integration baseline to the candidate, including interactions among lanes;
+- **repository frontier:** only the finite set of same-invariant consumers
+  reached by an explicit repository-wide trigger.
+
+The implementer author-reviews its complete owned delta and inspects enough of
+the semantic frontier to establish that the change composes with current
+behavior. It does not inherit unrelated pre-existing branch changes or sibling
+lane changes merely because they share a checkout. The serial integration owner
+reviews the complete integration delta before merge, publication, or promotion,
+checks cross-lane interactions, and joins independent lane-review receipts only
+when their exact source generations and frontiers still apply.
+
+When the execution plan assigns a separate focused reviewer, that reviewer
+independently reviews the implementer's owned delta and semantic frontier; it
+does not inherit sibling deltas or the whole feature review. A feature reviewer
+independently reviews the integration delta and cross-lane interactions when
+that review is assigned or required by the controlling promotion contract.
+
+Expand review beyond the owned delta only through a named dependency, invariant,
+authority, state, interface, or failure-family edge. Stop when the relevant
+frontier closes and another file cannot change the review conclusion. A
+repository-wide review is required only when the user explicitly requests one;
+the change modifies a shared primitive, invariant, schema, configuration
+mechanism, lifecycle owner, or public interface with broad consumers; impact
+cannot be bounded confidently; a systemic defect triggers `RETRO-01`; or the
+controlling promotion contract requires it. Even then, mechanically enumerate
+the affected consumers. When impact is initially unknown, widen discovery
+conservatively until a finite frontier is proved or the full repository is the
+only defensible boundary; do not reread unrelated areas when the frontier is
+finite.
+
+Scope limits responsibility, not observation. If evidence points beyond the
+declared ownership boundary, inspect enough to establish the dependency, record
+the scope expansion, and report it to the integration owner. Fix it only when
+the lane's charter permits; otherwise return it for reassignment. Reuse an
+earlier review receipt only while its bound source generation and semantic
+frontier remain unchanged. Keep review-frontier reasoning distinct from
+`IMPACT-01` proof-frontier recomputation, while allowing each to identify an
+affected consumer for the other.
+
+| Situation | Review obligation |
+| --- | --- |
+| Small isolated implementation | Complete owned delta plus immediate semantic frontier |
+| Bug fix | Owned delta plus same-predicate sibling frontier |
+| Public API or interface change | Owned delta plus all mechanically reachable consumers |
+| Worker on a multi-lane feature | Worker delta plus its semantic frontier; report interactions without inheriting sibling deltas |
+| Root integrating multiple lanes | Complete feature/integration delta from the integration baseline, including cross-lane interactions |
+| Pre-merge feature review | Feature delta plus affected external consumers |
+| Shared or global primitive change | Mechanically enumerate the repository-wide consumer frontier |
+| Unknown impact | Widen conservatively; use the substantial/full route when the frontier cannot be bounded |
+| User-requested repository audit | Whole repository within the requested audit boundary |
+| Routine implementation with unrelated unchanged files | Do not re-review unrelated repository areas |
+
 Give every substantial phase a compact gate derived from the four canonical
 artifacts:
 
@@ -4110,6 +4178,14 @@ Give each lane a frozen charter inside the execution plan:
 
 ```yaml
 lane_and_question: identity, independent question or falsifier
+scope:
+  assignment_baseline: exact source revision or tree
+  owned_delta: files and symbols owned, or mechanically derived lane changes
+  semantic_frontier: named interfaces, consumers, state owners, and invariants
+  review_obligation: owned_delta | feature_delta | repository_frontier
+  integration_baseline: exact merge-base or parent generation
+  exclusions: surfaces outside this lane's responsibility
+  escalation_triggers: facts that widen the declared scope
 inputs_and_output: frozen inputs, concrete artifact, immutable evidence
 forbidden_surface: writes, authority, shared resources, private data
 dependencies_and_eta: prerequisites and measured range

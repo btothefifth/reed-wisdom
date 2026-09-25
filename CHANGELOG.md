@@ -4,6 +4,14 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.5.0 - 2026-09-25
+
+- Add `SCOPE-01` for ownership-based review scope, bounded semantic frontiers,
+  explicit integration ownership, and trigger-based repository-wide review.
+- Extend the delegation charter with frozen assignment and integration
+  baselines, owned and semantic scope, exclusions, and escalation triggers.
+- Add route, charter, and scope-boundary semantic regressions.
+
 ## 1.4.0 - 2026-09-25
 
 - Add `IMPACT-01` for affected-proof-frontier validation, conservative evidence
