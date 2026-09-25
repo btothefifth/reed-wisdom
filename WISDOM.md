@@ -1,10 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Author: Reed Armstrong
+Last updated: 2026-09-25 (America/New_York)
 
-Last updated: 2026-09-20 (America/New_York)
-
-Product version: 1.2.0
+Product version: 1.3.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -24,8 +22,8 @@ completion rules.
 <!-- WISDOM-MANIFEST-BEGIN
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
-  "source_id": "reed-armstrong-wisdom",
-  "semantic_revision": 10,
+  "source_id": "portable-wisdom",
+  "semantic_revision": 11,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -34,11 +32,13 @@ completion rules.
     "architecture",
     "async",
     "authority",
+    "budget",
     "context",
     "continuity",
     "correction",
     "decision",
     "defect",
+    "dependency",
     "delegation",
     "delivery",
     "deployment",
@@ -50,17 +50,21 @@ completion rules.
     "judgment",
     "performance",
     "process",
+    "protocol",
     "proof",
     "provenance",
     "recovery",
     "retro",
     "routing",
+    "runtime_identity",
     "shell",
+    "selector",
     "sources",
     "status",
     "stewardship",
     "storage",
     "substantial",
+    "temporal",
     "testing"
   ],
   "kernel_sections": [
@@ -75,7 +79,22 @@ completion rules.
     {"id": "code_change", "mode": "focused", "tags": ["implementation", "testing"]},
     {"id": "architecture", "mode": "substantial", "tags": ["architecture", "decision"]},
     {"id": "operations", "mode": "substantial", "tags": ["process", "recovery", "delivery"]},
-    {"id": "research", "mode": "focused", "tags": ["performance", "decision"]}
+    {"id": "research", "mode": "focused", "tags": ["performance", "decision"]},
+    {"id": "bug_fix", "mode": "focused", "tags": ["defect", "diagnostics", "testing"]},
+    {"id": "protocol_change", "mode": "substantial", "tags": ["protocol", "provenance", "authority"]},
+    {"id": "external_effect_change", "mode": "substantial", "tags": ["external_effect", "authority", "provenance"]},
+    {"id": "release_recovery", "mode": "substantial", "tags": ["deployment", "recovery", "status"]},
+    {"id": "performance_investigation", "mode": "focused", "tags": ["performance", "diagnostics"]},
+    {"id": "dependency_gate", "mode": "focused", "tags": ["dependency", "testing"]},
+    {"id": "selector_gate", "mode": "focused", "tags": ["selector", "testing"]},
+    {"id": "budget_clock", "mode": "focused", "tags": ["temporal", "testing"]}
+  ],
+  "phases": [
+    {"id": "design", "tags": ["architecture", "decision"]},
+    {"id": "implement", "tags": ["implementation"]},
+    {"id": "validate", "tags": ["proof", "testing"]},
+    {"id": "release", "tags": ["delivery", "deployment"]},
+    {"id": "observe", "tags": ["diagnostics", "status", "runtime_identity"]}
   ],
   "sections": [
     {
@@ -126,27 +145,47 @@ completion rules.
     {
       "id": "recursive_contract",
       "heading": "Recursively audit the contract before implementation",
-      "rule_ids": [
-        "DATA-01",
-        "PLANE-01",
-        "UPGRADE-01",
-        "TEST-01",
-        "SEAL-01",
-        "NUM-01",
-        "STATE-01",
-        "NEG-01",
-        "ASYNC-01",
-        "ASYNC-02",
-        "SOURCE-01",
-        "SOURCE-02",
-        "FENCE-01",
-        "EXT-01"
-      ]
+      "rule_ids": []
+    },
+    {
+      "id": "storage_design",
+      "heading": "Design data ownership and access paths before choosing storage",
+      "rule_ids": ["DATA-01"]
+    },
+    {
+      "id": "protocol_identity",
+      "heading": "Preserve protocol and recovery identity",
+      "rule_ids": ["PLANE-01", "UPGRADE-01", "DEP-01"]
+    },
+    {
+      "id": "effect_harness",
+      "heading": "Derive effect and harness adversaries from real owners",
+      "rule_ids": ["TEST-01", "EXT-01"]
+    },
+    {
+      "id": "authority_carriers",
+      "heading": "Close authority-bearing carriers over exact terminal semantics",
+      "rule_ids": ["SEAL-01", "NUM-01", "STATE-01", "NEG-01"]
+    },
+    {
+      "id": "async_lifecycle",
+      "heading": "Conserve asynchronous ownership and evidence clocks",
+      "rule_ids": ["ASYNC-01", "ASYNC-02"]
+    },
+    {
+      "id": "source_fence",
+      "heading": "Join action-time sources and fail-closed fences",
+      "rule_ids": ["SOURCE-01", "SOURCE-02", "FENCE-01"]
     },
     {
       "id": "tests",
       "heading": "Tests must be production-shaped and independent",
       "rule_ids": []
+    },
+    {
+      "id": "test_harness",
+      "heading": "Freeze complete test selectors and semantic oracles",
+      "rule_ids": ["SELECT-01", "ORACLE-01"]
     },
     {
       "id": "implementation",
@@ -191,6 +230,11 @@ completion rules.
       ]
     },
     {
+      "id": "decision_budget",
+      "heading": "Bound decision work by a monotonic budget",
+      "rule_ids": []
+    },
+    {
       "id": "critical_path_admission",
       "heading": "Admit critical-path work mechanically",
       "rule_ids": ["CPATH-01"]
@@ -214,6 +258,11 @@ completion rules.
       "id": "conditional_operations",
       "heading": "Conditional operational patterns",
       "rule_ids": ["STORE-01"]
+    },
+    {
+      "id": "runtime_identity",
+      "heading": "Verify runtime identity and resource ownership",
+      "rule_ids": []
     },
     {
       "id": "correction_closure",
@@ -248,8 +297,44 @@ completion rules.
     {
       "id": "architecture_authority",
       "sections": ["recursive_contract"],
-      "tags": ["architecture", "async", "authority", "external_effect", "provenance", "storage"],
+      "tags": ["architecture", "authority"],
       "requires": []
+    },
+    {
+      "id": "storage_design",
+      "sections": ["storage_design"],
+      "tags": ["storage"],
+      "requires": ["architecture_authority"]
+    },
+    {
+      "id": "protocol_identity",
+      "sections": ["protocol_identity"],
+      "tags": ["protocol", "provenance", "recovery", "temporal", "dependency"],
+      "requires": ["architecture_authority"]
+    },
+    {
+      "id": "effect_harness",
+      "sections": ["effect_harness"],
+      "tags": ["external_effect", "protocol"],
+      "requires": ["source_fence"]
+    },
+    {
+      "id": "authority_carriers",
+      "sections": ["authority_carriers"],
+      "tags": ["authority", "provenance", "protocol"],
+      "requires": ["protocol_identity"]
+    },
+    {
+      "id": "async_lifecycle",
+      "sections": ["async_lifecycle"],
+      "tags": ["async", "temporal", "recovery"],
+      "requires": ["authority_carriers"]
+    },
+    {
+      "id": "source_fence",
+      "sections": ["source_fence"],
+      "tags": ["authority", "external_effect"],
+      "requires": ["async_lifecycle"]
     },
     {
       "id": "testing",
@@ -258,16 +343,28 @@ completion rules.
       "requires": []
     },
     {
+      "id": "test_harness",
+      "sections": ["test_harness"],
+      "tags": ["proof", "testing", "selector", "temporal"],
+      "requires": ["testing"]
+    },
+    {
       "id": "implementation_performance",
       "sections": ["implementation", "performance"],
       "tags": ["implementation", "performance"],
-      "requires": ["testing"]
+      "requires": ["test_harness"]
     },
     {
       "id": "decision_judgment",
       "sections": ["avoid_harm", "metacognition", "process_cost"],
       "tags": ["continuity", "decision", "eta", "judgment"],
       "requires": []
+    },
+    {
+      "id": "decision_budget",
+      "sections": ["decision_budget"],
+      "tags": ["budget", "continuity", "decision", "eta"],
+      "requires": ["decision_judgment"]
     },
     {
       "id": "execution_efficiency",
@@ -285,12 +382,18 @@ completion rules.
       "id": "context_delegation",
       "sections": ["context_delegation"],
       "tags": ["context", "continuity", "delegation"],
-      "requires": ["decision_judgment"]
+      "requires": ["decision_budget"]
     },
     {
       "id": "conditional_operations",
       "sections": ["conditional_operations"],
       "tags": ["authority", "external_effect", "process", "shell", "storage"],
+      "requires": ["effect_harness", "runtime_identity"]
+    },
+    {
+      "id": "runtime_identity",
+      "sections": ["runtime_identity"],
+      "tags": ["runtime_identity", "status", "process"],
       "requires": ["architecture_authority"]
     },
     {
@@ -314,7 +417,7 @@ completion rules.
     },
     {
       "mode": "focused",
-      "required_modules": ["testing", "implementation_performance"],
+      "required_modules": ["testing", "test_harness", "implementation_performance"],
       "source_direct": false
     },
     {
@@ -323,13 +426,22 @@ completion rules.
         "bootstrap_contract",
         "defect_diagnostics",
         "architecture_authority",
+        "storage_design",
+        "protocol_identity",
+        "effect_harness",
+        "authority_carriers",
+        "async_lifecycle",
+        "source_fence",
         "testing",
+        "test_harness",
         "implementation_performance",
         "decision_judgment",
+        "decision_budget",
         "execution_efficiency",
         "delivery_status",
         "context_delegation",
         "conditional_operations",
+        "runtime_identity",
         "correction_closure"
       ],
       "source_direct": false
@@ -396,6 +508,34 @@ retain the evidence and remaining unknown; and state the next conditional
 action. Record this in the existing controlling plan or ledger. Routine work
 keeps its direct task, oracle, and terminal answer without filling a ceremonial
 card. A profile supplies detail only when its seam can change action.
+
+Use `bug_fix` for a reproduced defect in an existing contract;
+`protocol_change` for a serialized carrier, schema, identity, compatibility, or
+producer-consumer contract change; `external_effect_change` when a request can
+create, alter, delete, or reconcile state outside the process;
+`release_recovery` for immutable build, deployment, rollback, or restart
+ownership; `performance_investigation` for a measured resource or terminal-path
+regression; `dependency_gate` for ordered conditional prerequisites whose
+reachability controls a terminal result; `selector_gate` for an exact test
+manifest that claims complete gate coverage; and `budget_clock` for expiry or
+serialized resource limits. These
+profiles are not exclusive: add every independently applicable mechanism tag.
+Choose the highest-consequence applicable profile when shapes overlap, then add
+the other mechanism tags; a mixed external mutation remains `substantial`.
+If the request does not fit a known shape or the applicable mechanisms cannot
+be enumerated, read the full source. A routine edit must not inherit external
+effect or release controls solely because it changes code.
+
+`--phase` may add the known `design`, `implement`, `validate`, `release`, or
+`observe` tags without removing profile or explicit mechanism tags. Re-discover
+and re-route before the first action protected by a new phase, including before
+an external request, expensive validation, publication, deployment, or live
+observation. Keep the earlier phase's applicable hard gates and proof receipts;
+a later phase never retroactively blesses a skipped prerequisite. If a phase
+or mixed mechanism is unknown or cannot be mapped without omitting a hard rule,
+read the full current source before that action. Phase loading defers only rules
+whose first protected action has not been reached, not design work needed to
+specify their future proof and rollback.
 
 Before selecting a mode or tags, run
 `scripts/load_compiled_wisdom.py --discover` to obtain the current
@@ -1709,7 +1849,7 @@ widened, discarded, or replaced by anonymous `None`, wildcard, global, default,
 or ambient authority. Missing identity remains typed missing evidence rather
 than becoming permission.
 
-### Design data ownership and access paths before choosing storage
+## Design data ownership and access paths before choosing storage
 
 **`DATA-01` binds storage design to workloads and effective capabilities.**
 Before creating or materially changing a persistent store, schema, query,
@@ -1893,6 +2033,8 @@ Verify the current authoritative documentation for the chosen engine and keep
 its exact settings, limits, and operational procedure in the project-local
 contract.
 
+## Preserve protocol and recovery identity
+
 **`PLANE-01` separates semantic inputs from proof and validator state.** Keep
 canonical serialized carriers separate from enriched validation views.
 A validator may return decoded rows, caches, indexes, provenance helpers, or
@@ -2059,6 +2201,23 @@ typed zero-authority terminal for the failed candidate in either case.
 Content-addressed raw entries may remain unreachable for audit; they cannot
 become current by existence alone.
 
+**`DEP-01` requires evidence only for reached dependencies.** In an ordered
+consumer, bind each required input to the exact branch, stage, and scope that
+can read it. If an earlier stage has a decisive terminal result, preserve that
+result without consulting or claiming a later dependency. A missing sibling
+outside the selected branch has no veto. Once the consumer reaches a required
+stage, missing, malformed, or stale evidence returns a typed unavailable or
+denied result; absence never becomes success or a default grant. If stage order,
+scope, or reachability itself is unknown, fail closed for the affected action
+rather than guessing that a dependency is irrelevant. This ordering changes
+neither the required checks on a reached path nor the authority for an external
+effect. Test the real consumer with an earlier decisive result plus missing later
+input, reached missing input, irrelevant sibling absence, unknown reachability,
+and the nearest valid reached path. Deliberately move the later precondition
+ahead of the decisive stage: the earlier-terminal test must go red.
+
+## Derive effect and harness adversaries from real owners
+
 **`TEST-01` derives adversaries from the real owner and happens-before graph.**
 Do not split a stronger atomic critical section merely to make a defensive race
 branch testable. If one non-reentrant owner provably spans attach, synchronous
@@ -2165,6 +2324,19 @@ ledger proof. Never label either as "one GET" unless provider-boundary evidence
 proves that exact physical count under the tested branch. Include a concurrent
 unrelated-acquisition adversary.
 
+For an external mutation, bind admission, the first `FENCE-01` started effect,
+each raw transport attempt, provider acceptance, and terminal reconciliation to
+one immutable current-attempt identity. A preexisting provider object, matching
+payload, successful lookup, or global count delta proves none of those stages
+for the current attempt. A rejected request can have raw transport without an
+accepted effect; an accepted effect remains unreconciled until the declared
+terminal consumer observes it. At the real outer consumer, prove a preexisting
+object with zero current-attempt transport remains classified as preexisting,
+and the nearest valid current-attempt request advances only the stages evidenced
+by its exact transport and reconciliation receipts. Include concurrent unrelated
+traffic and a retry under the same logical attempt; neither may borrow another
+attempt's effect or terminal status.
+
 Do not require old data to satisfy a contract it could not have produced, and
 do not turn incompatibility into a permanent support-readiness loop. An
 authority-off deployment may proceed when its independent offline, liveness,
@@ -2250,7 +2422,7 @@ replayed, audience-shifted, scope-widened, or generation-shifted forms. The
 artifact writer must not be able to manufacture both the carrier and sufficient
 authorization from the same self-asserted evidence.
 
-### Close authority-bearing carriers over exact terminal semantics
+## Close authority-bearing carriers over exact terminal semantics
 
 The producer-carrier-consumer obligation above owns the following refinements;
 do not create parallel receipt, error, or envelope vocabularies for them.
@@ -2311,6 +2483,8 @@ supersede it; the veto does not leak into an unrelated successor generation.
 Keep the existing privacy-safe typed-cause rule—raw errors still never become
 authority. Test explicit-negative plus empty child, explicit-negative plus
 aggregate success, a stale positive, and a valid explicit successor resolution.
+
+## Conserve asynchronous ownership and evidence clocks
 
 **`ASYNC-01` causal ownership and sealed quiescence.** Never infer authority to
 cancel, await, prune, relabel, or terminalize asynchronous work merely because
@@ -2431,6 +2605,8 @@ carrier, cache or store, and consumer boundary. The test goes red if admission
 is accepted as completion, clocks are relabelled, one identity disappears or
 terminalizes twice, a stale generation publishes, terminal evidence grants
 action authority, or a network terminal directly creates an action.
+
+## Join action-time sources and fail-closed fences
 
 **`SOURCE-01` action-time authority stays with the transactional counterparty.**
 An action against an external counterparty or system must derive executable
@@ -2718,6 +2894,9 @@ combinatorial enumeration. Where cheap, deliberately inject the target fault
 once and prove the test goes red before trusting its green result. Continue
 only while another pass can change coverage or promotion under the proportional
 extra-pass stop rule below.
+
+## Freeze complete test selectors and semantic oracles
+
 Freeze the repeatable proof surface as exact node IDs or deterministic commands,
 expected collection cardinality, isolation requirements, and retained go-red
 receipt. A phrase such as “run the exact tests” is not a repeatable test design
@@ -2727,6 +2906,16 @@ resolve every current path and symbol from source before commit, build, or
 immutable materialization. Rename or delete a test only in the same coherent
 change that updates every owning manifest. Treat this as a cheap harness-validity
 test, not as evidence that the selected behavior itself passed.
+
+**`SELECT-01` independent exact-gate census.** When a manifest claims complete
+coverage of a gate, derive the eligible selector population
+independently from the owning source or collection tree. Compare its exact
+members and expected collection cardinality with the declared manifest before
+expensive validation. Record explicit, justified exclusions in the same
+inventory. A hand-picked manifest must not certify its own completeness:
+omitting one eligible selector fails the preflight, while a legitimately
+excluded selector does not silently enlarge the gate.
+
 If this or another cheap prerequisite fails, terminalize that attempt and stop
 before constructing databases, services, immutable artifacts, or later test
 tiers that depend on it. Preserve the failed receipt and resume only from the
@@ -2836,6 +3025,16 @@ freshness presentation or authority boundary, keep at least one independently
 fresh witness and one deliberately stale boundary witness so calendar drift
 cannot silently turn a provenance test into a staleness test or make an obsolete
 fixture veto valid production behavior.
+
+**`ORACLE-01` semantic time and budget boundary.** For behavioral expiry or retry
+windows, advance an injected monotonic clock or explicit deadline through the
+real consumer and assert the exact threshold and
+one unit below it. Use measured wall time to assess performance, not as the
+semantic expiry oracle. For byte, record, or payload budgets, measure the
+canonical representation the real consumer serializes after normalization;
+assert exact-limit acceptance and one-unit-over rejection. A debug string,
+incidental object representation, or elapsed test-run duration cannot stand in
+for the contracted resource or time boundary.
 
 A test intended to isolate arithmetic, serialization, copy closure, or another
 non-temporal invariant must pin or inject every contextual policy input that can
@@ -3271,6 +3470,11 @@ advance_or_yield_active_objective(scope_terminal, active_objective):
     require a typed active_waiting yield basis, exact retry trigger, and monitor owner
     return active_waiting; never relabel waiting or an empty agent-written backlog as completion
 
+```
+
+## Bound decision work by a monotonic budget
+
+```text
 decide_optimize_or_act(request, candidate_scopes, possible_passes):
     # Every return below is shorthand for advance_or_yield_active_objective;
     # there is no direct scope-level final-response path.
@@ -4147,6 +4351,8 @@ Create the child unable to execute, assign it to a non-inheritable
 parent-lifecycle containment primitive, verify membership, and only then allow
 execution. On any setup or resume failure, terminate the child and prove exit;
 release the parent's sole containment handle on every exit.
+
+## Verify runtime identity and resource ownership
 
 A terminal label and valid hash do not prove a reachable terminal. Define one
 exact truth table joining status, class, plain-integer exit, containment,

@@ -4,6 +4,21 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.3.0 - 2026-09-25
+
+- Add task-shape and phase-aware routing with semantic scenarios while keeping
+  verified byte-exact rule delivery and full-source fallback for unknown impact.
+- Account for the complete selected WISDOM and companion context without
+  silently dropping a required rule to satisfy a byte target.
+- Sharpen current-attempt external-effect evidence, selector-completeness
+  proof, and semantic clock and serialized-resource test oracles.
+- Require evidence for a dependency only when the real ordered consumer reaches
+  it; missing reached inputs still fail closed.
+- Add optional consent-based Codex setup for WISDOM guidance and configuration
+  diagnostics, with no workflow prompts or default user-config edits.
+- Add a small project bootstrap example and Windows/Linux/macOS portable CI.
+- Use a portable, project-neutral source identifier for compiled caches.
+
 ## 1.2.0 - 2026-09-20
 
 - Budget canonicalization, hashing, dependency traversal, and validation work

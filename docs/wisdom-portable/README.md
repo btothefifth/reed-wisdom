@@ -2,8 +2,34 @@
 
 This archive is a self-contained engineering operating bootstrap for an AI
 agent. `WISDOM.md` is the sole authored authority. The bundled tools use only
-the Python standard library to create and verify smaller exact-byte views; they do not
-add rules and their output has no independent authority.
+the Python standard library to create and verify smaller exact-byte views;
+they do not add rules and their output has no independent authority.
+
+## Optional Codex setup
+
+After extraction, a Codex user may run the bundled setup helper:
+
+```text
+python scripts/setup_wisdom.py --source WISDOM.md
+```
+
+It checks the effective global `AGENTS.md`/`AGENTS.override.md` guidance and
+the `config.toml` in that `CODEX_HOME`, then shows any proposed WISDOM-specific edit and asks for
+separate explicit consent before writing it. Declining or running without an
+interactive input leaves those files unchanged. It does not ask about, inspect,
+or change workflows. Model-context numbers and experimental feature flags are
+environment-dependent suggestions, not portable defaults; unsupported or
+uncertain settings are reported rather than silently applied. Existing user
+content remains authoritative unless the user approves a specific edit.
+For model and feature remediation, `--schema` and `--model-catalog` accept
+local JSON evidence. Without that evidence, the helper reports uncertainty
+and proposes no numeric or feature defaults. It does not resolve project
+instructions, CLI flags, selected profiles, project config layers, or live
+model capabilities. After an approved edit, verify the effective guidance and
+settings in a fresh Codex session.
+
+This helper is optional and Codex-specific. File/Python-capable agents can use
+the complete WISDOM source without installation or configuration changes.
 
 ## File/Python-capable coding agents
 
@@ -42,6 +68,16 @@ the explicit mode and discovered tags when no profile fits. For example:
 
 ```text
 python scripts/load_compiled_wisdom.py --source WISDOM.md --cache-root .wisdom-cache --task-profile code_change
+```
+
+When discovery advertises phases, add the current phase to select its required
+rules and re-route before each later phase's protected action. An unknown phase
+requires the full source. Optional selected-context accounting reports the
+combined WISDOM and companion bytes and flags an over-target result without
+discarding rules:
+
+```text
+python scripts/load_compiled_wisdom.py --source WISDOM.md --cache-root .wisdom-cache --task-profile bug_fix --phase validate --selected-context-target-bytes 131072
 ```
 
 The loader prints a JSON plan. Read the files listed in `content_paths`, in
@@ -121,6 +157,9 @@ python scripts/load_compiled_wisdom.py --source WISDOM.md --cache-root .wisdom-c
 - `scripts/compile_wisdom.py` — deterministic optional compiler
 - `scripts/load_compiled_wisdom.py` — provenance-checking optional loader
 - `scripts/check_changed_text.py` — explicit-path Git text-integrity preflight
+- `scripts/setup_wisdom.py` — optional consent-based Codex setup
+- `examples/PROJECT_BOOTSTRAP.md` — project-router template
 
 The archive contains no generated cache, runtime state, accounts, credentials,
 or environment-specific paths.
+Fill the example's paths and any frozen companion receipt before using it.

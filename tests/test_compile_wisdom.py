@@ -153,9 +153,18 @@ def test_compilation_is_deterministic_across_cache_roots(tmp_path: Path) -> None
     ("mode", "tags", "expected"),
     [
         ("fast", [], []),
-        ("fast", ["shell"], ["architecture_authority", "conditional_operations"]),
-        ("fast", ["implementation"], ["testing", "implementation_performance"]),
-        ("fast", ["recovery"], ["defect_diagnostics", "execution_efficiency"]),
+        ("fast", ["shell"], [
+            "architecture_authority", "protocol_identity", "effect_harness",
+            "authority_carriers", "async_lifecycle", "source_fence",
+            "conditional_operations", "runtime_identity",
+        ]),
+        ("fast", ["implementation"], [
+            "testing", "test_harness", "implementation_performance",
+        ]),
+        ("fast", ["recovery"], [
+            "defect_diagnostics", "architecture_authority", "protocol_identity",
+            "authority_carriers", "async_lifecycle", "execution_efficiency",
+        ]),
     ],
 )
 def test_loader_selects_mode_and_dependency_closed_tags(
@@ -233,7 +242,7 @@ def test_focused_implementation_baseline_cannot_omit_build_and_test_mechanics(
     plan = dict(loader.load_plan(SOURCE, cache, mode="focused"))
 
     assert plan["status"] == "compiled"
-    assert plan["module_ids"] == ["testing", "implementation_performance"]
+    assert plan["module_ids"] == ["testing", "test_harness", "implementation_performance"]
 
 
 def test_substantial_migration_baseline_cannot_omit_bmad_or_operations(
@@ -248,13 +257,22 @@ def test_substantial_migration_baseline_cannot_omit_bmad_or_operations(
         "bootstrap_contract",
         "defect_diagnostics",
         "architecture_authority",
+        "storage_design",
+        "protocol_identity",
+        "effect_harness",
+        "authority_carriers",
+        "async_lifecycle",
+        "source_fence",
         "testing",
+        "test_harness",
         "implementation_performance",
         "decision_judgment",
+        "decision_budget",
         "execution_efficiency",
         "delivery_status",
         "context_delegation",
         "conditional_operations",
+        "runtime_identity",
         "correction_closure",
     ]
 
@@ -269,6 +287,7 @@ def test_discovery_exposes_modes_tags_dependencies_and_unknown_fallback() -> Non
     mode_by_name = {item["mode"]: item for item in discovery["modes"]}
     assert mode_by_name["focused"]["resolved_modules"] == [
         "testing",
+        "test_harness",
         "implementation_performance",
     ]
     assert "conditional_operations" in mode_by_name["substantial"]["resolved_modules"]
@@ -281,20 +300,32 @@ def test_discovery_exposes_modes_tags_dependencies_and_unknown_fallback() -> Non
     }
     assert tag_by_name["implementation"]["resolved_modules"] == [
         "testing",
+        "test_harness",
         "implementation_performance",
     ]
     assert tag_by_name["recovery"]["resolved_modules"] == [
         "defect_diagnostics",
+        "architecture_authority",
+        "protocol_identity",
+        "authority_carriers",
+        "async_lifecycle",
         "execution_efficiency",
     ]
     assert tag_by_name["shell"]["resolved_modules"] == [
         "architecture_authority",
+        "protocol_identity",
+        "effect_harness",
+        "authority_carriers",
+        "async_lifecycle",
+        "source_fence",
         "conditional_operations",
+        "runtime_identity",
     ]
     profile_by_name = {item["id"]: item for item in discovery["task_profiles"]}
     assert profile_by_name["routine"]["resolved_modules"] == []
     assert profile_by_name["code_change"]["resolved_modules"] == [
         "testing",
+        "test_harness",
         "implementation_performance",
     ]
 
@@ -350,7 +381,9 @@ def test_isolated_task_profile_cli_emits_verified_profile_plan(tmp_path: Path) -
     receipt = json.loads(completed.stdout)
     assert receipt["status"] == "compiled"
     assert receipt["task_profile"] == "code_change"
-    assert receipt["module_ids"] == ["testing", "implementation_performance"]
+    assert receipt["module_ids"] == [
+        "testing", "test_harness", "implementation_performance",
+    ]
 
 
 def test_isolated_compiled_load_cli_uses_exact_sibling_import(tmp_path: Path) -> None:
@@ -397,7 +430,9 @@ def test_isolated_compiled_load_cli_uses_exact_sibling_import(tmp_path: Path) ->
     assert loaded.returncode == 0, loaded.stderr
     receipt = json.loads(loaded.stdout)
     assert receipt["status"] == "compiled"
-    assert receipt["module_ids"] == ["testing", "implementation_performance"]
+    assert receipt["module_ids"] == [
+        "testing", "test_harness", "implementation_performance",
+    ]
 
 
 @pytest.mark.parametrize(
@@ -460,7 +495,7 @@ def test_missing_pointer_requires_full_current_source(tmp_path: Path) -> None:
 def test_stale_source_requires_full_current_source(tmp_path: Path) -> None:
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
-    _replace_once(source, b"Author: Reed Armstrong", b"Author: Reed Armstrong ")
+    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
 
     plan = dict(loader.load_plan(source, cache, mode="fast"))
     _assert_full_source_only(plan, source)
@@ -501,7 +536,7 @@ def test_content_read_rejects_source_changed_after_plan(tmp_path: Path) -> None:
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
     plan = dict(loader.load_plan(source, cache, mode="fast"))
-    _replace_once(source, b"Author: Reed Armstrong", b"Author: Reed Armstrong ")
+    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
 
     with pytest.raises(loader.WisdomCompileError, match="changed after load planning"):
         loader.read_plan_content(plan)
@@ -513,7 +548,7 @@ def test_content_read_falls_back_to_newly_current_source_after_plan_drift(
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
     plan = dict(loader.load_plan(source, cache, mode="fast"))
-    _replace_once(source, b"Author: Reed Armstrong", b"Author: Reed Armstrong ")
+    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
 
     assert loader.read_plan_content_or_current_source(plan) == source.read_bytes()
 
@@ -529,7 +564,7 @@ def test_content_read_rejects_tool_changed_after_plan(tmp_path: Path) -> None:
     copied_source.write_bytes(SOURCE.read_bytes())
     loader_module_name = "_test_path_bound_wisdom_loader"
     compiler_module_name = (
-        "_reedout_compile_wisdom_"
+        "_wisdom_compile_"
         + hashlib.sha256(str(copied_compiler).casefold().encode("utf-8")).hexdigest()[:16]
     )
     spec = importlib.util.spec_from_file_location(loader_module_name, copied_loader)
@@ -653,21 +688,24 @@ def test_portable_source_visibly_explains_reconstruction_and_fallback() -> None:
     assert "RESUME-01" in text
 
 
-def test_operational_semantics_revision_10_preserves_bounded_loading_topology(
+def test_operational_semantics_revision_11_preserves_bounded_loading_topology(
     tmp_path: Path,
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 10
+    assert parsed.manifest["semantic_revision"] == 11
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",
     )
     assert parsed.section_by_id["metacognition"].rule_ids == ("FRAME-01",)
     assert "OPT-02" in parsed.section_by_id["process_cost"].rule_ids
-    assert "DATA-01" in parsed.section_by_id["recursive_contract"].rule_ids
-    assert len(parsed.manifest["allowed_tags"]) == 31
-    assert len(parsed.manifest["modules"]) == 13
+    assert parsed.section_by_id["storage_design"].rule_ids == ("DATA-01",)
+    assert parsed.section_by_id["protocol_identity"].rule_ids == (
+        "PLANE-01", "UPGRADE-01", "DEP-01",
+    )
+    assert len(parsed.manifest["allowed_tags"]) == 37
+    assert len(parsed.manifest["modules"]) == 22
     assert "bounded_operating_loop" in parsed.manifest["kernel_sections"]
     assert "metacognition" in parsed.module_by_id["decision_judgment"]["sections"]
     assert "process_cost" in parsed.module_by_id["decision_judgment"]["sections"]
@@ -687,31 +725,17 @@ def test_operational_semantics_revision_10_preserves_bounded_loading_topology(
     assert b"same canonical consumer" in fast_content
     assert b"deliberate predicate mutation goes red" in fast_content
     assert b"FRAME-01" not in fast_content
-    assert b"temporary-process retirement" not in fast_content
-    assert b"independently existing completed carrier" not in fast_content
-    assert b"future_path_comparison" not in fast_content
-    assert b"repository-owned nonmutating checks" not in fast_content
-    assert b"cache as a producer-carrier-consumer contract" not in fast_content
-
+    assert b"DATA-01" not in fast_content
+    assert b"PLANE-01" not in fast_content
 
     focused_plan = dict(loader.load_plan(SOURCE, cache, mode="focused"))
     focused_content = loader.read_plan_content(focused_plan)
-    assert b"independently existing completed carrier" in focused_content
-    assert b"actually shared exogenous inputs" in focused_content
-    assert b"current controlling authored contract" in focused_content
-    assert b"future_path_comparison" not in focused_content
     assert b"repository-owned nonmutating checks" in focused_content
     assert b"loaded source origin" in focused_content
     assert b"cache as a producer-carrier-consumer contract" in focused_content
-    assert b"plus only the code" in focused_content
-    assert b"cold miss to population to warm-hit semantic" in focused_content
-    assert b"explicitly declared compatible or stale-" in focused_content
-    assert b"hit status does not" in focused_content
-    assert b"prove this contract" in focused_content
-    assert b"Budget integrity and validation work" in focused_content
-    assert b"An immutable wrapper does not make its backing source immutable" in focused_content
-    assert b"do not narrow that closure merely to make hashing cheaper" in focused_content
+    assert b"future_path_comparison" not in focused_content
     assert b"DATA-01" not in focused_content
+    assert parsed.section_by_id["protocol_identity"].body not in focused_content
 
     storage_plan = dict(loader.load_plan(SOURCE, cache, mode="focused", tags=["storage"]))
     storage_content = loader.read_plan_content(storage_plan)
@@ -740,6 +764,9 @@ def test_operational_semantics_revision_10_preserves_bounded_loading_topology(
     assert b"Exclude sunk" in substantial_content
     assert b"authorized replacement proves" in substantial_content
     assert b"DATA-01" in substantial_content
+    assert b"PLANE-01" in substantial_content
+    assert b"ASYNC-01" in substantial_content
+    assert b"FENCE-01" in substantial_content
 
     full_plan = dict(loader.load_plan(SOURCE, cache, mode="full"))
     _assert_full_source_only(full_plan, SOURCE)
@@ -900,7 +927,7 @@ def test_cli_explicitly_prepares_empty_cache_and_default_load_is_read_only(
     assert prepared_plan["status"] == "compiled"
     assert prepared_plan["reason"] == "verified_current_cache"
     assert prepared_plan["delivery"]["segment_count"] >= 1
-    assert (prepared_cache / "reed-armstrong-wisdom" / "CURRENT.json").is_file()
+    assert (prepared_cache / "portable-wisdom" / "CURRENT.json").is_file()
 
 
 def test_segmented_delivery_reassembles_one_exact_generation(tmp_path: Path) -> None:
@@ -1006,3 +1033,216 @@ def test_cli_emits_one_generation_bound_segment(tmp_path: Path) -> None:
     first = delivery["segments"][0]
     assert len(emitted.stdout) == first["bytes"]
     assert hashlib.sha256(emitted.stdout).hexdigest() == first["sha256"]
+
+
+def test_selected_context_counts_companion_and_preserves_oversized_mandatory_rule(
+    tmp_path: Path,
+) -> None:
+    source = _copy_source(tmp_path)
+    raw, manifest, _, slices = _independent_source_slices(source)
+    focused = next(view for view in manifest["views"] if view["mode"] == "focused")
+    mandatory_module = next(
+        module for module in manifest["modules"]
+        if module["id"] == focused["required_modules"][0]
+    )
+    section_body = slices[mandatory_module["sections"][0]]
+    oversized_marker = b"OVERSIZED_MANDATORY_RULE_BODY " + b"x" * 50_000
+    assert raw.count(section_body) == 1
+    source.write_bytes(raw.replace(section_body, section_body + oversized_marker + b"\n", 1))
+    cache, _ = _compile(tmp_path, source)
+    companion, companion_raw = _write_companion(tmp_path)
+    target = 100
+    plan = loader.load_plan(
+        source,
+        cache,
+        mode="focused",
+        companion_source_path=companion,
+        expected_companion_bytes=len(companion_raw),
+        expected_companion_sha256=hashlib.sha256(companion_raw).hexdigest(),
+        selected_context_target_bytes=target,
+    )
+    content = loader.read_plan_content(plan)
+    context = plan["selected_context"]
+    assert oversized_marker in content
+    assert content.endswith(companion_raw)
+    assert context["source_bytes"] == len(source.read_bytes())
+    assert context["kernel_bytes"] == plan["content_receipts"][0]["bytes"]
+    assert context["module_bytes"] == sum(
+        item["bytes"] for item in plan["content_receipts"][1:-1]
+    )
+    assert context["companion_bytes"] == len(companion_raw)
+    assert context["wisdom_selected_bytes"] + len(companion_raw) == len(content)
+    assert context["selected_total_bytes"] == plan["content_bytes"] == len(content)
+    assert context["target_status"] == {
+        "kind": "over_target",
+        "excess_bytes": len(content) - target,
+    }
+
+
+def test_unknown_phase_keeps_full_source_and_accounts_for_target(tmp_path: Path) -> None:
+    cache, _ = _compile(tmp_path)
+    companion, companion_raw = _write_companion(tmp_path)
+    plan = loader.load_plan(
+        SOURCE,
+        cache,
+        task_profile="routine",
+        phase="unrecognized_phase",
+        companion_source_path=companion,
+        expected_companion_bytes=len(companion_raw),
+        expected_companion_sha256=hashlib.sha256(companion_raw).hexdigest(),
+        selected_context_target_bytes=1,
+    )
+    assert plan["status"] == "full_source_required"
+    assert plan["reason"] == "phase_unavailable:WisdomCompileError"
+    assert loader.read_plan_content(plan) == SOURCE.read_bytes() + companion_raw
+    context = plan["selected_context"]
+    assert context["phase"] == "unrecognized_phase"
+    assert context["source_bytes"] == context["wisdom_selected_bytes"] == len(SOURCE.read_bytes())
+    assert context["kernel_bytes"] == context["module_bytes"] == 0
+    assert context["companion_bytes"] == len(companion_raw)
+    assert context["target_status"]["kind"] == "over_target"
+
+
+def test_older_manifest_without_phases_keeps_legacy_route(tmp_path: Path) -> None:
+    source = _copy_source(tmp_path)
+    raw = source.read_bytes()
+    newline = b"\r\n" if b"\r\n" in raw else b"\n"
+    manifest_start = raw.index(b"<!-- WISDOM-MANIFEST-BEGIN" + newline) + len(
+        b"<!-- WISDOM-MANIFEST-BEGIN" + newline
+    )
+    manifest_end = raw.index(b"WISDOM-MANIFEST-END -->" + newline, manifest_start)
+    manifest = json.loads(raw[manifest_start:manifest_end].decode("utf-8"))
+    assert manifest.pop("phases")
+    source.write_bytes(
+        raw[:manifest_start] + _canonical(manifest) + newline + raw[manifest_end:]
+    )
+    cache, _ = _compile(tmp_path, source)
+    legacy = loader.load_plan(source, cache, task_profile="routine")
+    assert legacy["status"] == "compiled"
+    assert legacy["phase"] is None
+    assert loader.read_plan_content(legacy)
+    phase_plan = loader.load_plan(source, cache, task_profile="routine", phase="validate")
+    assert phase_plan["status"] == "full_source_required"
+    assert loader.read_plan_content(phase_plan) == source.read_bytes()
+
+
+def test_profile_declaring_full_mode_never_routes_to_compiled_kernel(tmp_path: Path) -> None:
+    source = _copy_source(tmp_path)
+    raw = source.read_bytes()
+    newline = b"\r\n" if b"\r\n" in raw else b"\n"
+    manifest_start = raw.index(b"<!-- WISDOM-MANIFEST-BEGIN" + newline) + len(
+        b"<!-- WISDOM-MANIFEST-BEGIN" + newline
+    )
+    manifest_end = raw.index(b"WISDOM-MANIFEST-END -->" + newline, manifest_start)
+    manifest = json.loads(raw[manifest_start:manifest_end].decode("utf-8"))
+    routine = next(item for item in manifest["task_profiles"] if item["id"] == "routine")
+    routine["mode"] = "full"
+    source.write_bytes(
+        raw[:manifest_start] + _canonical(manifest) + newline + raw[manifest_end:]
+    )
+    cache, _ = _compile(tmp_path, source)
+    plan = loader.load_plan(source, cache, task_profile="routine")
+    assert plan["status"] == "full_source_required"
+    assert plan["reason"] == "full_task_profile"
+    assert loader.read_plan_content(plan) == source.read_bytes()
+
+
+def test_phase_transition_requires_fresh_route_and_keeps_exact_source_bytes(
+    tmp_path: Path,
+) -> None:
+    cache, _ = _compile(tmp_path)
+    discovery = loader.discover_capabilities(SOURCE)
+    phases = {item["id"]: item for item in discovery["phases"]}
+    assert set(phases) == {"design", "implement", "validate", "release", "observe"}
+    plans = {
+        phase: loader.load_plan(SOURCE, cache, task_profile="routine", phase=phase)
+        for phase in ("design", "validate", "release")
+    }
+    for phase, plan in plans.items():
+        assert plan["status"] == "compiled"
+        assert plan["phase"] == plan["selected_context"]["phase"] == phase
+        assert plan["module_ids"] == phases[phase]["resolved_modules"]
+        assert loader.read_plan_content(plan) == b"".join(
+            Path(path).read_bytes() for path in plan["content_paths"]
+        )
+    assert b"FRAME-01" in loader.read_plan_content(plans["design"])
+    assert b"FRAME-01" not in loader.read_plan_content(plans["validate"])
+    assert "test_harness" in plans["validate"]["module_ids"]
+    assert "delivery_status" in plans["release"]["module_ids"]
+    assert plans["design"]["content_paths"] != plans["validate"]["content_paths"]
+
+
+def test_selected_context_receipt_rejects_false_target_status(tmp_path: Path) -> None:
+    cache, _ = _compile(tmp_path)
+    plan = dict(loader.load_plan(SOURCE, cache, mode="fast"))
+    context = dict(plan["selected_context"])
+    context["target_status"] = {"kind": "within_target", "excess_bytes": 0}
+    plan["selected_context"] = context
+    with pytest.raises(loader.WisdomCompileError, match="target status"):
+        loader.read_plan_content(plan)
+
+
+def test_compiled_plan_cannot_relabel_old_phase_or_drop_routed_module(
+    tmp_path: Path,
+) -> None:
+    cache, _ = _compile(tmp_path)
+    plan = dict(loader.load_plan(SOURCE, cache, task_profile="routine", phase="design"))
+    mislabeled = dict(plan)
+    mislabeled["phase"] = "release"
+    mislabeled_context = dict(plan["selected_context"])
+    mislabeled_context["phase"] = "release"
+    mislabeled["selected_context"] = mislabeled_context
+    with pytest.raises(loader.WisdomCompileError, match="phase route"):
+        loader.read_plan_content(mislabeled)
+
+    omitted = dict(plan)
+    omitted["content_paths"] = list(plan["content_paths"][:-1])
+    omitted["content_receipts"] = list(plan["content_receipts"][:-1])
+    omitted["content_bytes"] -= plan["content_receipts"][-1]["bytes"]
+    with pytest.raises(loader.WisdomCompileError, match="content path route"):
+        loader.read_plan_content(omitted)
+
+
+def test_reader_rejects_rehashed_cache_and_plan_that_omit_source_rule(
+    tmp_path: Path,
+) -> None:
+    cache, _ = _compile(tmp_path)
+    plan = dict(loader.load_plan(SOURCE, cache, mode="substantial"))
+    build = Path(plan["content_paths"][0]).parent
+    module = build / "modules" / "protocol_identity.md"
+    original = module.read_bytes()
+    assert b"DEP-01" in original
+    forged = original.replace(b"DEP-01", b"DEP_01")
+    assert forged != original
+    module.write_bytes(forged)
+
+    manifest_path = build / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    body = manifest["body"]
+    output = next(
+        item for item in body["outputs"]
+        if item["path"] == "modules/protocol_identity.md"
+    )
+    output["bytes"] = len(forged)
+    output["sha256"] = hashlib.sha256(forged).hexdigest()
+    body["tree_sha256"] = hashlib.sha256(_canonical(body["outputs"])).hexdigest()
+    manifest["body_sha256"] = hashlib.sha256(_canonical(body)).hexdigest()
+    manifest_bytes = _canonical(manifest) + b"\n"
+    manifest_path.write_bytes(manifest_bytes)
+
+    current_path = build.parent / "CURRENT.json"
+    current = json.loads(current_path.read_text(encoding="utf-8"))
+    current["body"]["tree_sha256"] = body["tree_sha256"]
+    current["body"]["manifest_sha256"] = hashlib.sha256(manifest_bytes).hexdigest()
+    current["body"]["manifest_body_sha256"] = manifest["body_sha256"]
+    current["body_sha256"] = hashlib.sha256(_canonical(current["body"])).hexdigest()
+    current_path.write_bytes(_canonical(current) + b"\n")
+
+    receipts = [dict(item) for item in plan["content_receipts"]]
+    forged_receipt = next(item for item in receipts if item["path"] == str(module))
+    forged_receipt["bytes"] = len(forged)
+    forged_receipt["sha256"] = hashlib.sha256(forged).hexdigest()
+    plan["content_receipts"] = receipts
+    plan["tree_sha256"] = body["tree_sha256"]
+    with pytest.raises(loader.WisdomCompileError, match="current source build"):
+        loader.read_plan_content(plan)

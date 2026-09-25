@@ -22,9 +22,11 @@ EXPECTED_PATHS = [
     "README.md",
     "VERSION",
     "WISDOM.md",
+    "examples/PROJECT_BOOTSTRAP.md",
     "scripts/check_changed_text.py",
     "scripts/compile_wisdom.py",
     "scripts/load_compiled_wisdom.py",
+    "scripts/setup_wisdom.py",
 ]
 
 
@@ -97,8 +99,16 @@ def test_clean_extraction_compiles_and_loads_verified_focused_view(tmp_path: Pat
 
     compiler = extracted / "scripts" / "compile_wisdom.py"
     loader = extracted / "scripts" / "load_compiled_wisdom.py"
+    setup = extracted / "scripts" / "setup_wisdom.py"
     source = extracted / "WISDOM.md"
     cache = tmp_path / "cache"
+    setup_help = subprocess.run(
+        [sys.executable, str(setup), "--help"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "--source" in setup_help.stdout
     discovery = subprocess.run(
         [sys.executable, str(loader), "--source", str(source), "--discover"],
         check=True,
@@ -133,6 +143,10 @@ def test_clean_extraction_compiles_and_loads_verified_focused_view(tmp_path: Pat
     plan = json.loads(loaded.stdout)
     assert plan["status"] == "compiled"
     assert plan["reason"] == "verified_current_cache"
-    assert plan["module_ids"] == ["testing", "implementation_performance"]
+    assert plan["module_ids"] == [
+        "testing",
+        "test_harness",
+        "implementation_performance",
+    ]
     assert plan["source_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
     assert all(Path(path).is_file() for path in plan["content_paths"])

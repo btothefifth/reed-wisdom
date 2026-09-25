@@ -51,6 +51,7 @@ SECTION_KEYS = {"id", "heading", "rule_ids"}
 MODULE_KEYS = {"id", "sections", "tags", "requires"}
 VIEW_KEYS = {"mode", "required_modules", "source_direct"}
 TASK_PROFILE_KEYS = {"id", "mode", "tags"}
+PHASE_KEYS = {"id", "tags"}
 EXPECTED_MODES = ("fast", "focused", "substantial", "full")
 
 
@@ -82,6 +83,7 @@ class ParsedWisdom:
     module_order: tuple[str, ...]
     section_owner: Mapping[str, tuple[str, str]]
     view_by_mode: Mapping[str, Mapping[str, Any]]
+    phase_by_id: Mapping[str, Mapping[str, Any]]
     kernel: bytes
 
 
@@ -250,7 +252,11 @@ def parse_source(source_path: Path | str) -> ParsedWisdom:
     manifest = strict_json_loads(manifest_raw, label="embedded WISDOM manifest")
     if not isinstance(manifest, dict):
         raise WisdomCompileError("embedded WISDOM manifest must be an object")
-    _require_exact_keys(manifest, SOURCE_KEYS, "source manifest")
+    _require_exact_keys(
+        manifest,
+        SOURCE_KEYS | ({"phases"} if "phases" in manifest else set()),
+        "source manifest",
+    )
     if manifest["schema"] != SOURCE_SCHEMA:
         raise WisdomCompileError(f"unsupported source schema: {manifest['schema']!r}")
     source_id = manifest["source_id"]
@@ -296,6 +302,27 @@ def parse_source(source_path: Path | str) -> ParsedWisdom:
             raise WisdomCompileError(
                 f"task_profile[{profile_id}] has unknown tags: {unknown_profile_tags}"
             )
+
+    phase_by_id: dict[str, Mapping[str, Any]] = {}
+    phases = manifest.get("phases", [])
+    if not isinstance(phases, list):
+        raise WisdomCompileError("phases must be a list")
+    for index, phase in enumerate(phases):
+        if not isinstance(phase, dict):
+            raise WisdomCompileError(f"phase[{index}] must be an object")
+        _require_exact_keys(phase, PHASE_KEYS, f"phase[{index}]")
+        phase_id = _require_safe_id(phase["id"], f"phase[{index}].id")
+        if phase_id in phase_by_id:
+            raise WisdomCompileError(f"duplicate phase: {phase_id}")
+        phase_tags = _require_list_of_unique_strings(
+            phase["tags"], f"phase[{phase_id}].tags"
+        )
+        unknown_phase_tags = sorted(set(phase_tags) - allowed_tags)
+        if unknown_phase_tags:
+            raise WisdomCompileError(
+                f"phase[{phase_id}] has unknown tags: {unknown_phase_tags}"
+            )
+        phase_by_id[phase_id] = phase
 
     heading_matches = list(HEADING_RE.finditer(raw))
     if not heading_matches:
@@ -501,6 +528,7 @@ def parse_source(source_path: Path | str) -> ParsedWisdom:
         module_order=tuple(module["id"] for module in modules),
         section_owner=section_owner,
         view_by_mode=view_by_mode,
+        phase_by_id=phase_by_id,
         kernel=kernel,
     )
 

@@ -16,12 +16,14 @@ ARCHIVE_NAME = "WISDOM.zip"
 FIXED_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
 BUNDLE_PATHS = {
     "CHANGELOG.md": Path("CHANGELOG.md"),
+    "examples/PROJECT_BOOTSTRAP.md": Path("docs/wisdom-portable/EXAMPLE_PROJECT_BOOTSTRAP.md"),
     "README.md": Path("docs/wisdom-portable/README.md"),
     "VERSION": Path("VERSION"),
     "WISDOM.md": Path("WISDOM.md"),
     "scripts/compile_wisdom.py": Path("scripts/compile_wisdom.py"),
     "scripts/check_changed_text.py": Path("scripts/check_changed_text.py"),
     "scripts/load_compiled_wisdom.py": Path("scripts/load_compiled_wisdom.py"),
+    "scripts/setup_wisdom.py": Path("scripts/setup_wisdom.py"),
 }
 
 
