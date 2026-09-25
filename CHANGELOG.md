@@ -4,6 +4,15 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.4.0 - Unreleased
+
+- Add `IMPACT-01` for affected-proof-frontier validation, conservative evidence
+  reuse, and contract-led test migration on the existing code-change route.
+- Add `PROMOTE-01` for stabilized-candidate promotion gates, retaining safe
+  reusable component evidence and authority-off staging boundaries.
+- Add semantic-route and rule-placement regressions; this unreleased section
+  remains open for further v1.4 entries.
+
 ## 1.3.0 - 2026-09-25
 
 - Add task-shape and phase-aware routing with semantic scenarios while keeping

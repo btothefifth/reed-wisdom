@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 11,
+  "semantic_revision": 12,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -185,7 +185,7 @@ completion rules.
     {
       "id": "test_harness",
       "heading": "Freeze complete test selectors and semantic oracles",
-      "rule_ids": ["SELECT-01", "ORACLE-01"]
+      "rule_ids": ["SELECT-01", "ORACLE-01", "IMPACT-01"]
     },
     {
       "id": "implementation",
@@ -247,7 +247,7 @@ completion rules.
     {
       "id": "delivery_status",
       "heading": "Publish, deploy, monitor, and roll back as one evidence chain",
-      "rule_ids": []
+      "rule_ids": ["PROMOTE-01"]
     },
     {
       "id": "context_delegation",
@@ -3044,6 +3044,57 @@ the final oracle. If the real current context correctly rejects first, the
 fixture is invalid evidence for the isolated invariant; repair the fixture, not
 the production guard.
 
+**`IMPACT-01` recomputes validation from the affected proof frontier.** After
+each material implementation, contract, test, fixture, configuration, or
+selector edit, derive which existing proof receipts still apply from semantic
+read/execute dependencies, producer-consumer seams, selectors, and the exact
+fixture and environment generations. Classify receipts as unaffected,
+invalidated, or unknown-impact. Reuse a receipt only when its declared
+source/read-dependency closure, semantic inputs, fixture/environment
+generation, oracle, and any required candidate identity are unchanged. Unknown
+impact expands to the plausible affected consumer closure; a repository-wide dirty flag alone
+does not invalidate unrelated evidence.
+
+When behavior intentionally changes, update its controlling contract, owning
+implementation, and directly owned expectations as one change, deriving new
+expectations from the contract or an independent oracle. When the contract is
+unchanged, preserve the existing expectation and add a regression that exposes
+the defect; never rewrite expected output to match candidate behavior. Include
+fixtures, generated interfaces, examples, and selector manifests when they
+carry the changed semantics.
+
+Validate the cheapest invalidated tier first. If it fails, preserve all
+independent failures that can be collected safely at that tier, stop at any
+state-contamination or trust boundary, and group failures by causal owner.
+Repair in mutable source, update the directly affected tests, recompute the
+frontier, and remain at the cheapest red tier until its affected obligations
+are closed. Unknown or newly affected dependencies may widen the frontier;
+ordinary repair does not automatically restart the broadest suite.
+
+Bind every result to its declared source/read set, selector, and
+fixture/environment generation. A later edit invalidates receipts whose bound
+dependency frontier includes that edit. Unaffected receipts may remain
+diagnostic or satisfy a composable gate only when that gate explicitly permits
+reuse. A complete broad gate that requires one candidate generation must run
+against the stabilized candidate.
+
+Keep these dispositions in the rule's regression surface:
+
+| Changed surface or evidence | Required disposition |
+| --- | --- |
+| leaf implementation and owning expectation | invalidate the leaf and affected callers; preserve unrelated receipts whose dependencies are unchanged |
+| shared utility, global fixture, or test configuration | widen invalidation to every dependent consumer and receipt |
+| one broad run reports multiple independent failures | retain the bounded failure set, repair causal owners, then rerun the failed selectors and affected closure before another complete gate |
+| intentional contract change | migrate implementation and owning expectations together from the controlling contract |
+| implementation defect under an unchanged contract | keep the old expectation and add a regression; candidate output is not the oracle |
+| source changes after a complete suite | reject that receipt as complete proof for the new candidate generation |
+| expensive rehearsal finds a cheaper-reproducible defect | add or strengthen the pre-gate regression before the next candidate rehearsal |
+
+Go red when a changed dependency retains a stale green receipt, unrelated proof
+is discarded without a dependency path, a known cheaper failure is bypassed
+for a broader tier, independent safe failures are needlessly rediscovered one
+at a time, or a test expectation follows the candidate instead of its oracle.
+
 In a very long source or test module, repeated inner statements are not safe
 patch anchors. Anchor every nontrivial hunk to the enclosing function, class, or
 uniquely named test; immediately locate each new symbol mechanically and reopen
@@ -3105,7 +3156,11 @@ transitions, concurrency, failure paths, one intended path, and one preserved
 or rejected path; ask what valid behavior may now be suppressed, delayed,
 duplicated, stale, unauthorized, invisible, or more expensive; and verify code,
 contract, tests, runtime configuration, operator surfaces, and deployment
-semantics still agree. Run the smallest validation tier that proves the surface.
+semantics still agree. Under `IMPACT-01`, run the cheapest currently invalidated
+validation frontier, keep a cheaper affected tier red until repaired, and do
+not restart a broader gate after each repair. Advance only when the affected
+frontier is green or the controlling gate requires broader proof against the
+stabilized candidate.
 If a bounded safe defect is fixed, repeat this sweep over the new delta until no
 bounded safe fix remains or the next change needs new authority, secrets,
 external coordination, destructive action, or unvalidated policy.
@@ -3825,6 +3880,34 @@ implemented -> locally validated -> source published
 Before promotion, compare incumbent and candidate on identical inputs,
 constraints, clocks, consumers, included costs, and outcome definitions. If no
 valid comparator exists, record why and which uncertainty therefore remains.
+
+**`PROMOTE-01` expensive promotion gates consume stabilized candidates.** Do not
+use immutable materialization, full rehearsal, migration rehearsal, or a
+complete promotion gate as the ordinary inner debugging loop when a cheaper
+production-faithful check can reproduce the failure. Enter an expensive gate
+only after every known failure reproducible below it is repaired, required
+same-generation obligations and cheap selector, fixture, static, packaging,
+and resource preflights pass, and any remaining uncertainty is typed as
+requiring this gate or a higher boundary. Freeze the candidate identity for
+the gate's lifetime.
+
+If the gate fails, preserve its complete bounded trustworthy failure inventory
+and classify independent failures before editing source. Stop or partition the
+run at a contamination boundary. Repair in mutable source, update owning tests
+and fixtures, and close the recomputed affected frontier before building a new
+immutable candidate or repeating the expensive gate. If the failure cannot be
+reproduced faithfully at a cheaper boundary, retain that uncertainty and use
+the smallest gate that can resolve it.
+
+A source or material fixture/environment change creates a new candidate
+generation and invalidates the old complete-gate receipt for that candidate.
+Unaffected component receipts may remain diagnostic or satisfy an explicitly
+composable criterion; run a complete gate again only when its contract requires
+one same-generation aggregate. If an expensive gate exposes a defect that a
+cheaper faithful check could catch, add or strengthen that pre-gate check before
+the next expensive attempt. This rule does not delay a reversible, authority-off
+staging step whose own readiness, identity, and rollback criteria are met, and
+it never grants action authority.
 
 Use a guarded deployment ladder: validate immutable code/configuration/schema
 and recovery without increasing authority; deploy the smallest representative
