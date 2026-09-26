@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-09-25 (America/New_York)
+Last updated: 2026-09-26 (America/New_York)
 
-Product version: 1.5.0
+Product version: 1.6.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 13,
+  "semantic_revision": 14,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -135,7 +135,7 @@ completion rules.
     {
       "id": "defect_family",
       "heading": "Convert every defect into a failure family",
-      "rule_ids": []
+      "rule_ids": ["REPAIR-01"]
     },
     {
       "id": "diagnostics",
@@ -185,12 +185,12 @@ completion rules.
     {
       "id": "test_harness",
       "heading": "Freeze complete test selectors and semantic oracles",
-      "rule_ids": ["SELECT-01", "ORACLE-01", "IMPACT-01"]
+      "rule_ids": ["SELECT-01", "ORACLE-01", "IMPACT-01", "EVIDENCE-01"]
     },
     {
       "id": "implementation",
       "heading": "Implement, integrate, and re-audit in vertical slices",
-      "rule_ids": ["SCOPE-01"]
+      "rule_ids": ["SCOPE-01", "SEM-01"]
     },
     {
       "id": "performance",
@@ -1165,6 +1165,21 @@ defect earns one bounded abstraction step.
 6. Repair the symptom and the smallest class-level guard.
 7. Prove both independently, then stop unless a new counterexample adds a new
    obligation.
+
+**`REPAIR-01` closes the affected lifecycle, not only the observed line.** For
+an existing defect, derive a finite repair frontier from the violated invariant
+and `SCOPE-01`: the canonical owner, reachable callers and consumers, directly
+owned tests and fixtures, persistence and rehydration, error and cleanup paths,
+and applicable duplicate, retry, cancellation, restart, reuse, and
+supersession variants. Mark an inapplicable lifecycle variant with its reason;
+do not silently omit it. Repair or explicitly return every in-scope mismatch to
+the owning integration owner. `IMPACT-01` independently derives which proof
+receipts that repair invalidates; a wider repair frontier does not automatically
+mean a wider test run, and a green focused test does not close unrepaired
+reachable lifecycle behavior. Stop when the named semantic frontier is finite,
+every applicable lifecycle path has an owner and disposition, and the cheapest
+proof closes the changed invariant plus its nearest valid or preserved case.
+Expand only when new evidence reaches another consumer or lifecycle path.
 
 ### Compile a confirmed defect into a portable engineering rule
 
@@ -2606,6 +2621,17 @@ is accepted as completion, clocks are relabelled, one identity disappears or
 terminalizes twice, a stale generation publishes, terminal evidence grants
 action authority, or a network terminal directly creates an action.
 
+**Schedule freshness-bearing evidence backward from consumption.** Acquire slow,
+long-lived prerequisites before short-lived evidence. Budget every freshness
+lease backward from its final consumer: final validation and transport, later
+computation, scheduling or queue delay, and an explicit margin must fit within
+the consumer's remaining lease. Generate or reconfirm the shortest-lived
+evidence as late as practical. Repeated expiry caused by predictable upstream
+work is an ordering defect until disproved; retries or larger freshness windows
+are not the default repair. Prove the actual consumer budget with an injected
+clock or explicit deadline, including the limiting boundary and a case where
+the reordered acquisition preserves a valid outcome.
+
 ## Join action-time sources and fail-closed fences
 
 **`SOURCE-01` action-time authority stays with the transactional counterparty.**
@@ -2916,6 +2942,24 @@ inventory. A hand-picked manifest must not certify its own completeness:
 omitting one eligible selector fails the preflight, while a legitimately
 excluded selector does not silently enlarge the gate.
 
+**`EVIDENCE-01` reports proof as an independent state vector.** For each
+candidate and relevant scope, report these dimensions separately when
+applicable: `implemented`, `reviewed`, `focused-proof-green`,
+`integration-proof-green`, `native/lifecycle-proved`,
+`immutable-candidate-proved`, `deployed`, `runtime-identity-proved`,
+`authority-enabled`, `behavior-observed`, and `reconciled`. Bind every positive
+claim to its own exact candidate or runtime identity and evidence receipt;
+record `not_applicable` with a reason and keep `unknown` distinct from false.
+No dimension implies a later or neighboring dimension: code, review, focused
+proof, integration, native lifecycle, immutable candidate, deployment,
+runtime identity, enabled authority, observed behavior, and reconciliation are
+separate facts. In particular, a deployed claim needs deployed-byte evidence,
+runtime identity needs a current process or artifact identity join, and
+behavior observed needs the exact terminal behavior and observation window.
+Never compress this vector into an unqualified `done`, `validated`, readiness,
+or confidence scalar. A summary may be shown only alongside the dimensions and
+the widest required gate actually proved.
+
 If this or another cheap prerequisite fails, terminalize that attempt and stop
 before constructing databases, services, immutable artifacts, or later test
 tiers that depend on it. Preserve the failed receipt and resume only from the
@@ -3177,6 +3221,21 @@ affected consumer for the other.
 | Unknown impact | Widen conservatively; use the substantial/full route when the frontier cannot be bounded |
 | User-requested repository audit | Whole repository within the requested audit boundary |
 | Routine implementation with unrelated unchanged files | Do not re-review unrelated repository areas |
+
+**`SEM-01` makes semantic identity and ownership explicit.** Before adding a
+flag, wrapper, carrier, retry path, projection, or module, name the invariant's
+canonical owner and the identities and lifecycle states it consumes and
+produces. Values with materially different meanings must not remain
+interchangeable merely because the host language represents them as the same
+`int`, `str`, timestamp, UUID, optional value, or mapping. Give them distinct
+types, constructors, or validated APIs when accidental substitution is
+reachable. One semantic fact has one canonical producer; carriers transport its
+exact identity, projections summarize it, and consumers validate it. None may
+silently redefine it. A code split is an architectural improvement only when
+it establishes or clarifies ownership and lifecycle boundaries; moving tangled
+logic between files is not simplification. Record the owner, consumed and
+produced identities/states, canonical representation or typed transition, and
+nearest substitution adversary in the existing contract or test evidence.
 
 Give every substantial phase a compact gate derived from the four canonical
 artifacts:

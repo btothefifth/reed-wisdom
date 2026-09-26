@@ -63,6 +63,14 @@ def _replace_once(path: Path, old: bytes, new: bytes) -> None:
     path.write_bytes(raw.replace(old, new, 1))
 
 
+def _append_to_last_updated_line(path: Path) -> None:
+    raw = path.read_bytes()
+    matches = list(re.finditer(rb"(?m)^Last updated: [^\r\n]+$", raw))
+    assert len(matches) == 1
+    end = matches[0].end()
+    path.write_bytes(raw[:end] + b" " + raw[end:])
+
+
 def _canonical(value: Any) -> bytes:
     return json.dumps(
         value,
@@ -495,7 +503,7 @@ def test_missing_pointer_requires_full_current_source(tmp_path: Path) -> None:
 def test_stale_source_requires_full_current_source(tmp_path: Path) -> None:
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
-    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
+    _append_to_last_updated_line(source)
 
     plan = dict(loader.load_plan(source, cache, mode="fast"))
     _assert_full_source_only(plan, source)
@@ -536,7 +544,7 @@ def test_content_read_rejects_source_changed_after_plan(tmp_path: Path) -> None:
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
     plan = dict(loader.load_plan(source, cache, mode="fast"))
-    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
+    _append_to_last_updated_line(source)
 
     with pytest.raises(loader.WisdomCompileError, match="changed after load planning"):
         loader.read_plan_content(plan)
@@ -548,7 +556,7 @@ def test_content_read_falls_back_to_newly_current_source_after_plan_drift(
     source = _copy_source(tmp_path)
     cache, _ = _compile(tmp_path, source)
     plan = dict(loader.load_plan(source, cache, mode="fast"))
-    _replace_once(source, b"Last updated: 2026-09-25", b"Last updated: 2026-09-25 ")
+    _append_to_last_updated_line(source)
 
     assert loader.read_plan_content_or_current_source(plan) == source.read_bytes()
 
@@ -688,12 +696,12 @@ def test_portable_source_visibly_explains_reconstruction_and_fallback() -> None:
     assert "RESUME-01" in text
 
 
-def test_operational_semantics_revision_13_preserves_bounded_loading_topology(
+def test_operational_semantics_revision_14_preserves_bounded_loading_topology(
     tmp_path: Path,
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 13
+    assert parsed.manifest["semantic_revision"] == 14
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",

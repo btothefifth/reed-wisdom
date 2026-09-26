@@ -4,6 +4,19 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.6.0 - 2026-09-26
+
+- Add `SEM-01` for explicit semantic identity, canonical ownership, and
+  representation boundaries on the normal implementation route.
+- Add `REPAIR-01` to bring caller, persistence, cleanup, and lifecycle variants
+  into the bounded defect-repair frontier for ordinary bug fixes.
+- Add `EVIDENCE-01` to report implementation, review, proof, deployment,
+  runtime identity, authority, behavior, and reconciliation as independent
+  evidence dimensions.
+- Sharpen async freshness guidance to schedule short-lived evidence backward
+  from its final consumer rather than defaulting to retries or wider leases.
+- Add route and rule-content regressions for the v1.6 additions.
+
 ## 1.5.0 - 2026-09-25
 
 - Add `SCOPE-01` for ownership-based review scope, bounded semantic frontiers,

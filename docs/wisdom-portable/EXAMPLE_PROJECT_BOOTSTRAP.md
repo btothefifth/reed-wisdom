@@ -1,14 +1,14 @@
-# Example project bootstrap for WISDOM v1.5.0
+# Example project bootstrap for WISDOM v1.6.0
 
 This is a template for a project's short `AGENTS.md` router, not an additional
 WISDOM authority. Replace the example paths and frozen companion receipt before
-using it. Keep the complete v1.5.0 archive under the governing project root,
-for example at `vendor/wisdom/v1.5.0/`.
+using it. Keep the complete v1.6.0 archive under the governing project root,
+for example at `vendor/wisdom/v1.6.0/`.
 
 > Resolve the governing repository root first. Treat
-> `<root>/vendor/wisdom/v1.5.0/WISDOM.md` as the sole portable WISDOM source.
+> `<root>/vendor/wisdom/v1.6.0/WISDOM.md` as the sole portable WISDOM source.
 > Run its own `scripts/load_compiled_wisdom.py --source
-> <root>/vendor/wisdom/v1.5.0/WISDOM.md --discover` before routing. Choose the
+> <root>/vendor/wisdom/v1.6.0/WISDOM.md --discover` before routing. Choose the
 > smallest discovered task profile, phase, or tag set that includes every
 > applicable hard rule. When impact or mapping is uncertain, use
 > `--unknown-impact` and read the full current source. Read every path in the

@@ -1,4 +1,4 @@
-"""Keep WISDOM v1.5 review-scope rules on the normal implementation route."""
+"""Keep WISDOM review-scope rules on the normal implementation route."""
 
 from __future__ import annotations
 
@@ -43,8 +43,8 @@ def test_scope_rule_is_compiled_for_code_changes_and_bug_fixes() -> None:
         parsed, mode=routine_mode, tags=routine_tags
     )
 
-    assert parsed.manifest["semantic_revision"] == 13
-    assert parsed.section_by_id["implementation"].rule_ids == ("SCOPE-01",)
+    assert parsed.manifest["semantic_revision"] == 14
+    assert "SCOPE-01" in parsed.section_by_id["implementation"].rule_ids
     assert "SCOPE-01" in _rule_ids(parsed, code_modules)
     assert "SCOPE-01" in _rule_ids(parsed, bug_modules)
     assert "SCOPE-01" not in _rule_ids(parsed, routine_modules)
