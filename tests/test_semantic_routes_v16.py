@@ -35,7 +35,7 @@ def _route_rules(parsed: compiler.ParsedWisdom, task_profile: str) -> set[str]:
 def test_semantic_and_evidence_rules_reach_ordinary_code_changes() -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 14
+    assert parsed.manifest["semantic_revision"] == 15
     assert "SEM-01" in parsed.section_by_id["implementation"].rule_ids
     assert "EVIDENCE-01" in parsed.section_by_id["test_harness"].rule_ids
     code_rules = _route_rules(parsed, "code_change")

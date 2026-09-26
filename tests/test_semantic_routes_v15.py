@@ -43,7 +43,7 @@ def test_scope_rule_is_compiled_for_code_changes_and_bug_fixes() -> None:
         parsed, mode=routine_mode, tags=routine_tags
     )
 
-    assert parsed.manifest["semantic_revision"] == 14
+    assert parsed.manifest["semantic_revision"] == 15
     assert "SCOPE-01" in parsed.section_by_id["implementation"].rule_ids
     assert "SCOPE-01" in _rule_ids(parsed, code_modules)
     assert "SCOPE-01" in _rule_ids(parsed, bug_modules)
@@ -56,7 +56,7 @@ def test_scope_rule_is_compiled_for_code_changes_and_bug_fixes() -> None:
 def test_scope_rule_keeps_review_ownership_and_expansion_boundaries_explicit() -> None:
     parsed = compiler.parse_source(SOURCE)
     implementation = parsed.section_by_id["implementation"].body.decode("utf-8")
-    delegation = parsed.section_by_id["context_delegation"].body.decode("utf-8")
+    delegation = parsed.section_by_id["delegation_contract"].body.decode("utf-8")
 
     for phrase in (
         "owned delta",

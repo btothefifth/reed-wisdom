@@ -250,7 +250,9 @@ def test_focused_implementation_baseline_cannot_omit_build_and_test_mechanics(
     plan = dict(loader.load_plan(SOURCE, cache, mode="focused"))
 
     assert plan["status"] == "compiled"
-    assert plan["module_ids"] == ["testing", "test_harness", "implementation_performance"]
+    assert plan["module_ids"] == [
+        "testing", "test_harness", "implementation_performance",
+    ]
 
 
 def test_substantial_migration_baseline_cannot_omit_bmad_or_operations(
@@ -278,6 +280,7 @@ def test_substantial_migration_baseline_cannot_omit_bmad_or_operations(
         "decision_budget",
         "execution_efficiency",
         "delivery_status",
+        "delegation_contract",
         "context_delegation",
         "conditional_operations",
         "runtime_identity",
@@ -696,12 +699,12 @@ def test_portable_source_visibly_explains_reconstruction_and_fallback() -> None:
     assert "RESUME-01" in text
 
 
-def test_operational_semantics_revision_14_preserves_bounded_loading_topology(
+def test_operational_semantics_revision_15_preserves_bounded_loading_topology(
     tmp_path: Path,
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 14
+    assert parsed.manifest["semantic_revision"] == 15
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",
@@ -713,7 +716,7 @@ def test_operational_semantics_revision_14_preserves_bounded_loading_topology(
         "PLANE-01", "UPGRADE-01", "DEP-01",
     )
     assert len(parsed.manifest["allowed_tags"]) == 37
-    assert len(parsed.manifest["modules"]) == 22
+    assert len(parsed.manifest["modules"]) == 23
     assert "bounded_operating_loop" in parsed.manifest["kernel_sections"]
     assert "metacognition" in parsed.module_by_id["decision_judgment"]["sections"]
     assert "process_cost" in parsed.module_by_id["decision_judgment"]["sections"]

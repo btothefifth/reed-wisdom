@@ -9,7 +9,7 @@ optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
 **Download:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
-or the pinned [v1.6.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.6.0/reed-wisdom.zip).
+or the pinned [v1.7.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.7.0/reed-wisdom.zip).
 
 ## Start
 
@@ -41,7 +41,7 @@ Versioning and immutable `vMAJOR.MINOR.PATCH` tags. `WISDOM.md` also carries a
 changes and is intentionally separate from the product version.
 
 The deterministic `WISDOM.zip` is rebuilt from the tracked portable inputs and
-checked in with each release. The release asset uses a versioned filename.
+checked in with each release. Releases publish it as `reed-wisdom.zip`.
 
 ## Development
 

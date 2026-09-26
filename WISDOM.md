@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-26 (America/New_York)
 
-Product version: 1.6.0
+Product version: 1.7.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 14,
+  "semantic_revision": 15,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -81,6 +81,9 @@ completion rules.
     {"id": "operations", "mode": "substantial", "tags": ["process", "recovery", "delivery"]},
     {"id": "research", "mode": "focused", "tags": ["performance", "decision"]},
     {"id": "bug_fix", "mode": "focused", "tags": ["defect", "diagnostics", "testing"]},
+    {"id": "delegated_code_change", "mode": "focused", "tags": ["implementation", "testing", "delegation"]},
+    {"id": "delegated_bug_fix", "mode": "focused", "tags": ["defect", "diagnostics", "testing", "delegation"]},
+    {"id": "delegated_review", "mode": "focused", "tags": ["testing", "delegation"]},
     {"id": "protocol_change", "mode": "substantial", "tags": ["protocol", "provenance", "authority"]},
     {"id": "external_effect_change", "mode": "substantial", "tags": ["external_effect", "authority", "provenance"]},
     {"id": "release_recovery", "mode": "substantial", "tags": ["deployment", "recovery", "status"]},
@@ -190,7 +193,7 @@ completion rules.
     {
       "id": "implementation",
       "heading": "Implement, integrate, and re-audit in vertical slices",
-      "rule_ids": ["SCOPE-01", "SEM-01"]
+      "rule_ids": ["SCOPE-01", "SEM-01", "ACCEPT-01"]
     },
     {
       "id": "performance",
@@ -248,6 +251,11 @@ completion rules.
       "id": "delivery_status",
       "heading": "Publish, deploy, monitor, and roll back as one evidence chain",
       "rule_ids": ["PROMOTE-01"]
+    },
+    {
+      "id": "delegation_contract",
+      "heading": "Delegation as a typed producer/consumer protocol",
+      "rule_ids": ["HANDOFF-01", "LANE-01", "CAPABILITY-01"]
     },
     {
       "id": "context_delegation",
@@ -379,10 +387,16 @@ completion rules.
       "requires": ["testing"]
     },
     {
+      "id": "delegation_contract",
+      "sections": ["delegation_contract"],
+      "tags": ["delegation"],
+      "requires": []
+    },
+    {
       "id": "context_delegation",
       "sections": ["context_delegation"],
-      "tags": ["context", "continuity", "delegation"],
-      "requires": ["decision_budget"]
+      "tags": ["context", "continuity"],
+      "requires": ["delegation_contract", "decision_budget"]
     },
     {
       "id": "conditional_operations",
@@ -3154,6 +3168,22 @@ integration, publication, deployment, and external mutation. Parallelize only
 disjoint reads, files, experiments, and falsification surfaces whose contention
 cannot invalidate one another.
 
+**`ACCEPT-01` reconciles partial work before retry or release of ownership.**
+Define the acceptance cutpoint for each member and external or persistent
+effect before launch. A process exception, timeout, cancellation, nonzero exit,
+or missing result does not prove that zero work or effects were accepted. If
+independent boundary evidence proves a pristine pre-cutpoint failure with no
+accepted work or effects, classify it `not_accepted` and release that member's
+ownership. If acceptance crossed or state is uncertain, preserve the current
+owner and reconcile that exact member and its effects before retry, replacement,
+rollback, or release of ownership. Track submitted members as distinct
+identities and conserve them across disjoint `accepted`, `rejected`, `pending`,
+and `unknown` sets; terminal acceptance requires no unresolved member. For a
+batch where member A was accepted and creating member B raises, retain A's
+ownership through its terminal result and reconcile B's creation outcome before
+retrying the batch. Never convert a partial return or uncertain effect into an
+empty result or blanket retry.
+
 **`SCOPE-01` assigns review by ownership and semantic reach, not repository
 size.** Keep context scope, mutation scope, review scope, validation scope, and
 integration scope distinct. Reading unchanged code to understand a change does
@@ -4161,6 +4191,230 @@ validation, deployment, and observation separately. Calibrate from comparable
 measured batches and revise the range immediately when a new failure class,
 external dependency, or observed overrun changes the critical path.
 
+## Delegation as a typed producer/consumer protocol
+
+Delegation is a bounded producer-to-consumer contract. A lane is not accepted
+because it was launched, returned a success-shaped message, or received a
+positive review. The root integrator owns the final scope, classification,
+integration, and acceptance decision. Apply these lightweight rules whenever
+work or evidence is delegated; load the separate context/continuity module only
+when inherited context, durable handoff, or resource lifetime is in scope.
+
+**`HANDOFF-01` admits only a settled, generation-bound lane charter.** Before a
+lane starts, its charter must make these fields inspectable:
+
+```yaml
+lane_id_and_generation: stable lane identity and non-reused handoff generation
+lane_role: implementer | focused_reviewer | root_integrator | feature_reviewer | researcher | designer
+contract_state: settled | bounded_unknowns | research_only
+parent_objective: immutable parent objective identity and generation
+objective_generation: exact criteria and decision generation inherited by this lane
+objective_and_non_goals: terminal result and preserved behavior
+assignment_baseline: exact source revision and generation plus hashes for required dirty or untracked inputs
+scope: owned_delta, semantic_frontier, decisions, and exclusions
+owned_delta: files, symbols, and artifacts the lane may change
+semantic_frontier: reachable callers, consumers, state owners, and invariants
+semantic_inputs_outputs: exact inputs, outputs, schemas, and consuming boundaries in scope
+production_path: reachable production entrypoint, transformation, persistence, and final consumer
+lifecycle_and_identity: member identities, lifecycle states, and terminal owners relevant to this lane
+canonical_owner: named owner for each affected production, test, state, and proof seam
+required_and_preserved_behavior: explicit contract and behavior that must remain true
+unresolved_questions: bounded questions with owners and resolution triggers
+forbidden_surfaces: exact files, decisions, authorities, or effects the lane may not touch
+review_obligation: owned_delta | feature_delta | repository_frontier
+integration_baseline: exact merge-base or parent generation
+decisions: root_reserved list and delegated list, each with authority and acceptance boundary
+exclusions: surfaces and decisions outside the lane's authority
+escalation_triggers: exact condition and owner for re-chartering
+capability_assignment: minimum_sufficient_capabilities, selected_worker_capabilities, evidence_of_sufficiency, cost_latency_tradeoff, and reassignment_trigger
+proof: reachable boundary, independent oracle, selectors, and acceptance criteria
+result_contract: required typed result, requested root disposition, and terminal rule
+```
+
+`settled` admits bounded mutation; `bounded_unknowns` admits only the unknowns
+whose irrelevance to every delegated decision, action, and proof obligation is
+proved; `research_only` admits discovery without production mutation or an
+acceptance claim. Unresolved API or behavior semantics set the disposition to
+`contract_not_ready_for_implementation`; a missing canonical owner blocks the
+lane as `canonical_owner_unavailable`. A researcher or designer may not infer
+implementation authority from its role or evidence. The assignment baseline
+binds the exact bytes the lane may inspect or change; a branch name, commit
+prefix, filename, or timestamp alone is insufficient when
+the relevant source can differ. The charter may bound an unknown only when its
+irrelevance to every delegated decision, action, and proof obligation is
+established. A materially ambiguous, stale, mixed-generation, or unbounded
+charter is rejected or escalated before mutation. When the lane discovers a
+dependency or decision outside its declared scope, it preserves completed
+evidence, stops only the affected work, and returns the exact boundary for root
+re-chartering; it may not silently expand its authority or semantic frontier.
+
+**`LANE-01` keeps implementation, review, and integration authority distinct.**
+The implementer produces a bounded delta and evidence. A focused reviewer
+independently challenges that delta and its semantic frontier, returning
+advisory findings with concrete counterexamples and proof gaps. The root
+integrator classifies each finding as a production defect, test or fixture
+defect, contract ambiguity, unproved claim, duplicate mechanism, rejected
+finding, `unreachable_or_impossible_requirement`, valid but out of scope, or
+false positive, with a disposition and evidence for each class. An impossible
+reuse demand through an entrypoint that necessarily creates a new operation is
+classified as `unreachable_or_impossible_requirement` and a test-design defect;
+the root proves the entrypoint's actual constraint and tests reuse through its
+canonical store API. Valid but out-of-scope work is escalated for re-chartering;
+a false positive is rejected with the counterexample or oracle that disproves
+it. Reviewer output alone never changes production code, scope, or acceptance.
+A feature reviewer examines the integrated delta and cross-lane
+interactions when required. That review has its own source generation and
+frontier and cannot substitute for the root integrator's disposition.
+
+Before changing production, tests, fixtures, or a mechanism in response to a
+red result, trace it to the earliest reachable failing boundary and its
+canonical owner. A test that requires an impossible input through a public
+entrypoint is a test-design defect, not permission to weaken production checks.
+Split proof across the reachable native entrypoint and the canonical store reuse
+API path when those are distinct contracts; preserve both the entrypoint's real
+constraints and the reuse behavior's direct oracle.
+
+**`CAPABILITY-01` assigns sufficient capability to the current lane shape.**
+Assess ambiguity, novelty, semantic reach, consequence, authority, and proof
+difficulty. Name the lane's minimum sufficient capabilities (such as bounded
+implementation, contract design, adversarial review, or integration), record
+the selected worker's relevant capabilities and concrete sufficiency evidence,
+and state the cost/latency tradeoff. Among workers that meet the proof and
+authority need, choose the lowest cost and latency; do not spend the strongest
+independent reviewer on bounded work that does not need that capability. A
+well-specified, local, reversible lane may use efficient capability; ambiguous,
+high-consequence, broad-frontier, authority-bearing, or hard-to-prove work needs
+the stronger capability its evidence requires. Keep allocation model-neutral:
+portable WISDOM does not prescribe a model vendor or product name. Reassess and
+escalate or reassign when evidence changes the lane's shape, scope, or risk.
+Preserve completed evidence whose exact source, frontier, and environment
+generations remain unchanged; invalidate only receipts whose dependencies
+changed. A new worker inherits the accepted generation-bound charter and
+evidence, not an unverified summary of prior status.
+
+A lane result is a typed evidence carrier, not a free-form status. The following
+scenario dispositions are required outcomes. A lane may add detail, but may not
+choose a weaker disposition or infer authority from missing fields:
+
+```json
+{
+  "unknown_api_semantics": {
+    "contract_state": "research_only",
+    "result": "contract_not_ready_for_implementation",
+    "production_mutation": "forbidden"
+  },
+  "missing_canonical_owner": {
+    "result": "block",
+    "reason": "canonical_owner_unavailable",
+    "production_mutation": "forbidden"
+  },
+  "settled_contract": {
+    "contract_state": "settled",
+    "result": "proceed_with_bounded_mutation",
+    "authority": "charter_only"
+  },
+  "irrelevant_bounded_unknowns": {
+    "contract_state": "bounded_unknowns",
+    "required_evidence": "prove_irrelevance_to_each_delegated_decision_action_and_proof",
+    "result": "proceed_with_bounded_mutation",
+    "unknowns": "remain_explicit_and_bounded"
+  },
+  "stale_or_mixed_baseline": {
+    "result": "reject_before_mutation",
+    "prior_generation_evidence": "preserve_as_historical"
+  },
+  "out_of_scope_dependency": {
+    "result": "stop_affected_work_and_escalate",
+    "unaffected_evidence": "preserve"
+  },
+  "capability_reassignment": {
+    "unchanged_generation_evidence": "preserve",
+    "changed_dependency_receipts": "invalidate_only_these"
+  },
+  "capability_selection": {
+    "required_record": "minimum_sufficient_capabilities_worker_capabilities_sufficiency_evidence_cost_latency_tradeoff",
+    "selection": "lowest_cost_latency_worker_that_meets_proof_and_authority_need",
+    "reassignment": "preserve_unaffected_evidence"
+  },
+  "focused_review": {
+    "reviewer_result": "advisory_findings_and_proof_gaps",
+    "root_integrator": "classify_each_finding_before_acceptance"
+  },
+  "feature_review": {
+    "review_frontier": "integrated_delta_and_cross_lane_interactions",
+    "root_integrator": "retains_final_classification_and_acceptance"
+  },
+  "fixture_design_defect": {
+    "classification": "test_or_fixture_defect",
+    "repair_owner": "earliest_fixture_producer",
+    "production_guard": "preserve",
+    "valid_downstream_assertion": "retain"
+  },
+  "valid_review_finding": {
+    "classification": "production_defect",
+    "repair_owner": "canonical_production_owner",
+    "acceptance": "rerun_affected_independent_oracle_after_fix"
+  },
+  "cross_lane_incompatibility": {
+    "detector": "feature_reviewer_integrated_delta_and_cross_lane_frontier",
+    "result": "return_finding_to_root_integrator",
+    "acceptance": "blocked_until_root_classification_and_reconciliation"
+  },
+  "impossible_reuse_through_create_only_entrypoint": {
+    "classification": "unreachable_or_impossible_requirement",
+    "entrypoint_proof": "prove_actual_constraints",
+    "reuse_proof": "test_canonical_store_api_directly"
+  },
+  "pristine_pre_cutpoint_failure": {
+    "required_evidence": "independent_proof_of_no_accepted_work_or_effect",
+    "result": "not_accepted",
+    "ownership": "release"
+  },
+  "post_cutpoint_or_uncertain_effect": {
+    "ownership": "retain_current_owner",
+    "retry": "forbidden_until_exact_member_reconciled"
+  },
+  "member_a_accepted_member_b_creation_raises": {
+    "member_a": "retain_owner_through_terminal_result",
+    "member_b": "reconcile_creation_before_batch_retry"
+  }
+}
+```
+
+These outcomes make stale-input rejection, scope escalation, capability
+reassignment, impossible-entrypoint triage, and both sides of the acceptance
+cutpoint mechanically reviewable. Reviewer findings remain advisory until the
+root integrator records a classification and disposition.
+
+```yaml
+lane_result:
+  lane_id_and_generation: exact charter identity
+  source: exact baseline revision and input manifest identity
+  delta: changed paths and before/after identities
+  semantic_frontier: affected owners, callers, consumers, and invariants
+  proof: selectors, boundary reached, independent oracle, and outcomes
+  review: reviewer identity, source generation, findings, and root classification state
+  member_outcomes: exact per-member accepted/rejected/pending/unknown receipts
+  uncertainties: bounded unresolved facts and affected scope
+  discovered_out_of_scope_dependencies: exact dependency and affected work
+  contract_questions: unresolved API or behavior semantics with owner
+  escalation_trigger: exact charter trigger and receiving owner
+  implementation_status: not_started | active | submitted | blocked
+  test_status: not_run | running | passed | failed | blocked
+  acceptance_cutpoint_state: pre_cutpoint | accepted | rejected | pending | unknown
+  requested_root_disposition: accept | reject | rework | escalate | block
+```
+
+The lifecycle distinguishes `prepared`, `admitted`, `active`, `result_submitted`,
+and `root_classified` evidence from terminal dispositions such as `accepted`,
+`rejected`, `returned_for_rework`, `blocked`, `cancelled`, `failed`,
+`superseded`, and `escalated`. Stages may share one durable record or be collapsed
+when the execution surface does not expose them separately, but the evidence for
+each applicable transition and the per-member cutpoint remains independently
+inspectable. An escalated or failed lane ends only after the root acknowledges
+ownership of unresolved members and effects. Process termination, review
+completion, and requested disposition are separate facts from root acceptance.
+
 ## Context, delegation, and continuity
 
 Load the narrow indexed context needed for the decision. Too little creates
@@ -4233,24 +4487,13 @@ explicitly delegated log maintenance, archive only positively identified
 completed lane logs to approved recoverable storage, never an active root or
 worker log. A filename timestamp alone is not completion evidence.
 
-Give each lane a frozen charter inside the execution plan:
-
-```yaml
-lane_and_question: identity, independent question or falsifier
-scope:
-  assignment_baseline: exact source revision or tree
-  owned_delta: files and symbols owned, or mechanically derived lane changes
-  semantic_frontier: named interfaces, consumers, state owners, and invariants
-  review_obligation: owned_delta | feature_delta | repository_frontier
-  integration_baseline: exact merge-base or parent generation
-  exclusions: surfaces outside this lane's responsibility
-  escalation_triggers: facts that widen the declared scope
-inputs_and_output: frozen inputs, concrete artifact, immutable evidence
-forbidden_surface: writes, authority, shared resources, private data
-dependencies_and_eta: prerequisites and measured range
-stop_condition: cancel, redirect, or complete threshold
-integration: serial owner, checkpoint, status, acceptance or rejection rule
-```
+Use the `HANDOFF-01` charter as the single semantic lane contract. Extend it in
+the execution plan only with continuity fields that can change this lane's
+completion or recovery: immutable packet identity and generation, context
+budget and selected inputs, projected scratch/test/publication headroom,
+resource ownership, continuation owner, and the serial integration checkpoint.
+Do not maintain a second lane charter with independently editable scope or
+acceptance fields.
 
 Identify the serial authority and mutation critical path first. Delegate only
 independent evidence, disjoint implementation, or distinct falsification work.
@@ -4261,13 +4504,11 @@ cannot erase completed sibling evidence. Cancel, redirect, or stop a lane when
 its marginal information value falls below contention and integration cost.
 Nested delegation follows the same rules and never expands authority.
 
-Asymmetric capability creates an obligation to make delegated work more
-legible, testable, reusable, and independently checkable. A controller should
-give a worker enough context and tools to succeed, narrow its forbidden surface,
-return useful evidence even on failure, and integrate or reject the result by
-criteria rather than status. This is autonomy-elevating stewardship, not a claim
-that an artificial tool is a person or that hierarchy is intrinsically good.
-An ETA or unpersisted reasoning is not progress evidence.
+Capability fit follows `CAPABILITY-01`. Context and continuity management must
+make the accepted charter and evidence available to the next legitimate owner,
+avoid excess inherited history, and preserve useful partial evidence without
+confusing it with root acceptance. An ETA or unpersisted reasoning is not
+progress evidence.
 
 Persist after material rounds: objective, non-goals, criteria version, and
 current decision; active controlling contract and exact code owner/API; source

@@ -4,6 +4,20 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.7.0 - 2026-09-26
+
+- Split lightweight typed delegation semantics into a dependency-free
+  `delegation_contract` module while keeping continuity and context management
+  in their existing module.
+- Add delegated code-change, bug-fix, and review profiles; include the lightweight
+  acceptance contract in ordinary focused implementation routes as well.
+- Define generation-bound lane charters, distinct implementer/reviewer/root
+  roles, model-neutral capability reassignment, typed lane results, and
+  per-member acceptance/reconciliation rules.
+- Add v1.7 routing and delegation lifecycle regressions, including stale
+  handoffs, impossible entrypoint fixtures, capability escalation, and partial
+  submission outcomes.
+
 ## 1.6.0 - 2026-09-26
 
 - Add `SEM-01` for explicit semantic identity, canonical ownership, and
