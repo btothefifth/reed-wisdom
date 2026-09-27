@@ -4,6 +4,21 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.8.0 - 2026-09-26
+
+- Add `CHANGE-01`, a portable change contract for focused and substantial
+  implementation, repair, and review packets.
+- Generalize affected-path coverage into conditional topology roles spanning
+  sources, decisions, state, effects, consumers, recovery, and sibling paths.
+- Require claim-bound independent oracles, positive and negative witnesses,
+  remaining unknowns, and review against actual callers and data structures.
+- Reuse the same change contract from delegated handoffs while preserving the
+  fast-route exemption and reasoned not-applicable dispositions.
+- Permit consent-gated upgrades of the exact setup-generated global guidance
+  block between existing sibling WISDOM version directories while continuing
+  to reject custom, missing-source, mixed-ending, and cross-root guidance and
+  to preserve fenced, commented, or explicitly historical examples as inactive.
+
 ## 1.7.0 - 2026-09-26
 
 - Split lightweight typed delegation semantics into a dependency-free

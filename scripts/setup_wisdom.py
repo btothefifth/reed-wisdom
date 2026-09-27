@@ -36,6 +36,22 @@ KEYS = (
 ASSIGN_RE = re.compile(r"^\s*([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\s*=\s*([0-9]+|true|false)\s*$")
 SECTION_RE = re.compile(r"^\s*\[([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\]\s*$")
 _UNSET = object()
+_VERSION_DIRECTORY_RE = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")
+_GENERATED_GUIDANCE_RE = re.compile(
+    r"^## WISDOM operating kernel\n\n"
+    r"For each task, load a verified view of `(?P<location>[^`\r\n]+)` using this "
+    r"installation's loader when practical, then read and follow it proportionately\. "
+    r"Explicit current instructions and verified facts take precedence\. "
+    r"If a compiled view is unavailable or uncertain, read the full current source\.\n",
+    re.MULTILINE,
+)
+_INACTIVE_CONTEXT_LABEL_RE = re.compile(
+    r"^[ \t]*(?:#{1,6}[ \t]*)?"
+    r"(?:archived|historical|obsolete|retired|deprecated|former|migration)"
+    r"(?:[ \t]+(?:wisdom|guidance|guide|kernel|instruction|example|reference|context|note))*"
+    r"[ \t]*:?[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 class SetupError(Exception):
@@ -63,11 +79,7 @@ def effective_agents(home: Path) -> tuple[Path, bytes | None]:
     return base, base_raw
 
 
-def guidance(source: Path) -> bytes:
-    resolved = source.resolve(strict=True)
-    if resolved.name != "WISDOM.md" or not resolved.is_file():
-        raise SetupError("source must be an existing WISDOM.md file")
-    location = resolved.as_posix()
+def _guidance_text(location: str) -> str:
     if any(char in location for char in "`\r\n"):
         raise SetupError("source path cannot be represented safely")
     return (
@@ -76,12 +88,73 @@ def guidance(source: Path) -> bytes:
         "installation's loader when practical, then read and follow it proportionately. "
         "Explicit current instructions and verified facts take precedence. "
         "If a compiled view is unavailable or uncertain, read the full current source.\n"
-    ).encode("utf-8")
+    )
+
+
+def guidance(source: Path) -> bytes:
+    resolved = source.resolve(strict=True)
+    if resolved.name != "WISDOM.md" or not resolved.is_file():
+        raise SetupError("source must be an existing WISDOM.md file")
+    return _guidance_text(resolved.as_posix()).encode("utf-8")
+
+
+def _blank_except_newlines(value: str) -> str:
+    return "".join(char if char in "\r\n" else " " for char in value)
+
+
+def _mask_nonactive_markdown(content: str) -> str:
+    """Mask fenced examples and HTML comments while preserving offsets."""
+    without_comments = re.sub(
+        r"<!--[\s\S]*?(?:-->|\Z)",
+        lambda match: _blank_except_newlines(match.group()),
+        content,
+    )
+    output: list[str] = []
+    fence_char: str | None = None
+    fence_length = 0
+    for line in without_comments.splitlines(keepends=True):
+        marker = re.match(r"^[ \t]*(`{3,}|~{3,})", line)
+        if fence_char is None:
+            if marker is None:
+                output.append(line)
+                continue
+            token = marker.group(1)
+            fence_char, fence_length = token[0], len(token)
+            output.append(_blank_except_newlines(line))
+            continue
+        output.append(_blank_except_newlines(line))
+        if marker is not None:
+            token = marker.group(1)
+            if token[0] == fence_char and len(token) >= fence_length:
+                fence_char = None
+                fence_length = 0
+    return "".join(output)
+
+
+def _preceded_by_historical_context(content: str, start: int) -> bool:
+    prefix = content[:start]
+    stripped = prefix.rstrip()
+    if not stripped:
+        return False
+    gap = prefix[len(stripped):]
+    if gap.count("\n") > 2:
+        return False
+    previous_paragraph = re.split(r"\n\s*\n", stripped)[-1]
+    return bool(_INACTIVE_CONTEXT_LABEL_RE.fullmatch(previous_paragraph[-500:]))
+
+
+def _active_guidance_text(content: str) -> str:
+    active = _mask_nonactive_markdown(content)
+    chars = list(active)
+    for match in _GENERATED_GUIDANCE_RE.finditer(active):
+        if _preceded_by_historical_context(active, match.start()):
+            chars[match.start():match.end()] = _blank_except_newlines(match.group())
+    return "".join(chars)
 
 
 def has_equivalent_guidance(raw: bytes, source: Path) -> bool:
     try:
-        content = raw.decode("utf-8").replace("\\", "/").casefold()
+        content = _active_guidance_text(raw.decode("utf-8")).replace("\\", "/").casefold()
     except UnicodeDecodeError as exc:
         raise SetupError("effective AGENTS file is not UTF-8") from exc
     location = source.resolve(strict=True).as_posix().casefold()
@@ -101,6 +174,45 @@ def _positive_source_directive(paragraph: str, location: str) -> bool:
     return bool(match and not re.search(r"\b(?:do not|never|stop|avoid)\b", match.group()))
 
 
+def _has_other_active_wisdom_guidance(content: str) -> bool:
+    normalized = _active_guidance_text(content).replace("\\", "/").casefold()
+    return any(
+        _positive_source_directive(paragraph, match.group())
+        for paragraph in re.split(r"\n\s*\n", normalized)
+        for match in re.finditer(r"(?:[a-z]:)?[^\s`'\"]*wisdom\.md", paragraph)
+    )
+
+
+def _generated_version_upgrade(existing: str, source: Path) -> str | None:
+    """Replace only this setup tool's exact block across sibling versions."""
+    active = _active_guidance_text(existing)
+    matches = list(_GENERATED_GUIDANCE_RE.finditer(active))
+    if len(matches) != 1:
+        return None
+    match = matches[0]
+    old_location = match.group("location")
+    try:
+        old_source = Path(old_location).resolve(strict=True)
+        new_source = source.resolve(strict=True)
+    except OSError:
+        return None
+    if (
+        old_source.name != "WISDOM.md"
+        or new_source.name != "WISDOM.md"
+        or not old_source.is_file()
+        or not new_source.is_file()
+        or not _VERSION_DIRECTORY_RE.fullmatch(old_source.parent.name)
+        or not _VERSION_DIRECTORY_RE.fullmatch(new_source.parent.name)
+        or old_source.parent.parent != new_source.parent.parent
+        or old_source == new_source
+    ):
+        return None
+    remainder = existing[:match.start()] + existing[match.end():]
+    if _has_other_active_wisdom_guidance(remainder):
+        return None
+    return existing[:match.start()] + _guidance_text(new_source.as_posix()) + existing[match.end():]
+
+
 def proposed_agents(raw: bytes | None, source: Path) -> bytes | None:
     old = raw or b""
     if has_equivalent_guidance(old, source):
@@ -109,16 +221,15 @@ def proposed_agents(raw: bytes | None, source: Path) -> bytes | None:
         existing = old.decode("utf-8")
     except UnicodeDecodeError as exc:
         raise SetupError("effective AGENTS file is not UTF-8") from exc
-    normalized = existing.replace("\\", "/").casefold()
-    if any(
-        _positive_source_directive(paragraph, match.group())
-        for paragraph in re.split(r"\n\s*\n", normalized)
-        for match in re.finditer(r"(?:[a-z]:)?[^\s`'\"]*wisdom\.md", paragraph)
-    ):
-        raise SetupError("effective AGENTS file has different WISDOM guidance; manual review required")
     if b"\r\n" in old and b"\n" in old.replace(b"\r\n", b""):
         raise SetupError("effective AGENTS file has mixed line endings")
     sep = b"\r\n" if b"\r\n" in old else b"\n"
+    normalized_existing = existing.replace("\r\n", "\n")
+    migrated = _generated_version_upgrade(normalized_existing, source)
+    if migrated is not None:
+        return migrated.encode("utf-8").replace(b"\n", sep)
+    if _has_other_active_wisdom_guidance(existing):
+        raise SetupError("effective AGENTS file has different WISDOM guidance; manual review required")
     addition = guidance(source).replace(b"\n", sep)
     prefix = sep * (2 if old and not old.endswith((b"\n", b"\r")) else 1) if old else b""
     return old + prefix + addition
@@ -457,10 +568,21 @@ def run_setup(
         output("AGENTS guidance exceeds this config's instruction byte limit; no edit proposed. Review the effective limit and instruction chain manually.")
     else:
         output(f"AGENTS exact delta: before sha256={digest(old_agents or b'')}; after sha256={digest(new_agents)}")
-        appended = new_agents[len(old_agents or b""):]
-        output(f"Append exact UTF-8 bytes: {appended!r}")
-        for line in appended.decode("utf-8").splitlines():
-            output(f"+ {line}")
+        if new_agents.startswith(old_agents or b""):
+            appended = new_agents[len(old_agents or b""):]
+            output(f"Append exact UTF-8 bytes: {appended!r}")
+            for line in appended.decode("utf-8").splitlines():
+                output(f"+ {line}")
+        else:
+            output("Replace the exact setup-generated version block:")
+            delta = difflib.unified_diff(
+                (old_agents or b"").decode("utf-8").splitlines(),
+                new_agents.decode("utf-8").splitlines(),
+                n=0,
+            )
+            for line in delta:
+                if line.startswith(("+", "-")) and not line.startswith(("+++", "---")):
+                    output(line)
         if interactive and _approve(input_func, agent_path):
             _commit(agent_path, old_agents, new_agents)
             output("AGENTS guidance written and verified. Verify in a fresh Codex session.")

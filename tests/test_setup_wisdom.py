@@ -92,6 +92,118 @@ def test_conflicting_wisdom_source_refuses_unsafe_append(installation):
     assert agents.read_bytes() == original
 
 
+def _versioned_installation(tmp_path: Path) -> tuple[Path, Path, Path]:
+    root = tmp_path / "wisdom"
+    old_source = root / "v1.7.0" / "WISDOM.md"
+    new_source = root / "v1.8.0" / "WISDOM.md"
+    old_source.parent.mkdir(parents=True)
+    new_source.parent.mkdir(parents=True)
+    old_source.write_text("# WISDOM 1.7\n", encoding="utf-8")
+    new_source.write_text("# WISDOM 1.8\n", encoding="utf-8")
+    home = tmp_path / "codex-home"
+    home.mkdir()
+    return old_source, new_source, home
+
+
+def test_exact_generated_sibling_version_guidance_can_migrate(tmp_path: Path):
+    old_source, new_source, home = _versioned_installation(tmp_path)
+    agents = home / "AGENTS.md"
+    original = b"Owner instruction.\r\n\r\n" + setup.guidance(old_source).replace(b"\n", b"\r\n")
+    agents.write_bytes(original)
+
+    result = run(new_source, home, answers=["YES"])
+
+    updated = agents.read_bytes()
+    assert "Replace the exact setup-generated version block" in result
+    assert updated.startswith(b"Owner instruction.\r\n\r\n")
+    assert setup.guidance(new_source).replace(b"\n", b"\r\n") in updated
+    assert old_source.resolve().as_posix().encode() not in updated
+    backups = list(home.glob("AGENTS.md.before-wisdom-*.bak"))
+    assert len(backups) == 1
+    assert backups[0].read_bytes() == original
+
+    prior = agents.read_bytes()
+    result = run(new_source, home)
+    assert "equivalent source-specific" in result
+    assert agents.read_bytes() == prior
+
+
+def test_generated_sibling_version_migration_decline_is_unchanged(tmp_path: Path):
+    old_source, new_source, home = _versioned_installation(tmp_path)
+    agents = home / "AGENTS.md"
+    original = b"Owner instruction.\n\n" + setup.guidance(old_source)
+    agents.write_bytes(original)
+
+    result = run(new_source, home, answers=["no"])
+
+    assert "AGENTS guidance skipped" in result
+    assert agents.read_bytes() == original
+    assert not list(home.glob("AGENTS.md.before-wisdom-*.bak"))
+
+
+def test_generated_guidance_cross_root_or_missing_source_still_refuses(tmp_path: Path):
+    old_source, new_source, home = _versioned_installation(tmp_path)
+    agents = home / "AGENTS.md"
+    cross_root = tmp_path / "other" / "v1.8.0" / "WISDOM.md"
+    cross_root.parent.mkdir(parents=True)
+    cross_root.write_text("# other\n", encoding="utf-8")
+    original = setup.guidance(old_source)
+    agents.write_bytes(original)
+
+    with pytest.raises(setup.SetupError, match="different WISDOM guidance"):
+        run(cross_root, home, answers=["YES"])
+    assert agents.read_bytes() == original
+
+    old_source.unlink()
+    with pytest.raises(setup.SetupError, match="different WISDOM guidance"):
+        run(new_source, home, answers=["YES"])
+    assert agents.read_bytes() == original
+
+
+@pytest.mark.parametrize(
+    "wrapper",
+    (
+        lambda block: b"Historical example:\n\n```markdown\n" + block + b"```\n",
+        lambda block: b"<!-- archived example\n" + block + b"-->\n",
+        lambda block: b"## Historical example\n\n" + block,
+    ),
+)
+def test_inactive_generated_example_is_preserved_and_active_guidance_is_added(
+    tmp_path: Path, wrapper
+):
+    old_source, new_source, home = _versioned_installation(tmp_path)
+    agents = home / "AGENTS.md"
+    original = wrapper(setup.guidance(old_source))
+    agents.write_bytes(original)
+
+    result = run(new_source, home, answers=["YES"])
+
+    updated = agents.read_bytes()
+    assert "Append exact UTF-8 bytes" in result
+    assert updated.startswith(original)
+    assert updated.count(setup.guidance(old_source)) == 1
+    assert updated.count(setup.guidance(new_source)) == 1
+    assert setup.proposed_agents(updated, new_source) is None
+
+
+def test_incidental_example_word_does_not_hide_active_generated_guidance(tmp_path: Path):
+    old_source, new_source, home = _versioned_installation(tmp_path)
+    agents = home / "AGENTS.md"
+    original = (
+        b"When explaining a change, include one concrete example.\n\n"
+        + setup.guidance(old_source)
+    )
+    agents.write_bytes(original)
+
+    result = run(new_source, home, answers=["YES"])
+
+    updated = agents.read_bytes()
+    assert "Replace the exact setup-generated version block" in result
+    assert updated.startswith(b"When explaining a change, include one concrete example.\n\n")
+    assert setup.guidance(old_source) not in updated
+    assert updated.count(setup.guidance(new_source)) == 1
+
+
 def test_obsolete_path_mention_does_not_skip_new_guidance(installation):
     source, home = installation
     agents = home / "AGENTS.md"

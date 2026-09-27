@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-26 (America/New_York)
 
-Product version: 1.7.0
+Product version: 1.8.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 15,
+  "semantic_revision": 16,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -193,7 +193,7 @@ completion rules.
     {
       "id": "implementation",
       "heading": "Implement, integrate, and re-audit in vertical slices",
-      "rule_ids": ["SCOPE-01", "SEM-01", "ACCEPT-01"]
+      "rule_ids": ["CHANGE-01", "SCOPE-01", "SEM-01", "ACCEPT-01"]
     },
     {
       "id": "performance",
@@ -3168,6 +3168,80 @@ integration, publication, deployment, and external mutation. Parallelize only
 disjoint reads, files, experiments, and falsification surfaces whose contention
 cannot invalidate one another.
 
+**`CHANGE-01` makes each material implementation and review packet a checkable
+change contract.** For focused or substantial implementation, bug repair, or
+review, bind the work to one inspectable contract in the existing controlling
+plan, ledger, lane charter, or review result. Do not create a duplicate process
+artifact merely to match this shape. The contract must state:
+
+```yaml
+change_contract:
+  identity_and_generation: stable contract identity, governing objective, exact source/input generation
+  outcomes:
+    required: behavior that must become or remain true
+    forbidden: behavior that must stop or remain impossible
+    preserved: adjacent valid behavior that must continue to work
+  impact_topology:
+    inputs_and_sources: initiating inputs, authoritative sources, and entrypoints
+    transformations_and_decisions: computations, policies, branches, and ownership decisions
+    state_and_representations: in-memory, serialized, persisted, cached, or projected state
+    boundaries_and_effects: interfaces, external effects, and authority boundaries
+    consumers_and_observers: direct and downstream consumers, users, telemetry, and final oracles
+    alternate_and_recovery_paths: fallbacks, retry, cancellation, rollback, restart, and repair paths
+    peer_or_sibling_paths: same-invariant paths that could be suppressed, widened, or left inconsistent
+  claims_and_evidence:
+    - claim: exact behavior or invariant
+      scope_and_generation: identities, population, time, and source generation covered
+      independent_oracle: expected-result source independent of the candidate path
+      positive_witness: reachable intended or preserved case
+      negative_witness: reachable forbidden, rejected, or harmful-suppression case
+      selector_or_procedure: exact reproducible path for each witness
+      result_and_receipt_status: planned | failed | passed | blocked, with source-bound receipt when run
+      remaining_unknown: bounded uncertainty, affected action, owner, and resolution trigger
+  review_coverage:
+    actual_paths_examined: reachable callers, data structures, state transitions, and consumers inspected
+    topology_dispositions: each potentially material role or path -> covered | unreachable_with_evidence | not_applicable_with_reason, with supporting trace or reason
+    findings_and_disposition: concrete counterexample or proof gap, owner, and acceptance effect
+```
+
+The topology is a role vocabulary, not a demand that every system contain every
+role. Inspect every potentially material role, record present roles explicitly,
+and use `unreachable_with_evidence` or `not_applicable_with_reason` only when the
+reason cannot change implementation, proof, recovery, or acceptance. A pure
+local transformation may have no persistence, external effect, or recovery
+path; a stateful, distributed, asynchronous, time-sensitive, or authority-
+bearing change may not omit those roles merely because the patch is local.
+
+Every focused or substantial contract covers correctness, scope, required and
+preserved behavior, rejection behavior, and remaining uncertainty. Consider the
+following claim families only when their mechanism exists, and within a selected
+family record each present dimension while giving absent material dimensions a
+reasoned not-applicable disposition:
+
+- stateful work: identity, representation, transition, persistence, and
+  terminal state;
+- distributed or asynchronous work: acknowledgment, ordering, retry,
+  cancellation, partial acceptance, and completion;
+- time-sensitive work: event and retrieval clocks, freshness, expiry, lease,
+  and generation;
+- authority-bearing work: permission, provenance, admissibility, external
+  effect, and reconciliation.
+
+The implementer traces the contract through the actual reachable path before
+editing and updates the existing contract when discovery changes the topology.
+The reviewer challenges the contract against the actual callers, data
+structures, state transitions, and consumers, and checks both witnesses. A
+patch-only review, an internal helper test that misses the named consumer, or a
+positive witness without the applicable negative contrast cannot satisfy this
+rule; include a harmful-suppression twin when valid behavior can be suppressed,
+and otherwise use the nearest forbidden or wrong-result contrast. A planned
+witness is a proof obligation, not evidence that the selector ran or reached
+the named predicate; acceptance consumes source-bound result receipts.
+Review may share evidence with `SCOPE-01`, `IMPACT-01`, `EVIDENCE-01`, or a lane
+charter when identities and generations match; it must not duplicate or weaken
+their ownership, invalidation, or acceptance semantics. Fast work remains
+exempt unless discovery widens it into a focused or substantial route.
+
 **`ACCEPT-01` reconciles partial work before retry or release of ownership.**
 Define the acceptance cutpoint for each member and external or persistent
 effect before launch. A process exception, timeout, cancellation, nonzero exit,
@@ -4210,6 +4284,7 @@ contract_state: settled | bounded_unknowns | research_only
 parent_objective: immutable parent objective identity and generation
 objective_generation: exact criteria and decision generation inherited by this lane
 objective_and_non_goals: terminal result and preserved behavior
+change_contract: exact CHANGE-01 identity and generation when the route requires it; otherwise fast-route or research-only not-applicable reason
 assignment_baseline: exact source revision and generation plus hashes for required dirty or untracked inputs
 scope: owned_delta, semantic_frontier, decisions, and exclusions
 owned_delta: files, symbols, and artifacts the lane may change
@@ -4251,7 +4326,11 @@ re-chartering; it may not silently expand its authority or semantic frontier.
 **`LANE-01` keeps implementation, review, and integration authority distinct.**
 The implementer produces a bounded delta and evidence. A focused reviewer
 independently challenges that delta and its semantic frontier, returning
-advisory findings with concrete counterexamples and proof gaps. The root
+advisory findings with concrete counterexamples and proof gaps. For an
+implementation or review lane, both roles consume the same generation-bound
+`CHANGE-01` contract; the reviewer verifies its topology and witnesses against
+actual callers, data structures, state transitions, and consumers rather than
+reviewing only the patch. The root
 integrator classifies each finding as a production defect, test or fixture
 defect, contract ambiguity, unproved claim, duplicate mechanism, rejected
 finding, `unreachable_or_impossible_requirement`, valid but out of scope, or
