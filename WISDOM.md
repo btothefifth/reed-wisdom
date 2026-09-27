@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-09-26 (America/New_York)
+Last updated: 2026-09-27 (America/New_York)
 
-Product version: 1.8.0
+Product version: 1.9.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 16,
+  "semantic_revision": 17,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -3094,6 +3094,19 @@ assert exact-limit acceptance and one-unit-over rejection. A debug string,
 incidental object representation, or elapsed test-run duration cannot stand in
 for the contracted resource or time boundary.
 
+Resolve each deadline from the same boundary-contract identity and generation
+as the protected transition. Name its clock, phase or action scope, expiry
+consequence, resume policy, and whether it bounds admission, durable completion,
+or observation. Resumed verification uses its own bounded execution budget and
+current evidence requirements unless an explicit contract shares the earlier
+deadline; it grants no renewed mutation authority. A completion-bound claim
+requires independent evidence from the actual protected linearization,
+durability, publication, or consumer boundary, including work that begins before
+but completes after expiry. A late API return alone does not prove that the
+durable commit was late. Test an expired mutation deadline with still-eligible
+read-only verification, a resumed mutation that remains denied, protected
+completion crossing expiry, and a timely commit observed only later.
+
 A test intended to isolate arithmetic, serialization, copy closure, or another
 non-temporal invariant must pin or inject every contextual policy input that can
 reject earlier, including clock, session, regime, feature mode, and authority
@@ -3181,6 +3194,14 @@ change_contract:
     required: behavior that must become or remain true
     forbidden: behavior that must stop or remain impossible
     preserved: adjacent valid behavior that must continue to work
+  boundary_contracts:
+    - boundary_id_and_generation: exact operation, protected phase, and governing input generation
+      transition: entry state, attempted event, and permitted terminal states
+      ownership: current owner, transfer event, accepting owner, and release or recovery owner
+      deadline: clock, phase or action scope, admission, durable-completion, or observation boundary, expiry disposition, and resume policy
+      acceptance_cutpoint: actual accepted-work or effect event and independent observation
+      evidence: boundary reached, event identity and time, source-bound result, and independent oracle
+      failure_recovery: pre-acceptance, accepted, uncertain, absent-child, retry, and release dispositions
   impact_topology:
     inputs_and_sources: initiating inputs, authoritative sources, and entrypoints
     transformations_and_decisions: computations, policies, branches, and ownership decisions
@@ -3192,6 +3213,7 @@ change_contract:
   claims_and_evidence:
     - claim: exact behavior or invariant
       scope_and_generation: identities, population, time, and source generation covered
+      boundary_ref: applicable boundary-contract identity and generation, or reasoned not-applicable disposition
       independent_oracle: expected-result source independent of the candidate path
       positive_witness: reachable intended or preserved case
       negative_witness: reachable forbidden, rejected, or harmful-suppression case
@@ -3212,6 +3234,20 @@ local transformation may have no persistence, external effect, or recovery
 path; a stateful, distributed, asynchronous, time-sensitive, or authority-
 bearing change may not omit those roles merely because the patch is local.
 
+When ownership, deadlines, acceptance, publication, or recovery can change the
+result, join their applicable dimensions in one boundary-contract row for each
+material protected transition. Bind the actual state, current owner, phase-
+specific deadline, acceptance or transfer event, independent evidence, and
+failure or release disposition to the same operation and generation. References
+to existing records are sufficient. Reject contradictory or mixed-generation
+joins; an absent mechanism has a reasoned not-applicable disposition. An earlier
+event such as admission, start, return, commit, or publication never implies a
+later transfer, observation, acceptance, reconciliation, or terminal state. Do
+not create rows for immaterial statements or add another review stage. Receipt
+existence, expected child creation, or fixture readiness proves only its named
+intermediate state; it does not prove timely acceptance, successful child
+creation, reachability of the intended production boundary, or completion.
+
 Every focused or substantial contract covers correctness, scope, required and
 preserved behavior, rejection behavior, and remaining uncertainty. Consider the
 following claim families only when their mechanism exists, and within a selected
@@ -3230,7 +3266,9 @@ reasoned not-applicable disposition:
 The implementer traces the contract through the actual reachable path before
 editing and updates the existing contract when discovery changes the topology.
 The reviewer challenges the contract against the actual callers, data
-structures, state transitions, and consumers, and checks both witnesses. A
+structures, state transitions, and consumers, checks both witnesses, and probes
+immediately before and after each material boundary-contract cutpoint using the
+same boundary identity and generation. A
 patch-only review, an internal helper test that misses the named consumer, or a
 positive witness without the applicable negative contrast cannot satisfy this
 rule; include a harmful-suppression twin when valid behavior can be suppressed,
@@ -3244,7 +3282,8 @@ exempt unless discovery widens it into a focused or substantial route.
 
 **`ACCEPT-01` reconciles partial work before retry or release of ownership.**
 Define the acceptance cutpoint for each member and external or persistent
-effect before launch. A process exception, timeout, cancellation, nonzero exit,
+effect before launch and bind it to the applicable `CHANGE-01` boundary-contract
+identity and generation. A process exception, timeout, cancellation, nonzero exit,
 or missing result does not prove that zero work or effects were accepted. If
 independent boundary evidence proves a pristine pre-cutpoint failure with no
 accepted work or effects, classify it `not_accepted` and release that member's
@@ -3257,6 +3296,34 @@ batch where member A was accepted and creating member B raises, retain A's
 ownership through its terminal result and reconcile B's creation outcome before
 retrying the batch. Never convert a partial return or uncertain effect into an
 empty result or blanket retry.
+
+Acquiring ownership before a child operation exists leaves release
+responsibility with the claimant until the intended child or consumer accepts an
+exact, independently evidenced ownership transfer. Establish cleanup immediately
+after acquisition so preparation, serialization, creation, and transfer failures
+all have a reachable release or reconciliation owner. If independent evidence
+proves no child was created, the claimant or named recovery owner reconciles and
+releases the exact claim; cleanup must not wait for that nonexistent child.
+Creation or effect uncertainty retains the current owner until reconciliation.
+Keep ownership claimed, child created, work or effect accepted, ownership
+transferred, terminal outcome reconciled, and ownership released as distinct
+events unless the real boundary contract proves that some coincide. Prefer
+completing fallible immutable launch preparation before ownership acquisition
+when the contract permits. Test preparation failure before claim, serialization
+failure after claim but before creation, uncertain child acceptance, an existing
+child without accepted transfer, and successful transfer without premature
+claimant release.
+
+An acknowledged request or transport success proves only acknowledgment; it is
+not reconciled state. Until the declared authoritative consumer observes current
+terminal state, carry the effect as unresolved into every consequential consumer
+whose decision depends on its completion or absence. That consumer may advance
+only behavior valid while the effect remains unresolved; it must not infer
+absence, release conserved risk, resources, or occupancy, or permit a conflicting
+or replacement effect. Test the producer receipt through the real carrier at the
+first consumer capable of acting, with an acknowledgment-before-observation
+negative witness and a current-terminal-observation positive witness. An audit
+that runs only after that consumer acts is too late.
 
 **`SCOPE-01` assigns review by ownership and semantic reach, not repository
 size.** Keep context scope, mutation scope, review scope, validation scope, and

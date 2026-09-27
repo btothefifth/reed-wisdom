@@ -4,6 +4,19 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.9.0 - 2026-09-27
+
+- Join state, ownership, deadlines, protected events, evidence, and recovery in
+  one generation-bound boundary row inside `CHANGE-01`.
+- Require a pre-child claimant to retain reachable release responsibility until
+  an independently evidenced ownership transfer is accepted.
+- Bind deadlines to their exact phase and admission, durable-completion, or
+  observation boundary, with separate resumed-verification budgets unless shared.
+- Carry acknowledged but unreconciled effects to the first consequential
+  consumer and test the action decision before a conflicting effect can proceed.
+- Add portable transition regressions without duplicating existing fixture,
+  evidence-state, or specialized asynchronous ownership rules.
+
 ## 1.8.0 - 2026-09-26
 
 - Add `CHANGE-01`, a portable change contract for focused and substantial
