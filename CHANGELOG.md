@@ -4,6 +4,26 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.11.0 - 2026-09-27
+
+- Add `TEACH-01`, a model-, vendor-, workflow-, and topology-neutral rule that
+  selects the smallest evidence-bound instructional support independently from
+  execution depth and worker arrangement.
+- Keep single-worker execution complete while allowing optional same-capability
+  or mixed-capability coordination under the same authority and evidence rules.
+- Add optional dependency, acceptance, and affected-evidence lesson modules;
+  their common headings are an authoring envelope rather than a required output
+  format, artifact, or execution order.
+- Preserve fast direct-oracle work, every existing hard rule, full-source
+  fallback, and the compiler/loader schema; lessons reference their normative
+  owners and cannot substitute for terminal evidence.
+- Extend the repository-only application-fidelity kit with versioned, neutral
+  cases for lesson transfer and portability without creating an ordinary-user
+  CI, hosted-service, delegation, or model requirement.
+- Record one bounded solo-worker comparison in which v1.11, v1.10, and the
+  unassisted arm all pass four cases; retain the measured cost and scope data
+  without claiming a general correctness or efficiency improvement.
+
 ## 1.10.0 - 2026-09-27
 
 - Add an ordered `FRAME` through `CLOSE` material-change loop that turns the

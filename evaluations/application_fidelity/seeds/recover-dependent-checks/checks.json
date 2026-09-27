@@ -1,0 +1,5 @@
+{
+  "render": {"reads": ["content"], "status": "passed"},
+  "export": {"reads": ["content", "format"], "status": "passed"},
+  "archive": {"reads": ["metadata"], "status": "passed"}
+}

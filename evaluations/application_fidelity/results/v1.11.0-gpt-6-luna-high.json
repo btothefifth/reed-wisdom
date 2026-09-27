@@ -1,0 +1,472 @@
+{
+  "schema": "wisdom.behavioral_eval_run.v2",
+  "release": "1.11.0",
+  "date": "2026-09-27",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "high",
+  "worker_topology": "solo",
+  "session_policy": "fresh isolated ephemeral session per arm; no delegation; user config and project rules ignored",
+  "suite": {
+    "id": "v2",
+    "schema": "wisdom.behavioral_eval_suite.v2",
+    "suite_sha256": "c020ee94d4b106c03ad1024fbab45c61c81880e98fda5dba159bdb7f7e0b757f",
+    "cases_file_sha256": "678144607bbe20737a80fd54b59175fd399efae551ab97551a3410f2bba9dd4b",
+    "oracles_sha256": "a9c6b57d9a0e134dd387917a266beb8f92779181f5f1ad979683cd04fb733ad4",
+    "runner_sha256": "c9552b7ff9463cc400013068a9a4a2024a9f95e85e28f82c8324ce91fc13af64",
+    "case_count": 4,
+    "artifact_policy": "Standard Python caches are reported as informational transient artifacts; product mutations, undeclared additions, deletions, ordinary directories, stale generations, and file budgets remain scored."
+  },
+  "controls": {
+    "same_task_prompt": true,
+    "same_model_and_effort": true,
+    "same_tool_and_permission_envelope": true,
+    "fresh_ephemeral_session_per_arm": true,
+    "user_config_and_rules_ignored": true,
+    "python_cache_environment_equal_across_arms": true
+  },
+  "arms": [
+    {
+      "id": "unassisted",
+      "wisdom": null,
+      "passed_cases": 4,
+      "failed_cases": [],
+      "changed_file_count": 4,
+      "tokens_used": 42993,
+      "elapsed_seconds": 193.025
+    },
+    {
+      "id": "prior",
+      "wisdom": {
+        "version": "1.10.0",
+        "semantic_revision": 18,
+        "source_sha256": "3c056a2c7cb3a5159af99c43ea8d9f929aaefb9b1e1873801603ed0cb050336a",
+        "routes": {
+          "conditional-delivery": {
+            "content_sha256": "7f4baa3b90f4e2701cca6a49dec8f933b05efc6e99bd7de7cfcaf5cad4e8e13f",
+            "content_bytes": 108673
+          },
+          "uncertain-slot": {
+            "content_sha256": "1168dc7430e184a3e27cb6f28cb289d3d0d8256a9cb0c990b25b4477599401b2",
+            "content_bytes": 111935
+          },
+          "recover-dependent-checks": {
+            "content_sha256": "1168dc7430e184a3e27cb6f28cb289d3d0d8256a9cb0c990b25b4477599401b2",
+            "content_bytes": 111935
+          },
+          "already-correct-normalizer": {
+            "content_sha256": "9cf6a47eba67ce44974af56a41605e526cf3d2edbc3e0c5e776ba30e0f491de3",
+            "content_bytes": 26484
+          }
+        }
+      },
+      "passed_cases": 4,
+      "failed_cases": [],
+      "changed_file_count": 6,
+      "tokens_used": 118429,
+      "elapsed_seconds": 238.763
+    },
+    {
+      "id": "candidate",
+      "wisdom": {
+        "version": "1.11.0",
+        "semantic_revision": 19,
+        "source_sha256": "9db4a6173192a870d8b14ed3be50be41fa7248308b104c5987576406f6a9ca09",
+        "routes": {
+          "conditional-delivery": {
+            "content_sha256": "845a5256268a0cc8fdc0e4b7551c3dd101594ada4b4e132b7c924cf5d5ec191e",
+            "content_bytes": 115327
+          },
+          "uncertain-slot": {
+            "content_sha256": "571e492d268937be1268aba01d321c93b3075154eccddd8c911f6a7a628e83ce",
+            "content_bytes": 118718
+          },
+          "recover-dependent-checks": {
+            "content_sha256": "30e7f57c4773e505f6efeb27b4731ddc8276c6bbf49f793f521e846d7c35cc8a",
+            "content_bytes": 118716
+          },
+          "already-correct-normalizer": {
+            "content_sha256": "0b12eb0a896847e3d2b26f30692117e05602747b5be9a4e8623f2297b86b206a",
+            "content_bytes": 30747
+          }
+        }
+      },
+      "passed_cases": 4,
+      "failed_cases": [],
+      "changed_file_count": 7,
+      "tokens_used": 125637,
+      "elapsed_seconds": 268.811
+    }
+  ],
+  "case_results": {
+    "conditional-delivery": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    },
+    "uncertain-slot": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    },
+    "recover-dependent-checks": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    },
+    "already-correct-normalizer": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    }
+  },
+  "run_records": [
+    {
+      "case_id": "conditional-delivery",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "127d9d8644d2ca948ebd32b46f5c51ea0c398d52bf7e80345d69a3f94995649c",
+      "guidance_sha256": null,
+      "response_sha256": "8ca383fb39e2e52eb7e89390803b845180b8d5b501d5471c0137a9c8b1b1461c",
+      "log_sha256": "3dfcec7441f49594e819f438d4550fe8ace101d863797d00db3020604336e4cc",
+      "tokens_used": 16929,
+      "elapsed_seconds": 74.692,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "conditional-delivery",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "461c6ddd05de29f9efd44ae3b4d5a9411bed9d5a89d73f1b411f771979c45881",
+      "guidance_sha256": "7f4baa3b90f4e2701cca6a49dec8f933b05efc6e99bd7de7cfcaf5cad4e8e13f",
+      "response_sha256": "8857781929f1eb0b4b98420e74906ba23c593c70029238695f90b7af4d897ce1",
+      "log_sha256": "e47aaff75f08f6dd790d9b13d6723752617b8c2bec94d9b58e319f3e4f87ceef",
+      "tokens_used": 30485,
+      "elapsed_seconds": 53.626,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "conditional-delivery",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "3cc5cd1d78a3ccda1c396f7d5e0093d8c50b050332ce315b4b74d1c1505ef5b8",
+      "guidance_sha256": "845a5256268a0cc8fdc0e4b7551c3dd101594ada4b4e132b7c924cf5d5ec191e",
+      "response_sha256": "6e30e4f6932ae52d8fe513d647607a14ecf765df198689130b1dcdee88b0b8a8",
+      "log_sha256": "f043db9374098287a4b87c4fdc162641512d8412ed6c2e515ac017999322c320",
+      "tokens_used": 32786,
+      "elapsed_seconds": 69.508,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "uncertain-slot",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "127d9d8644d2ca948ebd32b46f5c51ea0c398d52bf7e80345d69a3f94995649c",
+      "guidance_sha256": null,
+      "response_sha256": "acf84b912d0d92ed1e2aae286f5b6123f1e7ce2e47973a28612df16aa43b572a",
+      "log_sha256": "66355b52f2482eaeff0d8fd49b89c6197bb6219addee0160c7c55a5cf8dfd916",
+      "tokens_used": 11310,
+      "elapsed_seconds": 55.128,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "uncertain-slot",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": [
+          "__pycache__/",
+          "__pycache__/candidate.cpython-312.pyc",
+          "__pycache__/test_public.cpython-312.pyc"
+        ]
+      },
+      "prompt_sha256": "5141a2114e16ca7786838c335ceefd7945226df552644fbb1b64f76521f2d970",
+      "guidance_sha256": "1168dc7430e184a3e27cb6f28cb289d3d0d8256a9cb0c990b25b4477599401b2",
+      "response_sha256": "0419dd2ca5efe0d63fd64b76555a2fa9520ec074cc46dd40a39d11b0c14fd334",
+      "log_sha256": "a931dd307dfe367315e4cf77229904ccdeefe005508d13d938fcf23774401bfc",
+      "tokens_used": 41173,
+      "elapsed_seconds": 93.869,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "uncertain-slot",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "8119de8ae3fee5683b82a3218eab66f4fe806f964afd11bb120d11413605d765",
+      "guidance_sha256": "571e492d268937be1268aba01d321c93b3075154eccddd8c911f6a7a628e83ce",
+      "response_sha256": "49d25ab3626bb6ae417bd9cec23b73853010c82f408372d1e0441dd613c0c5ad",
+      "log_sha256": "8b3e7eefb1d21e9969f95d464887632ae315d0fc38b08a62819977fdd34d4c98",
+      "tokens_used": 40600,
+      "elapsed_seconds": 66.85,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "recover-dependent-checks",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [
+          "state/",
+          "state/recovery.json"
+        ],
+        "changed": [
+          "candidate.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 3,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "127d9d8644d2ca948ebd32b46f5c51ea0c398d52bf7e80345d69a3f94995649c",
+      "guidance_sha256": null,
+      "response_sha256": "6c3cf24c744113fe5b00cb6644112981c9ed9f5076278954a810fbdd9518db46",
+      "log_sha256": "a4fde40141ac3d74cadf7889a40e8cf9bf7f8d1afde9f676e00ad5629cad442d",
+      "tokens_used": 10467,
+      "elapsed_seconds": 38.174,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "recover-dependent-checks",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [
+          "state/",
+          "state/recovery.json"
+        ],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 3,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "5141a2114e16ca7786838c335ceefd7945226df552644fbb1b64f76521f2d970",
+      "guidance_sha256": "1168dc7430e184a3e27cb6f28cb289d3d0d8256a9cb0c990b25b4477599401b2",
+      "response_sha256": "bb86bbf868054ff853668ed05f7ea8f0ae280c46819f85575064db70996786ee",
+      "log_sha256": "7cb645f2ca382192c0fb86dfcd35d24b02487a6a7488d743a2fb7413d3da9da0",
+      "tokens_used": 33481,
+      "elapsed_seconds": 58.118,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "recover-dependent-checks",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [
+          "state/",
+          "state/recovery.json"
+        ],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 3,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "ae9acda32c501ccd7c45354af8d065ec75d3c42ef02e07c8ef26376642802ed1",
+      "guidance_sha256": "30e7f57c4773e505f6efeb27b4731ddc8276c6bbf49f793f521e846d7c35cc8a",
+      "response_sha256": "4096871de79a8c7832b665f7623fe89ed5ca8d39190f3a8e3bba19748a64792f",
+      "log_sha256": "b969a63f59e4a963010d4e0963ced23cc11e05e6c89c635d1c261bc5817402be",
+      "tokens_used": 36491,
+      "elapsed_seconds": 79.123,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "already-correct-normalizer",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [],
+        "deleted": [],
+        "max_changed_files": 0,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "127d9d8644d2ca948ebd32b46f5c51ea0c398d52bf7e80345d69a3f94995649c",
+      "guidance_sha256": null,
+      "response_sha256": "e1f91fc2e1590700b5940b86d033ffab4e10941af6a2ae040d27102dc4e412a4",
+      "log_sha256": "6a6a895fd57a902052b9e4f12611f83cd043c3d1c8081382abe43fb285b5e282",
+      "tokens_used": 4287,
+      "elapsed_seconds": 25.031,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "already-correct-normalizer",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [],
+        "deleted": [],
+        "max_changed_files": 0,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "e1df0dc1316a80a1b862c7c45abfa662c81276177bbc37963706d2757778affb",
+      "guidance_sha256": "9cf6a47eba67ce44974af56a41605e526cf3d2edbc3e0c5e776ba30e0f491de3",
+      "response_sha256": "c679ecf5c88361c021aaa95ccee90f0b9a45086ffe7cc6ba9c21ab04efa48eed",
+      "log_sha256": "3608f9e7df38d623083520e001b32975d3e519e314b0e7d20512a02b4bbb08f6",
+      "tokens_used": 13290,
+      "elapsed_seconds": 33.15,
+      "exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "already-correct-normalizer",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [],
+        "deleted": [],
+        "max_changed_files": 0,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "7389725a751d61fe27bd912de47b5ed684b266e02023259501ca2be3685e9fdc",
+      "guidance_sha256": "0b12eb0a896847e3d2b26f30692117e05602747b5be9a4e8623f2297b86b206a",
+      "response_sha256": "0032b5cf9b8d3978ba17012b153f3cbb1cf341e237425db37253f5600068fe60",
+      "log_sha256": "f4935b7d252174107a5bee3a82f3eb22546d1adbad17e483762fe5fcc6fc5a7e",
+      "tokens_used": 15760,
+      "elapsed_seconds": 53.33,
+      "exit_code": 0,
+      "infrastructure_error": null
+    }
+  ],
+  "invalidated_pilots": [
+    "A read-only sandbox smoke run was discarded before scoring because command execution and mutation were unavailable.",
+    "An initial comparison omitted the suite's documented Python cache controls; those receipts were discarded and the run was repeated.",
+    "The cache result exposed an evaluator portability defect: ordinary test artifacts obscured terminal behavior. V2 was corrected to report those artifacts separately and bind runner bytes; every arm then used a fresh preparation.",
+    "The first bound candidate no-op arm persisted redundant test coverage. The fast-route source was corrected, independently reviewed, and all four candidate cases were rerun from fresh preparations against the final source."
+  ],
+  "claim_boundary": {
+    "supported": "In this controlled solo-worker run, final v1.11 passed all four held-out v2 cases, including the zero-change control. Unassisted and v1.10 arms also passed all four, so this run establishes bounded non-regression and lesson transfer rather than comparative correctness improvement.",
+    "measured_tradeoff": "The final v1.11 arm changed 7 files across four cases versus 4 unassisted and 6 with v1.10; it did not demonstrate lower edit count, token use, or elapsed time on this small corpus.",
+    "not_supported": "This small deterministic single-model corpus is not statistical proof of general improvement, private reasoning, multiple-model or multiple-worker behavior, long-horizon coherence, or future performance on arbitrary tasks.",
+    "raw_artifacts": "Raw prompts, logs, and responses are not embedded in the public repository; their SHA-256 identities are retained in run_records."
+  }
+}

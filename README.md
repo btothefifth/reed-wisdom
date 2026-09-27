@@ -9,7 +9,7 @@ optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
 **Download:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
-or the pinned [v1.10.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.10.0/reed-wisdom.zip).
+or the pinned [v1.11.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.11.0/reed-wisdom.zip).
 
 ## Start
 
@@ -58,6 +58,13 @@ to compare the same less-capable model unassisted, with a prior stable release,
 and with a candidate release. The kit is release evidence, not a user
 requirement, CI assumption, or part of the portable archive. Unselected ideas
 remain in the [potential backlog](docs/BACKLOG.md).
+
+WISDOM is model-, vendor-, workflow-, and topology-neutral. One instruction-
+following worker can execute the complete method serially. Multiple workers of
+the same or different capabilities are optional and remain subject to the same
+authority, evidence, integration, and completion requirements. Hosted services,
+delegation, continuous integration, and network access are never prerequisites
+for ordinary use.
 
 No license is granted by this repository unless a license file is added in a
 later release.

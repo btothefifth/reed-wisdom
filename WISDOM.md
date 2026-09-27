@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-27 (America/New_York)
 
-Product version: 1.10.0
+Product version: 1.11.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 18,
+  "semantic_revision": 19,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -48,6 +48,9 @@ completion rules.
     "human_impact",
     "implementation",
     "judgment",
+    "lesson_acceptance",
+    "lesson_dependency",
+    "lesson_evidence_recovery",
     "performance",
     "process",
     "protocol",
@@ -103,7 +106,7 @@ completion rules.
     {
       "id": "start",
       "heading": "Start here: precedence, task router, and canonical artifacts",
-      "rule_ids": ["ROUTE-01", "ROUTE-02", "ROUTE-03", "ROUTE-04"]
+      "rule_ids": ["ROUTE-01", "ROUTE-02", "ROUTE-03", "ROUTE-04", "TEACH-01"]
     },
     {
       "id": "posture",
@@ -278,6 +281,21 @@ completion rules.
       "rule_ids": []
     },
     {
+      "id": "lesson_dependency",
+      "heading": "Teaching support: conditional dependency reachability",
+      "rule_ids": []
+    },
+    {
+      "id": "lesson_acceptance",
+      "heading": "Teaching support: acceptance, ownership, and reconciliation",
+      "rule_ids": []
+    },
+    {
+      "id": "lesson_evidence_recovery",
+      "heading": "Teaching support: affected evidence and omission recovery",
+      "rule_ids": []
+    },
+    {
       "id": "sources",
       "heading": "Philosophical sources and adaptation limits",
       "rule_ids": []
@@ -415,6 +433,24 @@ completion rules.
       "sections": ["correction_closure"],
       "tags": ["correction", "retro"],
       "requires": ["defect_diagnostics", "testing"]
+    },
+    {
+      "id": "lesson_dependency",
+      "sections": ["lesson_dependency"],
+      "tags": ["lesson_dependency"],
+      "requires": ["protocol_identity"]
+    },
+    {
+      "id": "lesson_acceptance",
+      "sections": ["lesson_acceptance"],
+      "tags": ["lesson_acceptance"],
+      "requires": ["implementation_performance"]
+    },
+    {
+      "id": "lesson_evidence_recovery",
+      "sections": ["lesson_evidence_recovery"],
+      "tags": ["lesson_evidence_recovery"],
+      "requires": ["implementation_performance"]
     },
     {
       "id": "sources",
@@ -621,6 +657,56 @@ Use these routing criteria:
 | `ROUTE-03` hard-control closure | every applicable hard criterion retains its authority owner and representative proof obligation at the selected scope, and action/promotion requires its satisfied immutable proof receipt | “proportionality,” urgency, cost, or small code size omits a critical proof obligation, treats a plan as proof, or expands authority |
 | `ROUTE-04` nonredundancy | controls that ask the same decision question from the same evidence surface merge into one owner/pass | stacked skills, reviews, agents, or tests repeat the same reasoning without independent evidence or a different falsifier |
 
+**`TEACH-01` adds the smallest evidence-bound teaching support without changing
+the engineering contract.** Select the ordinary execution route first. Then add
+instructional support only when current task evidence shows a specific missing
+distinction, repeated omission, failed boundary, lost obligation, or material
+uncertainty that can change the next action. A model name, vendor, size,
+self-description, workflow, or permanent capability label is not such evidence.
+Treat observed difficulty as scoped to the task shape and evidence generation;
+expire it when the task, tools, or demonstrated behavior changes.
+
+Use four additive support levels: `core` applies the owning normative rule;
+`contrast` adds the nearest misleading intermediate fact or harmful inverse;
+`worked` traces one structurally representative example through the real
+consumer and independent oracle; and `recovery` shows the earliest affected
+step to reopen after an omission while preserving unaffected evidence. Choose
+the smallest level that can change behavior. The optional tags
+`lesson_dependency`, `lesson_acceptance`, and `lesson_evidence_recovery` load
+compact examples for their named failure families; they never replace their
+required operational modules or create authority.
+
+The lesson vocabulary `WHEN / UNDERSTAND / INSPECT / DO / REJECT / PROVE /
+RECOVER / STOP` is an authoring envelope, not a required output format, artifact,
+or execution order. Omit an immaterial heading with a reason implicit in the
+rule's mechanism. A known denial may `REJECT` before work; an unreached
+dependency may `STOP` without inspection; and execution may stop while ownership
+remains until reconciliation. Preserve state machines, truth tables, mathematics,
+or pseudocode when they express the invariant more faithfully than prose.
+
+Worker topology is independent of instruction depth. One worker must be able to
+perform the complete route serially, separating implementation, self-review, and
+validation as bounded passes and deriving independence from the oracle, source,
+or alternate derivation rather than pretending to be a separate reviewer.
+Several workers of the same or different capabilities may divide roles under the
+same contract and one integration owner, but their number or diversity supplies
+no authority or proof by itself. When delegation, hosted automation, continuous
+integration, network access, or a specialized tool is unavailable, use the
+smallest local or serial mechanism that proves the same invariant and state the
+remaining evidence limit honestly.
+
+Stop added teaching when an intended case, its nearest contrast, and an unfamiliar
+structural sibling reach the correct consumer with preserved valid behavior, or
+when a mechanical control now supplies the capability. Reopen it only for a
+materially different case or recurrence. Repeated same-family failure requires a
+changed representation, tool, contract, or worker capability justified by the
+current task evidence; when delegation exists, `CAPABILITY-01` governs any
+reassignment. Do not answer recurrence by indefinitely expanding prose. Go red if
+support moves a hard obligation into optional text, treats a filled lesson as
+evidence, adds ceremony to a fast direct-oracle task, assumes a second worker or
+particular infrastructure, or improves explanation without improving terminal
+behavior.
+
 ```text
 route_wisdom(request, verified_context):
     derive the minimum scoped provisional judgment needed to choose a route
@@ -650,6 +736,12 @@ route_wisdom(request, verified_context):
             do not add or modify tests, documentation, or process artifacts
             unless that oracle cannot distinguish the required behavior, and
             reroute to focused if repairing the proof seam becomes material
+        when the task explicitly permits no change and the implementation
+            already satisfies it, and a required action-relevant example is
+            unrepresented by the existing direct oracle, check that example
+            with a temporary non-mutating probe; do not persist extra coverage
+            unless the user requested it, the absent coverage is itself the
+            defect, or no direct observation can establish the behavior
         create no separate routing artifact; persist only the requested durable
             change and its normal project-native proof when applicable
     if mode == focused:
@@ -663,6 +755,9 @@ route_wisdom(request, verified_context):
 
     remove controls with no named criterion, decision, or independent falsifier
     merge controls that share the same semantic owner, evidence, and stop condition
+    select teaching support independently from mode and worker topology:
+        use core unless scoped evidence justifies contrast, worked, or recovery
+        add only the lesson tags for the demonstrated failure family
     reject the route if any hard criterion lacks an owner, proof obligation,
         oracle, or rejection threshold; reject action/promotion if its required
         immutable proof receipt is absent or failed
@@ -677,6 +772,8 @@ wisdom_route:
   request_and_evidence_generation: exact scope, instructions, context cutoff
   dimensions: consequence, uncertainty, reversibility, coupling, novelty, authority, evidence cost
   mode_and_controls: fast | focused | substantial; selected and merged controls
+  teaching_support: core | contrast | worked | recovery; scoped gap evidence, lesson tags, stop/reopen condition
+  worker_topology: solo | coordinated; available roles, integration owner when present, evidence-independence limits
   hard_gates_and_proof: criterion, owner, proof obligation, representative oracle, rejection threshold, receipt status
   judgment_and_questions: provisional route assumptions, expiry, valuable unresolved answer
   stop_and_reopen: sufficient route condition and material evidence that forces rerouting
@@ -5352,6 +5449,122 @@ Lead communication with the outcome. Surface discoveries when they change risk,
 architecture, priority, or timeline. Separate research from realized behavior,
 diagnostics from authority, estimates from measured facts, and safety from
 reflexive inaction.
+
+## Teaching support: conditional dependency reachability
+
+This lesson supports `DEP-01`; that rule remains the authority.
+
+- **WHEN:** A later input, service, feature, or check is required only after an
+  earlier branch, guard, or state transition reaches it.
+- **UNDERSTAND:** Dependency is a property of the executed decision path. An
+  earlier decisive terminal may complete without consulting later evidence.
+  Once the path reaches a required dependency, however, missing or invalid
+  evidence blocks that dependent outcome rather than becoming a guessed default.
+- **INSPECT:** Trace the actual ordered consumer from entry through each guard.
+  Mark the first decisive terminal, the exact branch that activates the later
+  dependency, and the consumer that uses its value. Do not infer reachability
+  from configuration presence, module imports, or a broad inventory alone.
+- **DO:** Evaluate cheap decisive prerequisites first when semantics permit. At
+  the dependent consumer, require, validate, and carry a conditional input only
+  after its activation predicate succeeds, while preserving the result of any
+  earlier terminal. Separately authorized prefetch or background acquisition may
+  occur earlier when it cannot veto or authorize an unreached branch and the
+  reached consumer still validates the input's identity and freshness.
+- **REJECT:** Do not let an absent unreached dependency veto an earlier valid
+  result. Do not let a reached missing dependency silently pass, substitute a
+  nearby value, or reuse evidence from another generation.
+- **PROVE:** Use a pair at the same outer entrypoint: one case terminates before
+  the dependency and succeeds while it is absent; another reaches the dependency
+  and fails closed when it is absent. Add the nearest valid reached case so the
+  repair cannot disable the dependent behavior wholesale.
+- **RECOVER:** If a fixture or implementation stops at the wrong predicate,
+  repair the earliest producer or guard that determines reachability. Preserve
+  unrelated proof whose path and inputs did not change.
+- **STOP:** Close when every reachable terminal has the correct dependency set,
+  the intended consumer was observed, and no absent unreached input affects the
+  result.
+
+The heading order describes the lesson, not the runtime: a decisive guard may
+reject or return before any later inspection or acquisition occurs.
+
+## Teaching support: acceptance, ownership, and reconciliation
+
+This lesson supports `ACCEPT-01`; that rule remains the authority.
+
+- **WHEN:** Work can be acknowledged, admitted, partially accepted, created,
+  transferred, timed out, cancelled, or observed after the initiating call
+  returns.
+- **UNDERSTAND:** Request, acknowledgment, accepted work, child creation,
+  ownership transfer, terminal effect, observation, reconciliation, and release
+  are different facts unless the real boundary proves that some coincide.
+  Silence, timeout, exception, or a missing result does not prove absence.
+- **INSPECT:** Name the exact member or effect, current owner, acceptance cutpoint,
+  accepting consumer, terminal observer, deadline scope, and recovery owner.
+  Split a batch into accepted, rejected, pending, and unknown members instead of
+  assigning one convenient status to the whole batch.
+- **DO:** Preserve the current owner and any conserved occupancy or risk while an
+  accepted or uncertain effect can still exist. Propagate that unresolved state
+  to the first consequential consumer. Retry, replace, roll back, or release only
+  after independent evidence establishes the applicable member's disposition.
+- **REJECT:** An acknowledgment is not reconciled state; scheduled work is not a
+  created child; child creation is not accepted ownership transfer; timeout is
+  not zero effect. Do not free capacity or permit a conflicting action from any
+  of those intermediate facts.
+- **PROVE:** At the real consequential consumer, pair an intermediate-success or
+  timeout case that must retain unresolved state with a current terminal
+  observation that permits release or the next valid action. When batch or
+  partial-acceptance semantics exist, include a partial batch where one member is
+  accepted and another remains uncertain; a singleton needs no invented sibling.
+- **RECOVER:** Reconcile the exact uncertain member through its authoritative
+  boundary. A proved pristine pre-cutpoint failure may release locally; a crossed
+  or uncertain cutpoint retains ownership until terminal evidence arrives.
+- **STOP:** Close only when every submitted identity has one terminal disposition,
+  ownership and effects are reconciled, and the consumer can no longer mistake an
+  intermediate receipt for completion.
+
+A solo worker can perform this trace and validation serially. Additional workers
+may challenge separate evidence surfaces, but their agreement does not replace
+the authoritative consumer observation.
+
+## Teaching support: affected evidence and omission recovery
+
+This lesson supports `CHANGE-01`, `SCOPE-01`, and `IMPACT-01`; those rules remain
+the authority.
+
+- **WHEN:** A later edit, newly discovered consumer, missing witness, stale
+  fixture, changed configuration, or omitted obligation can invalidate part of a
+  previously green implementation or review.
+- **UNDERSTAND:** Evidence is bound to its source, dependency, fixture,
+  environment, oracle, boundary, and generation. Discovery of one omission does
+  not make stale proof current, and it does not automatically invalidate work
+  outside the affected dependency frontier.
+- **INSPECT:** Reconstruct the required, forbidden, and preserved outcomes. Trace
+  the omitted item to the earliest affected `FRAME / TRACE / JOIN / IMPLEMENT /
+  DISPROVE / CLOSE` step, its actual consumers, and every receipt whose declared
+  dependencies include the change.
+- **DO:** Classify prior evidence as unaffected, invalidated, or unknown-impact.
+  Reopen the earliest affected step, repair the smallest complete owning seam,
+  widen unknown impact only to the plausible consumer frontier, and rerun the
+  cheapest sufficient proof against the final generation.
+- **REJECT:** Do not rehash or relabel an old receipt, rewrite the expectation to
+  match the candidate, ignore a newly found consumer, or restart unrelated
+  completed work merely to demonstrate diligence.
+- **PROVE:** The final generation reaches the newly discovered boundary, retains
+  the intended or preserved positive case, and rejects the harmful inverse. When
+  an independently unchanged dependency set exists, demonstrate that its receipt
+  remains valid; when every receipt is affected, state that disposition and
+  replace each one without inventing unrelated proof.
+- **RECOVER:** Preserve source-bound unaffected evidence and completed work.
+  Replace only invalidated receipts; if impact remains unknown, expand discovery
+  until a finite frontier is proved or use the full route.
+- **STOP:** Close when every outcome-changing obligation and consequential
+  consumer has an evidence-backed disposition, the final behavior-bearing bytes
+  match the proof generation, and unresolved items cannot change the claim.
+
+This recovery method works with one worker or many. In coordinated work, one
+integration owner classifies the combined frontier; in solo work, the same
+worker performs the bounded classification in a separate pass. Neither topology
+changes the evidence required for completion.
 
 ## Philosophical sources and adaptation limits
 

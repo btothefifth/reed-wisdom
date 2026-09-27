@@ -1,0 +1,97 @@
+{
+  "schema": "wisdom.behavioral_eval_suite.v2",
+  "cases": [
+    {
+      "id": "conditional-delivery",
+      "title": "Wait for required confirmation without blocking local delivery",
+      "task_profile": "bug_fix",
+      "mechanisms": ["conditional_dependency_reachability", "preserved_behavior"],
+      "seed_root": "seeds/conditional-delivery",
+      "task_file": "TASK.md",
+      "seed_condition": "defective",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "allowed_added_paths": [],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Remote delivery waits for content and confirmation"],
+        "forbidden": ["Deliver before required confirmation", "Block local delivery on an unrelated confirmation"],
+        "preserved": ["Ready local and remote deliveries still complete"]
+      },
+      "expected_topology": ["mode_selector", "conditional_requirements", "source_states", "delivery_consumer"],
+      "misleading_intermediate_evidence": ["Content alone is ready"],
+      "positive_witnesses": ["Local content and fully confirmed remote content deliver"],
+      "negative_witnesses": ["Missing or pending required content or confirmation waits"],
+      "go_red_mutations": ["omit-confirmation", "require-unrelated-confirmation"],
+      "critical_checks": ["remote-requires-confirmation", "local-preserved", "required-content-reachable", "unknown-mode-rejected", "bounded-delta"]
+    },
+    {
+      "id": "uncertain-slot",
+      "title": "Retain occupied slots until absence or completion is known",
+      "task_profile": "bug_fix",
+      "mechanisms": ["uncertain_acceptance", "ownership_conservation"],
+      "seed_root": "seeds/uncertain-slot",
+      "task_file": "TASK.md",
+      "seed_condition": "defective",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "allowed_added_paths": [],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Uncertain work retains the current slot and owner", "Accepted work remains occupied"],
+        "forbidden": ["Timeout permits a conflicting replacement", "Release unrelated occupied work"],
+        "preserved": ["Proven creation failure and observed completion release their exact slots"]
+      },
+      "expected_topology": ["slot_claimant", "launch_report", "occupancy_carrier", "replacement_consumer", "terminal_observer"],
+      "misleading_intermediate_evidence": ["The request timed out"],
+      "positive_witnesses": ["Proven absence and terminal completion permit replacement"],
+      "negative_witnesses": ["Timeout and accepted running work prohibit replacement"],
+      "go_red_mutations": ["release-uncertain-slot", "retain-proven-absent-slot", "overwrite-accepted-owner"],
+      "critical_checks": ["uncertain-retains-owner", "accepted-stays-occupied", "proven-absence-releases", "terminal-release-preserved", "unrelated-slot-preserved", "bounded-delta"]
+    },
+    {
+      "id": "recover-dependent-checks",
+      "title": "Recover omitted checks while retaining unrelated evidence",
+      "task_profile": "bug_fix",
+      "mechanisms": ["affected_proof_invalidation", "omission_recovery", "durable_state"],
+      "seed_root": "seeds/recover-dependent-checks",
+      "task_file": "TASK.md",
+      "seed_condition": "defective",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "allowed_added_paths": ["state/recovery.json"],
+      "max_changed_files": 3,
+      "outcomes": {
+        "required": ["Invalidate every check reading a changed input", "Persist a report bound to final source and input bytes"],
+        "forbidden": ["Omit a dependent check", "Discard independent completed checks", "Reuse a report after its inputs or implementation change"],
+        "preserved": ["No changed inputs retain all checks"]
+      },
+      "expected_topology": ["changed_inputs", "check_read_sets", "recovery_function", "durable_report", "completion_consumer"],
+      "misleading_intermediate_evidence": ["One dependent check was found", "A report exists"],
+      "positive_witnesses": ["All and only dependent checks are invalidated and a current report is persisted"],
+      "negative_witnesses": ["An omitted sibling, unrelated invalidation, or stale report is rejected"],
+      "go_red_mutations": ["omit-dependent-export", "discard-unrelated-check", "stale-report-source"],
+      "critical_checks": ["all-dependent-checks-invalidated", "unrelated-checks-retained", "changed-metadata-independent", "no-change-preserved", "report-matches-inputs", "report-matches-final-source", "bounded-delta"]
+    },
+    {
+      "id": "already-correct-normalizer",
+      "title": "Leave a correct local operation unchanged",
+      "task_profile": "routine",
+      "mechanisms": ["no_op_proportionality"],
+      "seed_root": "seeds/already-correct-normalizer",
+      "task_file": "TASK.md",
+      "seed_condition": "already_satisfies_contract",
+      "allowed_mutation_paths": [],
+      "allowed_added_paths": [],
+      "max_changed_files": 0,
+      "outcomes": {
+        "required": ["Confirm supported normalization behavior without changing files"],
+        "forbidden": ["Rewrite correct code or tests", "Add process artifacts"],
+        "preserved": ["Missing, empty, mixed-case, and Unicode names normalize correctly"]
+      },
+      "expected_topology": ["pure_function", "direct_test"],
+      "misleading_intermediate_evidence": ["Every task requires an edit"],
+      "positive_witnesses": ["The existing implementation satisfies all supported examples"],
+      "negative_witnesses": ["Wrong normalization or any workspace delta fails"],
+      "go_red_mutations": ["break-existing-normalization"],
+      "critical_checks": ["normalization-preserved", "bounded-delta"]
+    }
+  ]
+}
