@@ -75,7 +75,7 @@ def _contains_all(text: str, terms: tuple[str, ...]) -> None:
 def test_v17_delegation_modules_and_profiles_are_dependency_closed() -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 19
+    assert parsed.manifest["semantic_revision"] == 20
     assert [module["id"] for module in parsed.manifest["modules"]].count(
         "delegation_contract"
     ) == 1

@@ -1,38 +1,35 @@
 # Release work and potential backlog
 
-## Selected: v1.11 portable teaching support
+## Selected: v1.12 semantic validation target
 
-- **Objective and generation:** on the v1.10.0 source at semantic revision 18,
-  add an evidence-bound teaching-support axis that improves application of
-  existing engineering disciplines without changing their authority.
-- **Required outcomes:** ordinary fast/focused/substantial/full routing remains
-  authoritative; one worker can execute every route; optional coordinated work
-  may use workers of the same or different capabilities; support is selected
-  from current task evidence; and the source remains model-, vendor-, workflow-,
-  tool-, CI-, and project-neutral.
-- **Forbidden outcomes:** no named model hierarchy or personal workflow enters
-  portable WISDOM; no hard rule moves into optional lesson text; no lesson
-  heading becomes a required output or fixed execution order; no second worker,
-  hosted service, or automation system becomes mandatory; and fast direct-oracle
-  work gains no additional ceremony.
-- **Preserved behavior:** source precedence, proportional routing, full-source
-  fallback, exact module delivery, independent evidence, user authority, and all
-  v1.10 semantic regressions remain intact.
-- **Affected topology:** `WISDOM.md` kernel routing produces optional lesson-tag
-  selection; the compiler and loader carry exact source sections without schema
-  changes; maintainers validate routes, archive identity, and behavioral transfer;
-  ordinary users may use the complete file without the tools.
-- **Positive and negative witnesses:** unlike dependency, acceptance, and
-  evidence-recovery lessons must improve or preserve terminal behavior on unseen
-  cases; a fast/no-op control must remain bounded; absent infrastructure must use
-  a valid local or serial alternative; and optional prose alone cannot count as
-  evidence.
+- **Objective and generation:** on the v1.11.0 source at semantic revision 19,
+  make exact behavioral expectations identify the final effective producer,
+  acting consumer, complete valid outcome set, exactness basis, misleading
+  intermediates, and independent oracle before material validation.
+- **Required outcomes:** exact values, counts, ordering, member sets, and refusals
+  derive from the owning contract; unsupported exactness becomes a stable
+  invariant or bounded typed result set; and reviewers challenge expectations
+  with an alternate valid outcome plus an applicable later overwrite, reorder,
+  or authority transition.
+- **Forbidden outcomes:** no project-specific example, mandatory form, new
+  artifact, review stage, CI assumption, network dependency, named model, or
+  worker-count requirement; simple direct-oracle work gains no ceremony.
+- **Preserved behavior:** v1.11 teaching support, source precedence, proportional
+  routing, full-source fallback, exact module delivery, independent evidence,
+  user authority, and all existing semantic regressions remain intact.
+- **Affected topology:** the existing testing owner defines completeness and
+  exactness; the existing implementation phase gate carries the transient
+  semantic target; the compiler and loader transport the changed source without
+  a schema, module, tag, or route change.
+- **Positive and negative witnesses:** an exact expectation must survive an
+  alternate valid outcome and an applicable later state-changing transition;
+  preserved assertions or bytes alone cannot certify semantics; a routine direct
+  oracle remains unchanged.
 - **Owner and next action:** the current release session owns source integration,
-  validation, publication, and side-by-side installation. Independent review and
-  application-fidelity trials must bind to the final candidate generation.
-- **Acceptance:** structural and semantic tests are green; the deterministic
-  archive matches source; bounded fresh-session trials support only claims they
-  observe; no portable personal/model/workflow references remain; the public tag,
+  validation, independent review, publication, and side-by-side installation.
+- **Acceptance:** focused semantic tests and the full repository suite are green;
+  deterministic archive and fresh Windows checkout agree; no personal, project,
+  workflow, CI, or model dependency enters portable guidance; and public tag,
   release asset, main branch, and installed bytes agree.
 
 # Potential backlog

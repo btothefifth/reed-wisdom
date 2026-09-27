@@ -4,6 +4,28 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.12.0 - 2026-09-27
+
+- Require material exact behavioral assertions to identify the final effective
+  producer or state, acting consumer, complete contract-valid outcome set,
+  exactness basis, misleading intermediate facts, and independent oracle.
+- Require exact values, counts, ordering, member sets, and refusals to be
+  justified from the owning contract; otherwise assert the supported invariant
+  or bounded typed result set.
+- Challenge exact expectations with an alternate valid outcome and an applicable
+  later overwrite, reorder, or authority transition before changing production.
+- Classify and repair fixture, oracle, setup, or contract defects at their
+  earliest owner when that challenge invalidates the expectation.
+- Keep the semantic target proportional and transient inside existing contract
+  or test evidence; simple direct-oracle work gains no form, artifact, review
+  stage, CI assumption, or worker requirement.
+- Add held-out final-source/outcome and fixture-owner cases whose independent
+  checks reject hardcoded clocks, suppressed valid members, weakened guards,
+  stale fixtures, and skipped regression witnesses.
+- Record a bounded solo-worker comparison in which v1.12, v1.11, and the
+  unassisted arm pass both new cases; retain the higher v1.12 token and elapsed
+  cost without claiming a general correctness or efficiency improvement.
+
 ## 1.11.0 - 2026-09-27
 
 - Add `TEACH-01`, a model-, vendor-, workflow-, and topology-neutral rule that

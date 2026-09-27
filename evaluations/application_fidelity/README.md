@@ -95,13 +95,15 @@ python scripts/run_application_fidelity_eval.py score --suite v2 \
 python scripts/run_application_fidelity_eval.py self-check --suite v2
 ```
 
-The cases cover four distinct behaviors:
+The cases cover six distinct behaviors:
 
 | Case | Required behavior and preserved twin |
 | --- | --- |
 | `conditional-delivery` | Remote delivery waits for its required confirmation; local delivery does not wait for unrelated confirmation. |
 | `uncertain-slot` | Timeout retains the current owner and occupancy; proven creation failure and observed completion free only the matching slot. |
 | `recover-dependent-checks` | All checks reading changed inputs are invalidated; unrelated checks remain usable, and a durable report matches final implementation and input bytes. |
+| `effective-source-and-outcomes` | An explicit clock remains effective after final setup; every enabled destination remains present in supplied order even when a public assertion expects an incomplete count. |
+| `fixture-owner-triage` | A stale fixture is repaired at its owning test seam while the correct production expiry guard remains byte-identical. |
 | `already-correct-normalizer` | Existing supported behavior passes with zero changed files; unnecessary edits and product artifacts fail. |
 
 V2 preparation and score receipts bind the selected suite, case, complete oracle
@@ -149,6 +151,15 @@ correctness improvement; its edit, token, and elapsed measurements also do not
 show an efficiency gain for v1.11 on this small corpus. Green integrity tests or
 `self-check` alone do not establish improved model behavior.
 
+The v1.12 receipt
+[`v1.12.0-gpt-6-luna-high.json`](results/v1.12.0-gpt-6-luna-high.json)
+uses fresh isolated arms for the two new cases. Unassisted, v1.11, and v1.12
+passed both and changed the same three files. The v1.12 arm used more reported
+tokens and elapsed time, so this is bounded application and non-regression
+evidence, not a correctness or efficiency advantage. The other four v2 cases
+were integrity-tested against their references and go-red mutations but were
+not rerun with models for this receipt.
+
 ## Workflow-neutral trials and evidence
 
 The evaluator may run each fresh-session triad with a single worker, multiple
@@ -174,4 +185,4 @@ Classify infrastructure invalidations with independent evidence, retain their
 record, and rerun comparable arms consistently. Candidate failures and budget
 exhaustion are scored outcomes. New confirmation variants and controlled
 interruptions or handoffs are needed for broader or long-horizon claims; these
-four small deterministic cases do not supply that evidence by themselves.
+six small deterministic cases do not supply that evidence by themselves.

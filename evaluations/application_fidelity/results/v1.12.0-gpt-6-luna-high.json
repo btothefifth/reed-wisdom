@@ -1,0 +1,288 @@
+{
+  "schema": "wisdom.behavioral_eval_run.v2",
+  "release": "1.12.0",
+  "date": "2026-09-27",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "high",
+  "worker_topology": "solo",
+  "session_policy": "fresh isolated ephemeral session per arm; no delegation; user config and project rules ignored",
+  "suite": {
+    "id": "v2",
+    "schema": "wisdom.behavioral_eval_suite.v2",
+    "suite_sha256": "71886603e21f0de6f87f0ae3295440c2f4a1044464711e72d3af38df636f55c0",
+    "cases_file_sha256": "8b4c37223346b3107b330e567ef1188c00f5b6cafd28b436752a38c02167f274",
+    "oracles_sha256": "7990188d9d7177448e918536707d8512b3a4990f7877263e263b89d2271f4cd8",
+    "runner_sha256": "c9552b7ff9463cc400013068a9a4a2024a9f95e85e28f82c8324ce91fc13af64",
+    "case_count": 6,
+    "selected_case_count": 2,
+    "selected_cases": [
+      "effective-source-and-outcomes",
+      "fixture-owner-triage"
+    ],
+    "artifact_policy": "Standard Python caches are reported as informational transient artifacts; product mutations, undeclared additions, deletions, ordinary directories, stale generations, and file budgets remain scored."
+  },
+  "controls": {
+    "same_task_prompt": true,
+    "common_task_prompt_sha256": "031d6d2c63c61f2fcdb2c02417d5fa2fe55c7ec8e0f187d58225562f6d14e2cc",
+    "same_model_and_effort": true,
+    "same_tool_and_permission_envelope": true,
+    "fresh_ephemeral_session_per_arm": true,
+    "user_config_and_rules_ignored": true,
+    "python_cache_environment_equal_across_arms": true
+  },
+  "arms": [
+    {
+      "id": "unassisted",
+      "wisdom": null,
+      "passed_cases": 2,
+      "failed_cases": [],
+      "changed_file_count": 3,
+      "tokens_used": 201682,
+      "elapsed_seconds": 93.563
+    },
+    {
+      "id": "prior",
+      "wisdom": {
+        "version": "1.11.0",
+        "semantic_revision": 19,
+        "source_sha256": "9db4a6173192a870d8b14ed3be50be41fa7248308b104c5987576406f6a9ca09",
+        "routes": {
+          "effective-source-and-outcomes": {
+            "content_sha256": "db174f0e7976b212c1c84905b1fcaf717ed389af99cf9f791aa025391cb6af77",
+            "content_bytes": 116198
+          },
+          "fixture-owner-triage": {
+            "content_sha256": "db174f0e7976b212c1c84905b1fcaf717ed389af99cf9f791aa025391cb6af77",
+            "content_bytes": 116198
+          }
+        }
+      },
+      "passed_cases": 2,
+      "failed_cases": [],
+      "changed_file_count": 3,
+      "tokens_used": 458768,
+      "elapsed_seconds": 102.531
+    },
+    {
+      "id": "candidate",
+      "wisdom": {
+        "version": "1.12.0",
+        "semantic_revision": 20,
+        "source_sha256": "df786b013b91cfa88b8b1d8ca5e88499a5682af93a4525ba14f8bbee468085b1",
+        "routes": {
+          "effective-source-and-outcomes": {
+            "content_sha256": "1cfae5c590a2d9d2e5bab3d521b4d9a75c8cbe5cfecb79363fd8ce8f8819bdea",
+            "content_bytes": 119531
+          },
+          "fixture-owner-triage": {
+            "content_sha256": "1cfae5c590a2d9d2e5bab3d521b4d9a75c8cbe5cfecb79363fd8ce8f8819bdea",
+            "content_bytes": 119531
+          }
+        }
+      },
+      "passed_cases": 2,
+      "failed_cases": [],
+      "changed_file_count": 3,
+      "tokens_used": 635928,
+      "elapsed_seconds": 214.781
+    }
+  ],
+  "case_results": {
+    "effective-source-and-outcomes": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    },
+    "fixture-owner-triage": {
+      "unassisted": "pass",
+      "prior": "pass",
+      "candidate": "pass"
+    }
+  },
+  "run_records": [
+    {
+      "case_id": "effective-source-and-outcomes",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "031d6d2c63c61f2fcdb2c02417d5fa2fe55c7ec8e0f187d58225562f6d14e2cc",
+      "guidance_sha256": null,
+      "guidance_bytes": null,
+      "response_sha256": "8efdb33978acbb772cbbc44877f4f1a624eaddf6ccb971a75edffbc6259e7af6",
+      "log_sha256": "93c4a8ff879d006c86e03d705d37cac5337f1f8cb1d7af594fed674e683a3fcb",
+      "tokens_used": 109162,
+      "elapsed_seconds": 53.485,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "effective-source-and-outcomes",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "00ef69647d7e7544ccf76613922a557d61c9dee2c6227b90150377d6bc310327",
+      "guidance_sha256": "db174f0e7976b212c1c84905b1fcaf717ed389af99cf9f791aa025391cb6af77",
+      "guidance_bytes": 116198,
+      "response_sha256": "7f78708dab0b14bb01e73a0a2eff56698b65c1861069222c4ff57933c40f90f3",
+      "log_sha256": "5c3c9de0abc6bbe7a4f9133087aa7e6b690478ae44b07b268fe30856842c686b",
+      "tokens_used": 189928,
+      "elapsed_seconds": 58.047,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "effective-source-and-outcomes",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "candidate.py",
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 2,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "416b52ffd3a969f093e50823fcfefc4bbaff720462d705d0170616fd132ddddf",
+      "guidance_sha256": "1cfae5c590a2d9d2e5bab3d521b4d9a75c8cbe5cfecb79363fd8ce8f8819bdea",
+      "guidance_bytes": 119531,
+      "response_sha256": "442ee97b21a24f4391ae932026c1357b411db1db63c5e0b063cd752afcc6a236",
+      "log_sha256": "15265115d6fd1d24a0e308c083928cb353f44fc04745c962545ea146b7ac2013",
+      "tokens_used": 313682,
+      "elapsed_seconds": 140.078,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "fixture-owner-triage",
+      "arm": "unassisted",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 1,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "031d6d2c63c61f2fcdb2c02417d5fa2fe55c7ec8e0f187d58225562f6d14e2cc",
+      "guidance_sha256": null,
+      "guidance_bytes": null,
+      "response_sha256": "6d5085af3b40f7af1cb93c000f820b392525b6a581559b027e31ce3bde6fb324",
+      "log_sha256": "ba67a8786e4a2a42017d61d36808524293ec5e0f268161405922125b9c73ef79",
+      "tokens_used": 92520,
+      "elapsed_seconds": 40.078,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "fixture-owner-triage",
+      "arm": "prior",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 1,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "00ef69647d7e7544ccf76613922a557d61c9dee2c6227b90150377d6bc310327",
+      "guidance_sha256": "db174f0e7976b212c1c84905b1fcaf717ed389af99cf9f791aa025391cb6af77",
+      "guidance_bytes": 116198,
+      "response_sha256": "10cde6e95cf900b70456d7839ccb0f9d734c22982d9d4fcf8e089da8c6e4dd28",
+      "log_sha256": "4c8cffdf4a093548cde13d688b0bcc6772121d6871828c8d80a6e7be8f81edbc",
+      "tokens_used": 268840,
+      "elapsed_seconds": 44.484,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    },
+    {
+      "case_id": "fixture-owner-triage",
+      "arm": "candidate",
+      "passed": true,
+      "critical_failures": [],
+      "delta": {
+        "added": [],
+        "changed": [
+          "test_public.py"
+        ],
+        "deleted": [],
+        "max_changed_files": 1,
+        "unexpected": []
+      },
+      "transient_python_artifacts": {
+        "informational_only": true,
+        "paths": []
+      },
+      "prompt_sha256": "416b52ffd3a969f093e50823fcfefc4bbaff720462d705d0170616fd132ddddf",
+      "guidance_sha256": "1cfae5c590a2d9d2e5bab3d521b4d9a75c8cbe5cfecb79363fd8ce8f8819bdea",
+      "guidance_bytes": 119531,
+      "response_sha256": "d8cd6159f49407dcd3befa972478ef0796836eaf8ccb5663b8219a318eee3ae5",
+      "log_sha256": "b0999992987519db2a1530e651da3e6febca93717f0e453e34c48132a9a50786",
+      "tokens_used": 322246,
+      "elapsed_seconds": 74.703,
+      "exit_code": 0,
+      "score_exit_code": 0,
+      "infrastructure_error": null
+    }
+  ],
+  "invalidated_pilots": [],
+  "claim_boundary": {
+    "supported": "In this controlled solo-worker run, final v1.12, v1.11, and the unassisted arm each passed both newly added held-out cases. This supplies bounded non-regression and application evidence for final effective source, complete contract-valid outputs, and fixture-owner classification.",
+    "measured_tradeoff": "All arms changed the same three files across the two cases. The v1.12 arm used more reported tokens and elapsed time than both comparison arms, so this run does not demonstrate an efficiency gain.",
+    "not_supported": "The four unchanged v2 cases were integrity-tested but not rerun with models for this receipt. Two deterministic cases with one model and one worker do not prove general improvement, private reasoning, multiple-model or multiple-worker behavior, long-horizon coherence, or future performance on arbitrary tasks.",
+    "raw_artifacts": "Raw prompts, logs, and responses are not embedded in the public repository; their SHA-256 identities are retained in run_records."
+  }
+}

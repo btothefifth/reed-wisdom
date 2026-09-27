@@ -90,6 +90,29 @@ def test_v110_behavioral_receipt_is_source_bound_and_bounded() -> None:
     assert receipt["claim_boundary"]["not_supported"]
 
 
+def test_v112_behavioral_receipt_is_current_source_bound_and_bounded() -> None:
+    receipt_path = evaluation.EVAL_ROOT / "results" / "v1.12.0-gpt-6-luna-high.json"
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    arms = {arm["id"]: arm for arm in receipt["arms"]}
+    suite, _, _ = evaluation.load_suite("v2")
+
+    assert receipt["schema"] == "wisdom.behavioral_eval_run.v2"
+    assert receipt["release"] == "1.12.0"
+    assert receipt["suite"]["suite_sha256"] == evaluation._digest(suite)
+    cases_path, oracles_path = evaluation._suite_paths("v2")
+    assert receipt["suite"]["cases_file_sha256"] == _sha256(cases_path)
+    assert receipt["suite"]["oracles_sha256"] == _sha256(oracles_path)
+    assert receipt["suite"]["runner_sha256"] == _sha256(evaluation.RUNNER_PATH)
+    assert arms["candidate"]["wisdom"]["source_sha256"] == _sha256(ROOT / "WISDOM.md")
+    assert receipt["suite"]["selected_cases"] == [
+        "effective-source-and-outcomes",
+        "fixture-owner-triage",
+    ]
+    assert all(arm["passed_cases"] == 2 and arm["failed_cases"] == [] for arm in arms.values())
+    assert arms["candidate"]["tokens_used"] > arms["prior"]["tokens_used"]
+    assert receipt["claim_boundary"]["not_supported"]
+
+
 def test_score_cli_requires_explicit_candidate_execution_acknowledgement(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -288,6 +311,8 @@ V2_CASES = (
     "conditional-delivery",
     "uncertain-slot",
     "recover-dependent-checks",
+    "effective-source-and-outcomes",
+    "fixture-owner-triage",
     "already-correct-normalizer",
 )
 

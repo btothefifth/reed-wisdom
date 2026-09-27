@@ -48,7 +48,7 @@ def _change_rule(parsed: compiler.ParsedWisdom) -> str:
 
 def test_v110_reuses_existing_rules_and_routes() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 19
+    assert parsed.manifest["semantic_revision"] == 20
     assert len(parsed.manifest["modules"]) == 26
     assert parsed.section_by_id["implementation"].rule_ids.count("CHANGE-01") == 1
     assert parsed.section_by_id["implementation"].rule_ids.count("SEM-01") == 1
@@ -166,9 +166,9 @@ def test_behavioral_drill_is_maintainer_evidence_without_user_infrastructure() -
         assert _normalized(phrase) in bootstrap
 
 
-def test_backlog_preserves_two_unselected_ideas_after_teaching_selection() -> None:
+def test_backlog_preserves_two_unselected_ideas_after_v112_selection() -> None:
     backlog = (ROOT / "docs" / "BACKLOG.md").read_text(encoding="utf-8")
-    assert "## Selected: v1.11 portable teaching support" in backlog
+    assert "## Selected: v1.12 semantic validation target" in backlog
     assert "do not create current obligations" in _normalized(backlog)
     potential = backlog.split("# Potential backlog\n", 1)[1]
     assert re.findall(r"^## (.+)$", potential, flags=re.MULTILINE) == [

@@ -71,6 +71,52 @@
       "critical_checks": ["all-dependent-checks-invalidated", "unrelated-checks-retained", "changed-metadata-independent", "no-change-preserved", "report-matches-inputs", "report-matches-final-source", "bounded-delta"]
     },
     {
+      "id": "effective-source-and-outcomes",
+      "title": "Follow final setup and preserve every contract-valid output",
+      "task_profile": "bug_fix",
+      "mechanisms": ["final_effective_source", "contract_valid_outcomes", "fixture_oracle_classification"],
+      "seed_root": "seeds/effective-source-and-outcomes",
+      "task_file": "TASK.md",
+      "seed_condition": "defective",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "allowed_added_paths": [],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["An explicit clock remains effective after preparation", "Every enabled destination produces one job"],
+        "forbidden": ["Final setup silently replaces the explicit clock", "Suppress a valid destination to satisfy an incorrect exact count"],
+        "preserved": ["Disabled destinations produce no job", "Exact deterministic results remain exact when the contract determines them"]
+      },
+      "expected_topology": ["clock_argument", "planner_setup", "timestamp_consumer", "destination_selector", "job_consumer"],
+      "misleading_intermediate_evidence": ["The constructor initially stores the explicit clock", "The public test expects two jobs"],
+      "positive_witnesses": ["Prepared planners use the explicit clock and every enabled destination is retained"],
+      "negative_witnesses": ["A later clock overwrite, suppressed enabled destination, or admitted disabled destination is rejected"],
+      "go_red_mutations": ["overwrite-explicit-clock", "hardcode-clock-result", "suppress-valid-destination", "admit-disabled-destination"],
+      "critical_checks": ["explicit-clock-survives-prepare", "all-enabled-destinations-preserved", "disabled-destinations-rejected", "public-tests", "bounded-delta"]
+    },
+    {
+      "id": "fixture-owner-triage",
+      "title": "Repair a stale fixture without weakening the production guard",
+      "task_profile": "bug_fix",
+      "mechanisms": ["fixture_oracle_classification", "boundary_reachability", "preserved_behavior"],
+      "seed_root": "seeds/fixture-owner-triage",
+      "task_file": "TASK.md",
+      "seed_condition": "defective",
+      "allowed_mutation_paths": ["test_public.py"],
+      "allowed_added_paths": [],
+      "max_changed_files": 1,
+      "outcomes": {
+        "required": ["A valid record reaches serialization", "The public regression test uses a valid record"],
+        "forbidden": ["Weaken the expiry guard", "Treat an earlier rejection as serialization evidence"],
+        "preserved": ["A record expiring at or before now is rejected before serialization"]
+      },
+      "expected_topology": ["fixture_time", "expiry_guard", "serializer", "serialization_oracle"],
+      "misleading_intermediate_evidence": ["The production guard appears in the failing stack", "The test reached the public entrypoint"],
+      "positive_witnesses": ["A record beyond the fixed test epoch increments the serializer counter exactly once"],
+      "negative_witnesses": ["An expired record is rejected without incrementing the serializer counter"],
+      "go_red_mutations": ["weaken-expiry-guard", "restore-stale-fixture", "skip-regression-test"],
+      "critical_checks": ["expired-input-rejected", "fresh-input-reaches-serializer", "public-regression-reaches-valid-serialization", "public-tests", "bounded-delta"]
+    },
+    {
       "id": "already-correct-normalizer",
       "title": "Leave a correct local operation unchanged",
       "task_profile": "routine",

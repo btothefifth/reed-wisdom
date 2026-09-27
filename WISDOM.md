@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-27 (America/New_York)
 
-Product version: 1.11.0
+Product version: 1.12.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 19,
+  "semantic_revision": 20,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -2966,6 +2966,15 @@ exact error code only when the same semantic boundary is guaranteed reachable;
 otherwise enumerate the bounded typed rejection set instead of teaching the
 test that later validation must run after an earlier guard has already failed.
 
+Before asserting an exact value, count, order, member set, or refusal at a
+material behavioral boundary, enumerate the complete bounded set of outcomes
+that the owning contract permits at the acting consumer and justify why every
+included and excluded possibility has that disposition. If that set cannot be
+established, assert the stable property, invariant, or bounded typed result set
+that the evidence actually supports. Fixture construction, one observed run,
+preserved assertions, unchanged source bytes, or a matching snapshot establishes
+neither completeness nor semantic correctness by itself.
+
 When a carrier exposes both top-level control fields and a nested or hashed
 receipt, define and test their cross-representation consistency; a valid
 self-hash does not make contradictory transport, authority, owner, scope, or
@@ -3166,6 +3175,14 @@ its oracle does not reuse the implementation value under test. Prove that an
 adversary reaches the predicate it claims to test; rejection at an earlier,
 unrelated precondition proves nothing about a skipped or late check.
 
+Before changing production to resolve a failing behavioral assertion, classify
+the earliest demonstrated cause as a production defect, fixture or reachability
+defect, expectation or oracle defect, infrastructure failure, or unresolved.
+Derive that classification from the current owning contract, reached boundary,
+and independent evidence. Repair an invalid fixture or oracle at its owning
+seam, preserve the failed receipt, and rerun only the affected proof; do not
+broaden expected behavior merely to accommodate the candidate.
+
 Test infrastructure that changes import paths, environment variables, global
 hooks, clocks, or process state to load a candidate owns those changes as
 harness state. Before a test invokes a real production entrypoint whose
@@ -3247,8 +3264,12 @@ does not invalidate unrelated evidence.
 When behavior intentionally changes, update its controlling contract, owning
 implementation, and directly owned expectations as one change, deriving new
 expectations from the contract or an independent oracle. When the contract is
-unchanged, preserve the existing expectation and add a regression that exposes
-the defect; never rewrite expected output to match candidate behavior. Include
+unchanged and the expectation faithfully represents it, preserve that
+expectation and add a regression that exposes the defect. When independent
+evidence instead demonstrates an expectation or oracle defect, repair that
+evidence owner without changing production behavior.
+The rule remains: never rewrite expected output to match candidate behavior.
+A candidate result alone does not justify that change. Include
 fixtures, generated interfaces, examples, and selector manifests when they
 carry the changed semantics.
 
@@ -3594,12 +3615,42 @@ keeps the application gate red:
 
 - **Before editing:** what must change, what must remain possible, which
   consumer acts next, and which boundary owns the behavior?
-- **Before validation:** which exact predicate must the witness reach, which
-  intermediate facts could mislead, and which independent oracle decides the
-  result?
+- **Before validation:** which final effective producer or surviving state is
+  used by this invocation after setup and overrides, which exact predicate must
+  the witness reach and which acting consumer uses it, which complete
+  contract-valid outcome set applies,
+  what justifies any exact value, count, order, or refusal, which intermediate
+  facts could mislead, and which independent oracle decides the result?
 - **Before completion or transfer:** what acts next, does its evidence match
   the final generation, which effects or owners remain unresolved, and did any
   later edit invalidate proof?
+
+For a material behavioral run or exact assertion whose result can vary with
+setup, other valid outputs, ordering, or authority state, bind those answers in
+the existing contract or test-evidence record as this transient semantic target:
+
+```yaml
+semantic_validation_target:
+  final_installed_producer: producer or state used by this invocation after later setup and overrides; not deployment status
+  acting_consumer: final code or boundary that reads or acts on it
+  valid_outcome_set: complete bounded contract-valid results or acceptance predicate; continuous outcomes use the supported invariant
+  exactness_basis: contract-derived reason for an exact value, count, order, or refusal
+  misleading_intermediates: earlier facts that cannot establish the final result
+  oracle: independent source that decides the consumer outcome
+```
+
+This is a derived view, not another required artifact or serialized form;
+references in the existing record are sufficient. A simple direct-oracle case
+needs only the ordinary assertion and caller trace. Before accepting an
+exact expectation, the implementer or reviewer challenges it with another
+contract-valid outcome when one exists and with an applicable later overwrite,
+reorder, or authority transition when that mechanism can change consumption.
+Do not invent an alternate outcome or transition for a deterministic singleton
+whose contract excludes it. If either challenge changes the justified
+expectation, classify and repair the earliest fixture, oracle, setup, or contract
+defect before changing production behavior. The challenge may reuse the existing
+positive, preserved, negative, and go-red witnesses; it does not add a review
+stage.
 
 If a refresh changes the contract, topology, or generation, invalidate only
 the dependent later-phase evidence and return to the earliest affected loop

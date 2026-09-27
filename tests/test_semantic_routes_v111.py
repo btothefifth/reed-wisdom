@@ -66,7 +66,7 @@ def _independent_lesson_bytes(raw: bytes, heading: str) -> bytes:
 
 def test_v111_preserves_single_rule_owners_and_existing_schemas() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 19
+    assert parsed.manifest["semantic_revision"] == 20
     assert len(parsed.manifest["modules"]) == 26
     assert len(parsed.manifest["allowed_tags"]) == 40
     assert parsed.manifest["schema"] == "wisdom.portable_bootstrap.source.v1"
@@ -244,17 +244,18 @@ def test_full_source_fallback_retains_complete_lesson_authority(tmp_path: Path, 
         assert heading.encode("utf-8") in loader.read_plan_content(plan)
 
 
-def test_backlog_selects_teaching_and_keeps_only_two_potential_ideas() -> None:
+def test_backlog_preserves_teaching_outcomes_and_two_potential_ideas() -> None:
     backlog = (ROOT / "docs" / "BACKLOG.md").read_text(encoding="utf-8")
     selected, potential = backlog.split("# Potential backlog\n", 1)
-    assert re.findall(r"^## (.+)$", selected, flags=re.MULTILINE) == ["Selected: v1.11 portable teaching support"]
+    assert re.findall(r"^## (.+)$", selected, flags=re.MULTILINE) == ["Selected: v1.12 semantic validation target"]
     assert re.findall(r"^## (.+)$", potential, flags=re.MULTILINE) == [
         "Compact internal working state", "Omission recovery procedure",
     ]
-    _assert_phrases(selected, (
-        "one worker can execute every route",
-        "no hard rule moves into optional lesson text",
-        "no second worker, hosted service, or automation system becomes mandatory",
-        "bounded fresh-session trials support only claims they observe",
+    teaching = _teach(compiler.parse_source(SOURCE))
+    _assert_phrases(teaching, (
+        "One worker must be able to perform the complete route serially",
+        "their number or diversity supplies no authority or proof by itself",
+        "support moves a hard obligation into optional text",
+        "adds ceremony to a fast direct-oracle task",
     ))
     assert "do not create current" in potential.casefold()

@@ -272,6 +272,144 @@ assert candidate.recover(checks, []) == {"invalidated": [], "retained": ["archiv
             MutationSpec("stale-report-source", "state/recovery.json", '"candidate_sha256": "$CANDIDATE_SHA"', '"candidate_sha256": "0000000000000000000000000000000000000000000000000000000000000000"', "report-matches-final-source"),
         ),
     ),
+    "effective-source-and-outcomes": OracleSpec(
+        reference_files={
+            "candidate.py": _src('''
+                """A planner with final setup and a destination selector."""
+
+
+                class Planner:
+                    def __init__(self, clock):
+                        self.clock = clock
+
+                    def prepare(self) -> None:
+                        return None
+
+                    def timestamp(self) -> int:
+                        return self.clock()
+
+
+                def jobs(destinations: list[tuple[str, bool]]) -> list[str]:
+                    return [name for name, enabled in destinations if enabled]
+                '''),
+            "test_public.py": _src('''
+                import unittest
+
+                import candidate
+
+
+                class PlannerTests(unittest.TestCase):
+                    def test_explicit_clock(self) -> None:
+                        values = iter((41, 43))
+                        planner = candidate.Planner(lambda: next(values))
+                        planner.prepare()
+                        self.assertEqual(planner.timestamp(), 41)
+                        self.assertEqual(planner.timestamp(), 43)
+
+                    def test_enabled_destinations(self) -> None:
+                        destinations = [("east", True), ("west", True), ("north", True)]
+                        self.assertEqual(candidate.jobs(destinations), ["east", "west", "north"])
+
+
+                if __name__ == "__main__":
+                    unittest.main()
+                '''),
+        },
+        checks=(
+            _check("explicit-clock-survives-prepare", "terminal_behavior", '''
+                import candidate
+                values = iter((17, 23))
+                planner = candidate.Planner(lambda: next(values))
+                planner.prepare()
+                assert planner.timestamp() == 17
+                assert planner.timestamp() == 23
+                '''),
+            _check("all-enabled-destinations-preserved", "preserved_behavior", '''
+                import candidate
+                destinations = [("east", True), ("west", True), ("north", True)]
+                assert candidate.jobs(destinations) == ["east", "west", "north"]
+                '''),
+            _check("disabled-destinations-rejected", "rejected_behavior", '''
+                import candidate
+                destinations = [("east", True), ("west", False), ("north", True)]
+                assert candidate.jobs(destinations) == ["east", "north"]
+                assert candidate.jobs([("west", False)]) == []
+                '''),
+            PUBLIC,
+        ),
+        mutations=(
+            MutationSpec("overwrite-explicit-clock", "candidate.py", "return None", "self.clock = lambda: 0", "explicit-clock-survives-prepare"),
+            MutationSpec("hardcode-clock-result", "candidate.py", "return self.clock()", "return 42", "explicit-clock-survives-prepare"),
+            MutationSpec("suppress-valid-destination", "candidate.py", "return [name for name, enabled in destinations if enabled]", "return [name for name, enabled in destinations if enabled][:2]", "all-enabled-destinations-preserved"),
+            MutationSpec("admit-disabled-destination", "candidate.py", "return [name for name, enabled in destinations if enabled]", "return [name for name, enabled in destinations]", "disabled-destinations-rejected"),
+        ),
+    ),
+    "fixture-owner-triage": OracleSpec(
+        reference_files={
+            "test_public.py": _src('''
+                import unittest
+
+                import candidate
+
+
+                class SerializationTests(unittest.TestCase):
+                    def test_serialization_shape(self) -> None:
+                        record = {"id": "r1", "value": "ok", "expires_at": 110}
+                        self.assertEqual(candidate.encode(record, now=100), "r1:ok")
+                        self.assertEqual(candidate.serialize_calls, 1)
+
+
+                if __name__ == "__main__":
+                    unittest.main()
+                '''),
+        },
+        checks=(
+            _check("expired-input-rejected", "preserved_behavior", '''
+                import candidate
+                try:
+                    candidate.encode({"id": "r", "value": "x", "expires_at": 100}, now=100)
+                except ValueError as exc:
+                    assert str(exc) == "expired"
+                else:
+                    raise AssertionError("expired input was accepted")
+                assert candidate.serialize_calls == 0
+                '''),
+            _check("fresh-input-reaches-serializer", "boundary_reachability", '''
+                import candidate
+                assert candidate.encode({"id": "r", "value": "x", "expires_at": 101}, now=100) == "r:x"
+                assert candidate.serialize_calls == 1
+                '''),
+            _check("public-regression-reaches-valid-serialization", "visible_evidence", '''
+                import unittest
+                import candidate
+                import test_public
+
+                observed = []
+                original = candidate.encode
+
+                def recording_encode(record, now):
+                    observed.append((dict(record), now))
+                    return original(record, now)
+
+                candidate.encode = recording_encode
+                result = unittest.TestResult()
+                test_public.SerializationTests("test_serialization_shape").run(result)
+                assert result.wasSuccessful()
+                assert result.testsRun == 1
+                assert not result.skipped
+                assert len(observed) == 1
+                record, now = observed[0]
+                assert int(record["expires_at"]) > now
+                assert candidate.serialize_calls == 1
+                '''),
+            PUBLIC,
+        ),
+        mutations=(
+            MutationSpec("weaken-expiry-guard", "candidate.py", 'if int(record["expires_at"]) <= now:', 'if False and int(record["expires_at"]) <= now:', "expired-input-rejected"),
+            MutationSpec("restore-stale-fixture", "test_public.py", '"expires_at": 110', '"expires_at": 90', "public-tests"),
+            MutationSpec("skip-regression-test", "test_public.py", "    def test_serialization_shape(self) -> None:", '    @unittest.skip("disabled")\n    def test_serialization_shape(self) -> None:', "public-regression-reaches-valid-serialization"),
+        ),
+    ),
     "already-correct-normalizer": OracleSpec(
         reference_files={},
         checks=(
