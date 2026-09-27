@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-27 (America/New_York)
 
-Product version: 1.9.0
+Product version: 1.10.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 17,
+  "semantic_revision": 18,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -646,6 +646,10 @@ route_wisdom(request, verified_context):
         select posture + bounded operating loop + exact authority check if relevant
         select author review + the cheapest representative independent proof
             obligation and oracle; obtain its receipt before action/promotion
+        when the request names an existing direct oracle, run it unchanged;
+            do not add or modify tests, documentation, or process artifacts
+            unless that oracle cannot distinguish the required behavior, and
+            reroute to focused if repairing the proof seam becomes material
         create no separate routing artifact; persist only the requested durable
             change and its normal project-native proof when applicable
     if mode == focused:
@@ -1027,6 +1031,23 @@ Retain omission, duplicated-owner, coupled-oracle, lost-decision, and failed-
 handoff mutations. Reopen this bootstrap when a real task reveals a missing
 representation, coupled oracle, status misunderstanding, unsafe delegation, or
 repeated ambiguity.
+
+For a source revision that claims more consistent model application, run a
+matched application-fidelity drill in three fresh isolated sessions with the
+same less-capable target model, settings, tools, workspace seed and environment,
+budget, and high-level prompt, using a separate clean copy for each arm. Give
+the unassisted run no WISDOM, the stable run the prior
+stable routed WISDOM view, and the candidate run the exact current routed view;
+do not leak the scoring rubric or expert procedure into any task prompt.
+Independently score whether each run discovers the affected
+topology and consequential consumer, rejects intermediate evidence, preserves
+legitimate behavior, uses current-generation positive and negative witnesses,
+reports unresolved obligations honestly, and avoids unnecessary actions, tool
+calls, tokens, and elapsed work. Correctness and false-completion prevention
+dominate efficiency. Record the source hash, delivery ID, model and settings,
+prompt identity, behavior-level scores, escaped errors, and residual unknowns.
+These are bootstrap-maintainer release drills, not user CI, project ceremony,
+or a dependency of ordinary WISDOM operation.
 
 Keep the empirical receipts in an external, implementation-neutral evidence
 ledger rather than embedding any validating project in this portable file. Use
@@ -3226,6 +3247,56 @@ change_contract:
     findings_and_disposition: concrete counterexample or proof gap, owner, and acceptance effect
 ```
 
+Apply that contract through this ordered material-change loop. Reuse the same
+contract and evidence owners; the loop is an execution order, not another
+artifact or review stage:
+
+1. **FRAME:** state required, forbidden, and preserved behavior for the exact
+   objective and source generation.
+2. **TRACE:** follow the reachable producer, carrier, state, consumer, recovery,
+   and sibling paths that can change the outcome.
+3. **JOIN:** bind each material transition's state, owner, deadline, acceptance
+   event, evidence, and failure disposition to one boundary identity and
+   generation.
+4. **IMPLEMENT:** change the smallest complete owning seam that repairs the
+   traced path while preserving the named valid behavior.
+5. **DISPROVE:** exercise an intended or preserved witness and a forbidden or
+   harmful-suppression witness at the first consequential consumer.
+6. **CLOSE:** reopen the final source and delta, invalidate evidence affected by
+   later edits, reconcile outcome-changing obligations, and state bounded
+   residual unknowns before claiming completion.
+
+The application gate is red when any of these is true; this gate status is
+distinct from a retained `go-red` mutation used to test an oracle:
+
+- a discovered consequential consumer has no evidence-backed disposition;
+- evidence belongs to another source, input, boundary, or ownership generation;
+- a receipt proves only admission, acknowledgment, start, return, or publication
+  while the claim requires later acceptance, observation, reconciliation, or
+  completion;
+- a witness exits before the named production predicate or consumer boundary;
+- either the intended or preserved witness or its applicable negative twin is
+  missing;
+- ownership, accepted work, or external effect remains uncertain while retry,
+  replacement, release, or absence depends on it;
+- a final behavior-bearing edit occurred after the supporting evidence; or
+- an unresolved obligation can still change the claimed outcome.
+
+Use these contrast pairs to prevent a familiar intermediate fact from being
+promoted into a stronger claim:
+
+| Intermediate fact | It does not prove | Evidence required for the later claim |
+| --- | --- | --- |
+| request or transport success | terminal reconciled state | current authoritative terminal observation at the consequential consumer |
+| receipt or admission | named consumer acceptance | exact same-generation acceptance event observed at that consumer |
+| scheduled or expected child start | child creation | exact child identity plus an independently observed creation result |
+| observed child creation | ownership transfer | independently observed acceptance by the new owner for that exact child and work identity |
+| fixture constructed or selector started | intended production predicate was reached | boundary-reach evidence plus the real consumer result |
+| focused proof passed before a later edit | the final source generation is proved | rerun of the invalidated frontier against the final source |
+| malformed or forbidden case is rejected | adjacent legitimate behavior remains possible | positive preserved-behavior twin at the same consumer |
+| direct caller is updated | sibling consumers remain coherent | bounded consumer inventory with evidence-backed dispositions |
+| API returned or timed out | durable commit, absence, or reconciliation | independent current observation of the claimed terminal state, or an explicit unresolved result |
+
 The topology is a role vocabulary, not a demand that every system contain every
 role. Inspect every potentially material role, record present roles explicitly,
 and use `unreachable_with_evidence` or `not_applicable_with_reason` only when the
@@ -3418,6 +3489,24 @@ proof_and_adversary: cheapest positive witness and strongest cheap counterexampl
 exit_and_recovery: immutable exit evidence, rejection, rollback or forward recovery
 status_and_next: current state, blocker, next falsifiable action
 ```
+
+Refresh that same gate at each material phase boundary. This is a derived view
+of existing contract and evidence, never a fifth semantic artifact. Answer
+from current evidence before the protected action; an unknown material answer
+keeps the application gate red:
+
+- **Before editing:** what must change, what must remain possible, which
+  consumer acts next, and which boundary owns the behavior?
+- **Before validation:** which exact predicate must the witness reach, which
+  intermediate facts could mislead, and which independent oracle decides the
+  result?
+- **Before completion or transfer:** what acts next, does its evidence match
+  the final generation, which effects or owners remain unresolved, and did any
+  later edit invalidate proof?
+
+If a refresh changes the contract, topology, or generation, invalidate only
+the dependent later-phase evidence and return to the earliest affected loop
+step.
 
 Implement the smallest complete vertical slice: real producer, carrier,
 consumer, failure behavior, persistence/recovery where needed, observability,

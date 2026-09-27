@@ -4,6 +4,24 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.10.0 - 2026-09-27
+
+- Add an ordered `FRAME` through `CLOSE` material-change loop that turns the
+  existing change contract into an explicit execution sequence.
+- Keep the application gate red for missing consumers, stale or intermediate
+  evidence, incomplete witnesses, uncertain ownership, later edits, and
+  outcome-changing unresolved obligations.
+- Refresh the existing contract and evidence at editing, validation, and
+  completion boundaries without adding another required artifact.
+- Add contrast pairs that distinguish familiar intermediate facts from the
+  terminal evidence needed for stronger claims.
+- Add a repository-only, standard-library application-fidelity evaluation kit
+  for matched less-capable-model release drills, without adding CI, network,
+  hosted-service, or ordinary-user requirements.
+- Keep a named direct oracle unchanged on the fast route unless it cannot
+  distinguish the required behavior, preventing avoidable test or process edits.
+- Record three unselected follow-up ideas in a separate potential backlog.
+
 ## 1.9.0 - 2026-09-27
 
 - Join state, ownership, deadlines, protected events, evidence, and recovery in

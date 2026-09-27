@@ -1,0 +1,173 @@
+{
+  "schema": "wisdom.behavioral_eval_suite.v1",
+  "cases": [
+    {
+      "id": "acknowledged-not-reconciled",
+      "title": "Keep a remote effect unresolved after acknowledgment",
+      "task_profile": "bug_fix",
+      "mechanisms": ["ordered_material_change_loop", "go_red_conditions", "contrast_pairs"],
+      "seed_root": "seeds/acknowledged-not-reconciled",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Record acknowledgment without releasing capacity", "Release capacity after authoritative terminal observation"],
+        "forbidden": ["Treat transport success as reconciled remote state", "Permit a conflicting replacement while cancellation is unresolved"],
+        "preserved": ["A confirmed cancellation permits a replacement"]
+      },
+      "expected_topology": ["cancel_response_producer", "effect_state_carrier", "capacity_consumer", "replacement_consumer", "terminal_observer"],
+      "misleading_intermediate_evidence": ["HTTP success", "cancel request receipt"],
+      "positive_witnesses": ["confirmed cancellation releases capacity and permits replacement"],
+      "negative_witnesses": ["acknowledgment alone retains capacity and blocks replacement"],
+      "go_red_mutations": ["premature-capacity-release", "terminal-observation-never-releases"],
+      "critical_checks": ["ack-recorded-not-terminal", "ack-retains-capacity", "ack-blocks-replacement", "terminal-observation-releases"]
+    },
+    {
+      "id": "claim-before-child",
+      "title": "Retain cleanup ownership until child creation and transfer are known",
+      "task_profile": "bug_fix",
+      "mechanisms": ["ordered_material_change_loop", "go_red_conditions", "phase_boundary_refresh"],
+      "seed_root": "seeds/claim-before-child",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Release a claim after proven pre-child failure", "Retain claimant ownership while creation is uncertain", "Transfer ownership only after a child exists"],
+        "forbidden": ["Wait for a nonexistent child to release a claim", "Release ownership during uncertain creation"],
+        "preserved": ["Successful child creation transfers the exact claim"]
+      },
+      "expected_topology": ["claimant", "serializer", "child_factory", "ownership_carrier", "release_owner"],
+      "misleading_intermediate_evidence": ["claim acquired", "child expected to start"],
+      "positive_witnesses": ["created child owns the claim"],
+      "negative_witnesses": ["serialization and proven creation failure release the claim", "uncertain creation retains claimant ownership"],
+      "go_red_mutations": ["leak-on-serialization-failure", "release-on-uncertain-creation"],
+      "critical_checks": ["serialization-failure-releases", "creation-failure-releases", "uncertain-creation-retains", "created-child-owns"]
+    },
+    {
+      "id": "fixture-reaches-boundary",
+      "title": "Repair a stale fixture without weakening the production guard",
+      "task_profile": "bug_fix",
+      "mechanisms": ["go_red_conditions", "phase_boundary_refresh", "contrast_pairs"],
+      "seed_root": "seeds/fixture-reaches-boundary",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["test_public.py"],
+      "max_changed_files": 1,
+      "outcomes": {
+        "required": ["The serialization witness reaches the serializer", "Expired input remains rejected"],
+        "forbidden": ["Weaken the expiry guard to make the fixture pass", "Treat earlier rejection as serialization evidence"],
+        "preserved": ["Fresh input serializes normally"]
+      },
+      "expected_topology": ["fixture_time", "expiry_guard", "serializer", "serialization_oracle"],
+      "misleading_intermediate_evidence": ["fixture constructed", "test reached the public entrypoint"],
+      "positive_witnesses": ["fresh fixture increments the serializer reach counter"],
+      "negative_witnesses": ["expired fixture is rejected before serialization"],
+      "go_red_mutations": ["weaken-expiry-guard", "restore-stale-fixture"],
+      "critical_checks": ["expired-input-rejected", "fresh-input-reaches-serializer", "public-witness-passes"]
+    },
+    {
+      "id": "stale-receipt-after-edit",
+      "title": "Reject green evidence from an earlier source generation",
+      "task_profile": "bug_fix",
+      "mechanisms": ["go_red_conditions", "phase_boundary_refresh"],
+      "seed_root": "seeds/stale-receipt-after-edit",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "evidence.json", "test_public.py"],
+      "max_changed_files": 3,
+      "outcomes": {
+        "required": ["Repair normalization", "Bind passing evidence to the final candidate bytes"],
+        "forbidden": ["Reuse a green receipt after a material source edit", "Claim completion while the receipt is stale"],
+        "preserved": ["Existing nonempty normalization remains unchanged"]
+      },
+      "expected_topology": ["normalization_source", "public_consumer", "source_hash", "evidence_receipt", "completion_claim"],
+      "misleading_intermediate_evidence": ["earlier tests passed", "receipt status is green"],
+      "positive_witnesses": ["final source behavior passes with a matching SHA-256 receipt"],
+      "negative_witnesses": ["post-receipt source edit makes the receipt stale"],
+      "go_red_mutations": ["edit-source-after-receipt", "mark-current-receipt-failed"],
+      "critical_checks": ["none-normalizes-empty", "nonempty-normalization-preserved", "receipt-matches-final-source", "receipt-records-pass"]
+    },
+    {
+      "id": "sibling-consumer-omitted",
+      "title": "Repair every consequential consumer of a shared state",
+      "task_profile": "bug_fix",
+      "mechanisms": ["ordered_material_change_loop", "phase_boundary_refresh", "contrast_pairs"],
+      "seed_root": "seeds/sibling-consumer-omitted",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Pending state is rejected by both consumers"],
+        "forbidden": ["Repair only the named primary consumer", "Leave the sibling consumer permissive"],
+        "preserved": ["Ready state remains accepted by both consumers"]
+      },
+      "expected_topology": ["shared_state_carrier", "primary_consumer", "sibling_consumer"],
+      "misleading_intermediate_evidence": ["primary consumer test passed", "one caller was repaired"],
+      "positive_witnesses": ["ready state passes both consumers"],
+      "negative_witnesses": ["pending state fails both consumers"],
+      "go_red_mutations": ["restore-permissive-sibling", "block-valid-ready-state"],
+      "critical_checks": ["primary-rejects-pending", "sibling-rejects-pending", "primary-preserves-ready", "sibling-preserves-ready"]
+    },
+    {
+      "id": "harmful-suppression",
+      "title": "Reject the dangerous case without blocking legitimate behavior",
+      "task_profile": "bug_fix",
+      "mechanisms": ["ordered_material_change_loop", "contrast_pairs"],
+      "seed_root": "seeds/harmful-suppression",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Reject unreviewed publication", "Allow a reviewed nonempty document"],
+        "forbidden": ["Allow an unreviewed document", "Disable all publication as a repair"],
+        "preserved": ["Reviewed nonempty publication remains possible"]
+      },
+      "expected_topology": ["document_state", "publication_gate", "publisher"],
+      "misleading_intermediate_evidence": ["dangerous case is now blocked", "negative test passed"],
+      "positive_witnesses": ["reviewed nonempty document may publish"],
+      "negative_witnesses": ["unreviewed or empty document may not publish"],
+      "go_red_mutations": ["allow-unreviewed", "block-reviewed"],
+      "critical_checks": ["unreviewed-rejected", "empty-rejected", "reviewed-preserved"]
+    },
+    {
+      "id": "intermediate-event-completion",
+      "title": "Do not mark work complete when a worker merely starts",
+      "task_profile": "bug_fix",
+      "mechanisms": ["ordered_material_change_loop", "go_red_conditions", "phase_boundary_refresh", "contrast_pairs"],
+      "seed_root": "seeds/intermediate-event-completion",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py", "test_public.py"],
+      "max_changed_files": 2,
+      "outcomes": {
+        "required": ["Record start separately from terminal completion", "Complete only after terminal success"],
+        "forbidden": ["Treat worker creation or start as completion", "Hide timeout or failure behind a completed flag"],
+        "preserved": ["A terminally successful worker completes the job"]
+      },
+      "expected_topology": ["worker_factory", "start_event", "terminal_result", "job_state_consumer"],
+      "misleading_intermediate_evidence": ["worker object exists", "worker started"],
+      "positive_witnesses": ["terminal success marks complete"],
+      "negative_witnesses": ["failure and timeout remain started but incomplete"],
+      "go_red_mutations": ["complete-on-start", "never-complete-success"],
+      "critical_checks": ["failure-not-complete", "timeout-not-complete", "success-completes", "start-remains-visible"]
+    },
+    {
+      "id": "fast-local-control",
+      "title": "Keep a trivial reversible repair proportionate",
+      "task_profile": "routine",
+      "mechanisms": ["proportionality_control"],
+      "seed_root": "seeds/fast-local-control",
+      "task_file": "TASK.md",
+      "allowed_mutation_paths": ["candidate.py"],
+      "max_changed_files": 1,
+      "outcomes": {
+        "required": ["Increment an integer by exactly one"],
+        "forbidden": ["Add process artifacts or unrelated edits"],
+        "preserved": ["Negative, zero, and positive integers remain supported"]
+      },
+      "expected_topology": ["pure_function", "direct_caller"],
+      "misleading_intermediate_evidence": ["a larger process must be safer"],
+      "positive_witnesses": ["negative, zero, and positive inputs increment once"],
+      "negative_witnesses": ["off-by-one implementation fails"],
+      "go_red_mutations": ["restore-off-by-one"],
+      "critical_checks": ["increments-negative", "increments-zero", "increments-positive", "bounded-delta"]
+    }
+  ]
+}

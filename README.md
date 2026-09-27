@@ -9,7 +9,7 @@ optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
 **Download:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
-or the pinned [v1.9.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.9.0/reed-wisdom.zip).
+or the pinned [v1.10.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.10.0/reed-wisdom.zip).
 
 ## Start
 
@@ -51,6 +51,13 @@ Runtime tools use only the Python standard library. Tests require pytest:
 python -m pytest
 python scripts/build_wisdom_bundle.py --check
 ```
+
+Maintainers can use the repository-only
+[application-fidelity evaluations](evaluations/application_fidelity/README.md)
+to compare the same less-capable model unassisted, with a prior stable release,
+and with a candidate release. The kit is release evidence, not a user
+requirement, CI assumption, or part of the portable archive. Unselected ideas
+remain in the [potential backlog](docs/BACKLOG.md).
 
 No license is granted by this repository unless a license file is added in a
 later release.

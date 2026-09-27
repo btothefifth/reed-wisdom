@@ -704,7 +704,7 @@ def test_operational_semantics_revision_17_preserves_bounded_loading_topology(
 ) -> None:
     parsed = compiler.parse_source(SOURCE)
 
-    assert parsed.manifest["semantic_revision"] == 17
+    assert parsed.manifest["semantic_revision"] == 18
     assert parsed.section_by_id["bounded_operating_loop"].rule_ids == (
         "LANG-01",
         "RULE-01",

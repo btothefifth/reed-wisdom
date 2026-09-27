@@ -1,0 +1,80 @@
+{
+  "schema": "wisdom.behavioral_eval_run.v1",
+  "release": "1.10.0",
+  "date": "2026-09-27",
+  "model": "gpt-6-luna",
+  "reasoning_effort": "high",
+  "session_policy": "fresh isolated session per arm; accepted assisted arms did not delegate",
+  "suite": {
+    "cases_sha256": "31d235c81a465cdbd3d910db70b300419f9214d5db3de37490923b605c23a39a",
+    "oracles_sha256": "4d42c465a24b3a498d42b14f7ade86974acd391e5bd4a6e7bc8c16ff7a8b4ff6",
+    "case_count": 8,
+    "material_case_count": 7,
+    "fast_control_count": 1
+  },
+  "arms": [
+    {
+      "id": "unassisted",
+      "wisdom": null,
+      "passed_cases": 8,
+      "failed_cases": [],
+      "changed_file_count": 15
+    },
+    {
+      "id": "prior",
+      "wisdom": {
+        "version": "1.9.0",
+        "semantic_revision": 17,
+        "source_sha256": "2a33b79d43ddb52ff7f748ff6635be4d891d44991f9c2fedbbc279c9095710a2",
+        "bug_fix_delivery_id": "c4449dc6b6288a30899d52d75c2948f8c813a1be429622c8085c565d513f6930",
+        "bug_fix_content_sha256": "cb655b5fa7ca38fc8e1b8e4039b844f14b9ac40b5e8f9d89af2bf58c3221ba53",
+        "routine_delivery_id": "0026dc696e9b7fc80191a2b185ede3c97b2be915b8e6ed7bdf953cef9ab4ff61",
+        "routine_content_sha256": "521d369751797c9cedab2e3984cc7b17cd8ee50ba5e3399fbc42081e5f3d2c15"
+      },
+      "passed_cases": 7,
+      "failed_cases": [
+        {
+          "id": "fast-local-control",
+          "critical_failures": ["bounded-delta"],
+          "unexpected_changed_paths": ["test_public.py"]
+        }
+      ],
+      "changed_file_count": 16
+    },
+    {
+      "id": "candidate",
+      "wisdom": {
+        "version": "1.10.0",
+        "semantic_revision": 18,
+        "source_sha256": "3c056a2c7cb3a5159af99c43ea8d9f929aaefb9b1e1873801603ed0cb050336a",
+        "bug_fix_delivery_id": "43d8f30eb269be6a419e70c32550a7d6f919b39260f140b8b8d4abbda20a693b",
+        "bug_fix_content_sha256": "1168dc7430e184a3e27cb6f28cb289d3d0d8256a9cb0c990b25b4477599401b2",
+        "routine_delivery_id": "0fde47721464d4c5c4181ae5615925718f0c537839367b0459a43c689478b66b",
+        "routine_content_sha256": "9cf6a47eba67ce44974af56a41605e526cf3d2edbc3e0c5e776ba30e0f491de3"
+      },
+      "passed_cases": 8,
+      "failed_cases": [],
+      "changed_file_count": 9
+    }
+  ],
+  "case_results": {
+    "acknowledged-not-reconciled": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "claim-before-child": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "fixture-reaches-boundary": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "stale-receipt-after-edit": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "sibling-consumer-omitted": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "harmful-suppression": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "intermediate-event-completion": {"unassisted": "pass", "prior": "pass", "candidate": "pass"},
+    "fast-local-control": {"unassisted": "pass", "prior": "fail_bounded_delta", "candidate": "pass"}
+  },
+  "invalidated_pilots": [
+    "The first prior arm delegated work, so it was discarded and rerun without delegation.",
+    "The first candidate arm exposed an avoidable fast-route test edit; the source was repaired and the entire candidate arm was rerun.",
+    "An exact-state acknowledgement oracle rejected an equivalent nonterminal state name; the oracle was generalized and all three saved outputs were rebound to fresh preparation manifests before rescoring."
+  ],
+  "claim_boundary": {
+    "supported": "In this single controlled run, v1.10 passed all eight held-out cases, removed the v1.9 fast-control failure, and changed fewer files than both comparison arms.",
+    "not_supported": "The small deterministic corpus is not statistical proof of general model improvement, private reasoning, or future behavior.",
+    "unavailable_metrics": ["token counts", "exact tool-call counts", "comparable wall-clock elapsed time"]
+  }
+}
