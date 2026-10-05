@@ -48,7 +48,7 @@ def _change_rule(parsed: compiler.ParsedWisdom) -> str:
 
 def test_v110_reuses_existing_rules_and_routes() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 20
+    assert parsed.manifest["semantic_revision"] == 21
     assert len(parsed.manifest["modules"]) == 26
     assert parsed.section_by_id["implementation"].rule_ids.count("CHANGE-01") == 1
     assert parsed.section_by_id["implementation"].rule_ids.count("SEM-01") == 1

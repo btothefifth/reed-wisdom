@@ -44,7 +44,7 @@ def _normalized(text: str) -> str:
 
 def test_change_contract_routes_to_material_work_but_not_routine_fast() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 20
+    assert parsed.manifest["semantic_revision"] == 21
     assert parsed.section_by_id["implementation"].rule_ids.count("CHANGE-01") == 1
 
     for profile in (

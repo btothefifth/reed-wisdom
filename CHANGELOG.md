@@ -4,6 +4,23 @@ All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.
 
+## 1.13.0 - 2026-10-05
+
+- Qualify negative runtime observations by the observer's namespace and visibility;
+  permission denial and invisible targets remain unknown rather than absent.
+- Bind costly child admission to actual family accounting, effective limits,
+  ancestor pressure or termination policy, and shared headroom.
+- Preflight changed fixtures, guards and child carriers through their real entry
+  context; discovery and source identity alone do not prove execution compatibility.
+- Route ordinary pure, mocked and local temporary-store tests through existing
+  repository machinery without adding duplicate qualification carriers or records.
+- Illustrate stable private-file identity/access checks during create-new writes,
+  while preserving the limits of sampled observations and pathname cleanup.
+- Keep these clarifications in existing modules: no kernel growth, new route,
+  mandatory hosted service, model topology or extra worker requirement.
+- Preserve existing evidence within its actual scope; guidance-only changes do not
+  require unchanged product tests to be repeated.
+
 ## 1.12.0 - 2026-09-27
 
 - Require material exact behavioral assertions to identify the final effective

@@ -32,9 +32,9 @@ def _assert_phrases(text: str, phrases: tuple[str, ...]) -> None:
 
 def test_v112_updates_version_without_changing_route_schema() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert (ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.12.0"
-    assert b"Product version: 1.12.0" in parsed.preamble
-    assert parsed.manifest["semantic_revision"] == 20
+    assert (ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.13.0"
+    assert b"Product version: 1.13.0" in parsed.preamble
+    assert parsed.manifest["semantic_revision"] == 21
     assert len(parsed.manifest["modules"]) == 26
     assert len(parsed.manifest["allowed_tags"]) == 40
     assert parsed.manifest["schema"] == "wisdom.portable_bootstrap.source.v1"

@@ -42,7 +42,7 @@ def _route(parsed: compiler.ParsedWisdom, profile_id: str) -> tuple[set[str], se
 
 def test_boundary_contract_reaches_ordinary_and_delegated_material_routes() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 20
+    assert parsed.manifest["semantic_revision"] == 21
     assert len(parsed.manifest["modules"]) == 26
 
     for profile in (

@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-09-27 (America/New_York)
+Last updated: 2026-10-05 (America/New_York)
 
-Product version: 1.12.0
+Product version: 1.13.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -23,7 +23,7 @@ completion rules.
 {
   "schema": "wisdom.portable_bootstrap.source.v1",
   "source_id": "portable-wisdom",
-  "semantic_revision": 20,
+  "semantic_revision": 21,
   "encoding": "utf-8",
   "newline_policy": "uniform-preserve",
   "kernel_max_bytes": 42000,
@@ -3149,6 +3149,14 @@ boundaries, or runtime APIs remain dynamic, add the cheapest exact-interpreter
 canary that asserts the loaded source origin and the callable, attribute, or
 signature the real caller consumes.
 
+Run ordinary pure, mocked, and local temporary-store tests with the
+repository's existing machinery and retain their scoped results. Do not build
+a separate qualification carrier merely to run them. Add an existing bounded
+child, installed-origin, resource, or effect owner only when the behavior being
+claimed crosses that boundary. Satisfy applicable contract fields by references
+to existing code, plans, and evidence; do not create duplicate charters or
+receipts.
+
 Then validate in increasing cost order:
 
 1. syntax, types, and focused invariants;
@@ -3189,6 +3197,18 @@ harness state. Before a test invokes a real production entrypoint whose
 contract excludes that state, locally restore the production preconditions and
 prove the entrypoint is reached; never weaken the entrypoint to accommodate the
 harness.
+
+When a test carrier, fixture composition, child entry, or execution guard
+changes, check semantic compatibility through the actual entry context before
+an expensive batch. Use ordinary discovery to detect duplicate or missing cases,
+and the smallest owning case to exercise changed imports, callbacks, guards,
+child startup, output framing, and cleanup. Inspect the executable actually
+launched, including installed scripts. A hash match or successful collection
+does not prove execution compatibility. Repair the carrier without weakening
+the owning assertion or default guard. Reuse unaffected evidence; this check
+requires no new qualification framework. When the launched family's resource
+and failure domain is affected, also load the `runtime_identity` module through
+the verified loader routes.
 
 After a contract changes, review inherited tests once: name the durable
 invariant, prove fixture reachability, and replace obsolete assumptions with an
@@ -5204,6 +5224,22 @@ must be temporally enclosed by the exact authority lease that consumed it:
 prove `lease start <= raw observation <= consumer check <= lease finish` rather
 than trusting relative age alone.
 
+Bind identity and absence observations to the observer's actual namespace and
+visibility scope. A negative result proves absence only when that scope can
+enumerate the claimed object; permission denial or invisibility is unknown,
+not absence. When scopes differ, use an already-authorized
+observer that can inspect the target scope or reject the claim.
+Test a visible target and the same target hidden from the observer.
+
+Before costly child work can endanger an incumbent or unrelated workload,
+identify the actual resource-accounting and failure domain of the launched
+family. Verify effective limits on that family, applicable ancestor pressure or
+termination policy, and measured shared headroom. Configured concurrency and
+per-process limits do not prove aggregate capacity or isolation. Use an existing
+separate containment owner when required by the failure model; otherwise retain
+the scoped limitation and bound admission. For changed test entry contexts,
+also load the `test_harness` module through the verified loader routes.
+
 When removing a fail-closed pause under a named containment owner, hold the exact
 owner through the unlink and verify containment release before success. Retain
 the exact validated pause bytes so body or post-unlink release failure can
@@ -5334,6 +5370,14 @@ deletion is unavailable. The repeatable adversary must replace the pathname
 after the last ownership predicate succeeds but before the destructive call;
 when retention is the contract, add a static syscall census that forbids every
 pathname delete, move, and rollback route in that lifecycle.
+
+For example, create-new private publication separates fields permitted to
+change during the write from stable identity and access predicates. Validate
+the initial object against the destination contract, preserve the stable fields,
+and revalidate them at terminal consumption. A newly sampled final state must
+not redefine the expected security state. Refuse unauthorized drift without
+normalizing it away or deleting a replacement. These checks do not establish
+continuing namespace ownership or detect every transient change between samples.
 
 Capacity and integrity bounds must size the logical resource the operation
 actually consumes under one pinned coherent snapshot. Include journals, WAL,

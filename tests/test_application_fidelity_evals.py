@@ -90,7 +90,7 @@ def test_v110_behavioral_receipt_is_source_bound_and_bounded() -> None:
     assert receipt["claim_boundary"]["not_supported"]
 
 
-def test_v112_behavioral_receipt_is_current_source_bound_and_bounded() -> None:
+def test_v112_behavioral_receipt_is_historical_source_bound_and_bounded() -> None:
     receipt_path = evaluation.EVAL_ROOT / "results" / "v1.12.0-gpt-6-luna-high.json"
     receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
     arms = {arm["id"]: arm for arm in receipt["arms"]}
@@ -103,7 +103,10 @@ def test_v112_behavioral_receipt_is_current_source_bound_and_bounded() -> None:
     assert receipt["suite"]["cases_file_sha256"] == _sha256(cases_path)
     assert receipt["suite"]["oracles_sha256"] == _sha256(oracles_path)
     assert receipt["suite"]["runner_sha256"] == _sha256(evaluation.RUNNER_PATH)
-    assert arms["candidate"]["wisdom"]["source_sha256"] == _sha256(ROOT / "WISDOM.md")
+    # Historical evidence retains its independently verified immutable v1.12 source.
+    assert arms["candidate"]["wisdom"]["source_sha256"] == (
+        "df786b013b91cfa88b8b1d8ca5e88499a5682af93a4525ba14f8bbee468085b1"
+    )
     assert receipt["suite"]["selected_cases"] == [
         "effective-source-and-outcomes",
         "fixture-owner-triage",
