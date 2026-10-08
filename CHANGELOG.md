@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.14.0 - 2026-10-08
+
+- Admit variable-field types, null semantics, actual bytes, cardinality, and
+  aggregate allocation before native hydration or parser body construction,
+  preserving the authoritative selection and bounded valid neighbors.
+- Separate eligibility retirement from byte/resource release through the last
+  supported holder, including hidden terminal holders and active unwind.
+- Model consequential data and proof costs before implementation; distinguish
+  estimates from measured terminal work and keep routine edits proportionate.
+- Enforce existing canonical ownership, real consumer adoption, typed immutable
+  operation reuse, fresh authority, fixed producer-stage diagnostics, and actual
+  blocking deadline and fairness obligations through their existing owners.
+- Require review to check applicable owners and real caller witnesses, blocking
+  material violations or missing claim-required evidence without another stage.
+- Exercise changed executable wiring in its effective interpreter, module,
+  environment, resource, and dependency context before consequential use; static
+  checks alone cannot prove invocation compatibility.
+- Preserve kernel, rule IDs, route topology, source schema, and semantic revision;
+  add owner/routing and actual loader-invocation regressions. Deterministic checks
+  prove source/package integrity, not improved model application. Release evidence
+  remains `contract-complete, empirical-drills-open` pending current behavioral
+  and portability drills.
+
 All notable changes to WISDOM are recorded here. Releases follow Semantic
 Versioning. The source manifest's `semantic_revision` is an independent
 compiler-facing contract counter and does not replace the product version.

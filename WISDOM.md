@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-05 (America/New_York)
+Last updated: 2026-10-08 (America/New_York)
 
-Product version: 1.13.0
+Product version: 1.14.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -1679,8 +1679,8 @@ The exact grammar may vary by project, but these rules do not:
 - Causes that require a different safe next action, remediation owner, retry
   trigger, rollback, authority consequence, or operator response require
   different root codes whenever the producer can distinguish them.
-- Preserve the original root code through wrappers; add outer context instead
-  of relabeling it.
+- Preserve the original root code and fixed producer stage through wrappers and
+  durable or operator projections; add outer context instead of relabeling them.
 - Create the root code as a typed producer-owned field. An exception message is
   never its authoritative carrier, and a wrapper may not reconstruct or shorten
   a code with `split`, `partition`, delimiter parsing, regex extraction, prefix
@@ -2048,6 +2048,18 @@ relational model with key-value records merely because either structure sounds
 more flexible. Keep large payloads behind narrow typed keys or projections when
 consumers usually need only a small decision surface.
 
+At a bounded data boundary, admit every selected variable field before native
+hydration or parser construction allocates its body: establish type, absence
+versus genuine null versus malformed value, actual byte size, row/edge or node
+cardinality, and aggregate allocation, including nullable joins. Character
+length and validation after allocation do not establish these bounds. Preserve
+the authoritative selection and generation between preflight and hydration,
+or revalidate them at the owning boundary. Use bounded projections, incremental
+admission while parsing, or an equivalent enforced path when a whole-value
+fetch cannot establish the bound safely. Prove oversized actual bytes and aggregate
+shape reject before allocation while the bounded valid neighbor and permitted
+null remain accepted.
+
 Treat the intended hardware and environment as part of product design. Record
 CPU and memory ceilings, storage latency/throughput and persistence semantics,
 filesystem and network placement, operating-system and runtime constraints,
@@ -2059,6 +2071,10 @@ backend change, and identify the semantic and operational boundary of each.
 Performance that passes only on an oversized quiet development host is not
 product performance; evaluate terminal user behavior under realistic resource
 contention, cold start, maintenance, failure, and recovery.
+
+Apply the preimplementation cost model in
+[Optimize semantics and the measured terminal path](#optimize-semantics-and-the-measured-terminal-path)
+to this workload and its admission before selecting the representation.
 
 Measure one causal logical operation from its real outer entrypoint through its
 terminal consumer. Attribute connection acquisition and setup, statements or
@@ -2113,6 +2129,16 @@ a deadline, interruption outcome, and recovery owner. Journal checkpointing,
 log truncation, compaction, vacuuming, statistics maintenance, or their
 equivalent are product-owned lifecycle work: schedule and observe them against
 the foreground workload instead of treating them as invisible engine cleanup.
+
+Eligibility retirement and byte/resource release are distinct events. Keep the
+charge through every supported alias and active unwind until the last actual
+holder stops using the data or resource. Inspect registries, closures, retained
+failure tracebacks, child custody, and idle worker locals; remove needless
+settled holders at their owner rather than refunding early or evicting active
+work. Pair an alias surviving issuer retirement with final-holder release, and
+independently verify an idle worker does not retain unrelated settled work.
+Account the supported lifetime without requiring wrappers around every primitive
+or claiming process RSS reduction or secret zeroization.
 
 Attest the **effective** storage capability rather than a configured label.
 Record the loaded engine and driver identity and verify required isolation,
@@ -2758,7 +2784,13 @@ long-lived prerequisites before short-lived evidence. Budget every freshness
 lease backward from its final consumer: final validation and transport, later
 computation, scheduling or queue delay, and an explicit margin must fit within
 the consumer's remaining lease. Generate or reconfirm the shortest-lived
-evidence as late as practical. Repeated expiry caused by predictable upstream
+evidence as late as practical. Admission must account for actual blocking work,
+serialized stages, queue delay, cleanup, and fair progress of competing eligible
+owners, not just async timeouts or a nominal refresh lead. Preserve the original
+deadline and its owning phase; retired historical grants are not current demand.
+Prove the effective launch context before acquiring short-lived evidence. A
+planning estimate is not an observed deadline guarantee; a timely-consumption
+claim needs actual-boundary evidence. Repeated expiry caused by predictable upstream
 work is an ordering defect until disproved; retries or larger freshness windows
 are not the default repair. Prove the actual consumer budget with an injected
 clock or explicit deadline, including the limiting boundary and a case where
@@ -3149,6 +3181,16 @@ boundaries, or runtime APIs remain dynamic, add the cheapest exact-interpreter
 canary that asserts the loaded source origin and the callable, attribute, or
 signature the real caller consumes.
 
+Before consequential use of a new or changed executable helper or operational
+driver, exercise its earliest reachable wiring through the actual invocation:
+interpreter and module globals, effective environment, resource root, dependency
+context, and public call. A parser/AST check or command availability alone cannot
+prove that path. Use normal module loading when the helper requires module
+identity, and a source-safe smoke that reaches the real loader or dependency
+with effects disabled; replacing that boundary with a mock proves only the
+mocked path. Repair a missing prerequisite before spending fresh evidence or
+launching dependent work, and preserve isolation required by the actual child.
+
 Run ordinary pure, mocked, and local temporary-store tests with the
 repository's existing machinery and retain their scoped results. Do not build
 a separate qualification carrier merely to run them. Add an existing bounded
@@ -3489,6 +3531,14 @@ charter when identities and generations match; it must not duplicate or weaken
 their ownership, invalidation, or acceptance semantics. Fast work remains
 exempt unless discovery widens it into a focused or substantial route.
 
+Review must check the applicable WISDOM owners against that reachable path and
+its result receipts, not merely acknowledge the rules. A material violation or
+missing required witness keeps acceptance blocked until repaired or the claim
+is narrowed to the proved scope. Distinguish an inapplicable mechanism with its
+reason from a satisfied obligation with its evidence; prose, a helper-only
+result, or reviewer agreement cannot supply the missing consumer witness. Reuse
+the existing review and contract rather than adding a checklist or review stage.
+
 **`ACCEPT-01` reconciles partial work before retry or release of ownership.**
 Define the acceptance cutpoint for each member and external or persistent
 effect before launch and bind it to the applicable `CHANGE-01` boundary-contract
@@ -3617,6 +3667,12 @@ logic between files is not simplification. Record the owner, consumed and
 produced identities/states, canonical representation or typed transition, and
 nearest substitution adversary in the existing contract or test evidence.
 
+Before copying policy or extracting a helper, check the canonical owner, exact
+types, and lifecycle contract. Reuse that owner when semantics fit; changed
+contracts need one explicit replacement owner. Extraction must remove duplicate
+policy, reconstruction, or work and clarify real callers. A second parser,
+wrapper, file move, or stale fixture assumption alone does not establish benefit.
+
 Give every substantial phase a compact gate derived from the four canonical
 artifacts:
 
@@ -3694,6 +3750,12 @@ migration or emergency recovery may remain manual when its bounded authority,
 terminal receipt, recovery disposition, and retirement condition are explicit;
 do not install recurring work without recurring product need.
 
+For a new helper or operation API, name its adopting real entrypoint and
+consumer, including input, result, failure, and retirement paths. Until that
+caller is wired and independently witnessed, report it as prepared or unwired
+component evidence. Retire or explicitly retain the predecessor through its
+owning migration contract before claiming the user capability complete.
+
 Before review, staging, or an expensive validation, compare the direct
 preimage-to-postimage byte delta with the language-aware or normalized-line
 delta for every explicitly touched text file. Unexpected newline conversion,
@@ -3728,12 +3790,29 @@ serialization, hashing, object traversal, allocation, locking, and provider
 work. Batch, vectorize, compile, cache, or coalesce only where measurement shows
 that the change improves the end-to-end path.
 
+Before implementing a consequential data or proof path, model its cold and
+maximum supported shape in the existing contract: request/query multiplicity,
+visited and hydrated rows/bytes, decode/copy/hash passes, simultaneous retained
+allocations, transaction/writer occupancy, and maintenance/recovery footprint.
+Label estimates as estimates; choose the simplest representation and admission,
+with a shape falsifier for hidden repetition or an exceeded bound.
+Routine low-impact edits need no separate benchmark or
+artifact. Measure the actual terminal path and these costs before claiming
+benefit; attribute fixture/setup and engine work separately.
+
 Budget integrity and validation work as part of that same path. Count bytes
 traversed and canonicalized, digest computations, repeated dependency-closure
 walks, and proof construction per logical operation, not merely per helper.
 Prefer one canonical immutable representation and reuse its verified digest or
 validation result within the exact source-bound generation and ownership
 lifetime. An immutable wrapper does not make its backing source immutable.
+Capture one validated immutable typed input generation for pure computation,
+decode it once per real operation, and share unchanged structure only within
+its admitted lifetime. Keep live authorization, cancellation, retirement, and
+final transactional compare-and-set separate; rejoin fresh mutable authority at
+consumption without redecoding unchanged data at every helper. Count actual
+decoder and constructor calls through the real operation, with changed
+generation and retired-view refusal witnesses alongside preserved valid output.
 Do not reuse by filename, size, modification time, or a cache's self-hash alone;
 material content, schema, code, membership, and source-identity changes must
 invalidate affected evidence. Preserve independent checks at trust boundaries
