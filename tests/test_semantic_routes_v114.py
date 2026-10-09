@@ -49,8 +49,6 @@ def test_v114_preserves_fast_kernel_and_existing_rule_topology():
         "testing", "test_harness", "implementation_performance",
     )
     assert parsed.section_by_id["storage_design"].rule_ids == ("DATA-01",)
-    assert (ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.14.0"
-    assert b"Product version: 1.14.0" in parsed.preamble
 
 
 @pytest.mark.parametrize("profile", (

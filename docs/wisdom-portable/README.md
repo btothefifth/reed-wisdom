@@ -70,6 +70,13 @@ the explicit mode and discovered tags when no profile fits. For example:
 python scripts/load_compiled_wisdom.py --source WISDOM.md --cache-root .wisdom-cache --task-profile code_change
 ```
 
+The ordinary implementation route includes SEM-01 enforcement for policy
+reuse, closed dispatch, cohesive ownership, and request lifecycle boundaries.
+Add the discovered architecture, storage, or delivery tags when design/owner maps,
+persistent schema evolution, or generated distribution artifacts are affected;
+these rules stay with their existing owners rather than adding a separate
+architecture workflow.
+
 When discovery advertises phases, add the current phase to select its required
 rules and re-route before each later phase's protected action. An unknown phase
 requires the full source. Optional selected-context accounting reports the

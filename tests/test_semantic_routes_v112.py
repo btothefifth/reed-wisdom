@@ -30,10 +30,8 @@ def _assert_phrases(text: str, phrases: tuple[str, ...]) -> None:
         assert _normalized(phrase) in normalized
 
 
-def test_v112_updates_version_without_changing_route_schema() -> None:
+def test_v112_preserves_route_schema() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert (ROOT / "VERSION").read_text(encoding="utf-8").strip() == "1.14.0"
-    assert b"Product version: 1.14.0" in parsed.preamble
     assert parsed.manifest["semantic_revision"] == 21
     assert len(parsed.manifest["modules"]) == 26
     assert len(parsed.manifest["allowed_tags"]) == 40

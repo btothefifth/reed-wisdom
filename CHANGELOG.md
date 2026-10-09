@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.15.0 - 2026-10-08
+
+- Enforce canonical policy reuse, closed dispatch refusal, cohesive authority
+  owners, and independently exercisable request/persistence transitions through
+  existing architecture acceptance and SEM-01 implementation review. Keep purposeful divergent semantics,
+  small exhaustive conditionals, and cohesive large owners valid with proof.
+- Make the existing owner/dependency map explicit about admission, persistence,
+  reconciliation, retirement, decoding, and projection without another artifact.
+- Reuse compatible typed domain schemas and batch related unapplied refinements;
+  justify separate shapes by real invariants and preserve applied migration history.
+- Distinguish executable current test modes from frozen historical modes and
+  recheck acceptance semantics rather than merely updating version literals.
+- Separate authored and generated review surfaces; verify pinned regeneration or
+  declared independently checked variance while retaining legitimate distribution
+  bundles and copied assets. Discover output aliases and replace atomically when
+  an in-place write could mutate another retained generation.
+- Keep enforcement proportional to the affected frontier, preserve terminal
+  vertical-slice value, and reject abstraction that only relocates complexity.
+  Preserve the fast kernel, rule IDs, route topology, source schema, and semantic
+  revision. Deterministic owner/routing, extraction, loader, setup, and bundle
+  checks prove instruction/package integrity, not improved model application;
+  release evidence remains `contract-complete, empirical-drills-open`.
+
 ## 1.14.0 - 2026-10-08
 
 - Admit variable-field types, null semantics, actual bytes, cardinality, and

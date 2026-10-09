@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-08 (America/New_York)
 
-Product version: 1.14.0
+Product version: 1.15.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -1989,6 +1989,36 @@ Give each semantic concept one canonical producer and representation. Carriers
 transport it, consumers validate it against independent expectations, and
 projections summarize it; none of those layers should quietly redefine it.
 
+Keep the existing owner/dependency map usable for change review: name who may
+admit, persist, reconcile, and retire each affected material state or effect, who only
+decodes or projects it, and the contract crossing each affected seam. References
+to actual symbols and existing contracts suffice. A new variant must not require
+the reviewer to infer this map from scattered branches or parallel state maps.
+
+Apply these architecture acceptance conditions in design and code review,
+with implementation enforcement through `SEM-01`.
+The implementer and reviewer must inspect the affected real callers, not just
+agree that the abstraction looks cleaner. Use the existing `CHANGE-01` and
+`SCOPE-01` records; no additional form or review stage is required.
+
+| Mechanism | Required acceptance | Violation and justified exception |
+| --- | --- | --- |
+| Repeated policy or lifecycle phases | Reuse the existing compatible owner/helper; share genuinely identical pure checks and immutable comparisons, while keeping distinct authority, freshness, reservation, and recovery rules explicit. Differential witnesses prove common invariants and required divergent results. | Copying a phase checker into another profile leaves two patch owners. Deliberately different semantics may remain separate when their difference is explicit and tested; textual similarity alone is not equivalence. |
+| Intentionally closed dispatch | One inspectable closed type/variant mapping owns handler selection; adding a supported variant updates that mapping and its bounded coverage. Unsupported inputs must reach an explicit typed refusal before mutation or privilege expansion. | A type cascade silently falls through to an ordinary or privileged handler. A small exhaustive conditional, exact-type mapping, or switch is valid; an open plugin contract instead needs explicit registration, capability admission, and unknown-handler refusal. |
+| Concentrated orchestration | Keep the authoritative writer and transaction/permission boundary cohesive; separate pure decoding, validation, preparation, and projection only where real callers gain a narrower contract and fewer coupled responsibilities. | A new family requires coordinated edits to several independent handler matrices or duplicated state maps. Moving those maps into wrappers is insufficient. A large cohesive owner may remain when splitting it would introduce dual authority or a more complex lifecycle. |
+| Presentation mixed with request custody | When timeout, cancellation, recovery, owner/permission change, or persistence policy can change user behavior, make its transitions independently exercisable from presentation/effect wiring. Preserve opaque identity, permission, epoch, unknown-outcome, and retirement rules at actual consumers. | Rendering code independently reconstructs recovery or persistence policy, or a timeout is presented as proof of no effect. A small local interaction may remain inline when its lifecycle is direct and the owning tests reach it without reconstructing policy. |
+
+A material violation in the affected frontier blocks acceptance of that change
+until repaired or narrowed; unrelated architectural debt does not force a
+wholesale rewrite. Before expanding an already duplicated family, resolve its
+shared owner or justify and test the semantic difference. Size, method count,
+file count, and similarity are inspection signals, never automatic rejection
+thresholds. Reject abstraction that only relocates complexity. After correctness
+review, use the existing simplification pass to remove concrete redundant work
+or owners while preserving invariants; stop when another pass cannot change the
+decision. Product progress still needs a terminal vertical-slice witness, not
+only more profiles, proof scaffolding, or passing counts.
+
 Once a producer discovers an exact identity or capability, every downstream
 carrier must preserve its exact scope or end it through an explicit typed
 transition. It may be narrowed only by a named rule; it may not be silently
@@ -2160,6 +2190,19 @@ restore, and forward or rollback recovery across every required store as one
 coherent generation. A backup file, table count, or process restart is not
 recovery proof; restore it into the supported topology and exercise the
 authoritative consumer.
+
+Before adding a persistent shape for another fixture, profile, or proof variant,
+the migration owner must compare it with the existing domain schema and typed
+carriers. Reuse them when authority, constraints, access paths, retention, and
+recovery semantics fit; batch related unapplied changes around a coherent domain
+contract when compatibility and release boundaries permit. A materially different
+invariant or compatibility/cutover need can justify a separate shape or migration,
+with that difference and its consumer proof stated. Never rewrite, delete,
+squash, or skip applied history. Keep variable vocabulary in validated data only
+when the same typed contract can enforce it; neither unvalidated JSON nor a
+blanket ban on documents repairs schema duplication. Acceptance requires the
+new variant and any required divergent variant to preserve their distinct rules
+through the real store/consumer, with existing migration and recovery proof.
 
 Choose or replace a backend only through the same semantic API and lifecycle
 suite. Compare total operating cost, deployment and observability, concurrency,
@@ -3267,6 +3310,17 @@ but older wording cannot override an explicit current disable or a proved
 successor policy, and deployed behavior cannot override current authored
 authority.
 
+An advertised current test mode must be executable under the current source,
+schema, environment, and selector contract. Mark a frozen mode historical-only
+in its invocation/help and bind its compatible source and prerequisites before
+execution; do not present older-source execution as current-head execution.
+Current-source compatibility tests may consume historical fixtures, and verified
+unchanged component receipts may satisfy an explicitly composable gate under
+`IMPACT-01`. A version-pinned mode presented as current after that version changed
+is a harness violation.
+Merely replacing the version literal is insufficient: recheck fixture reachability
+and the acceptance semantics, then run the actual mode's cheapest owning case.
+
 Clock control must not corrupt runtime type identity. Prefer an explicit
 injected clock; if a test replaces a module datetime provider, retain an
 immutable alias to the standard datetime type for type checks and parsing, then
@@ -3672,6 +3726,17 @@ types, and lifecycle contract. Reuse that owner when semantics fit; changed
 contracts need one explicit replacement owner. Extraction must remove duplicate
 policy, reconstruction, or work and clarify real callers. A second parser,
 wrapper, file move, or stale fixture assumption alone does not establish benefit.
+
+Before expanding a variant family, `SEM-01` implementation review must check
+its owning reuse, dispatch, and lifecycle contracts through the real callers.
+Reuse compatible policy owners; preserve shared invariants and required divergent
+outcomes. Closed dispatch must refuse unsupported inputs before mutation or
+privilege expansion; an ordinary catch-all handler is not refusal. Independently
+exercise material request/persistence transitions and keep one cohesive writer
+and permission boundary. Moving duplicated maps or policy into wrappers does not
+satisfy this gate. Resolve a material violation in the affected frontier or narrow
+the change; unrelated debt does not require a wholesale rewrite. Detailed design
+acceptance belongs to the existing architecture owner, not another checklist.
 
 Give every substantial phase a compact gate derived from the four canonical
 artifacts:
@@ -4492,6 +4557,21 @@ work; bind source, configuration, schema, dependencies, generated artifacts,
 and migration assumptions to an immutable or independently verifiable identity;
 verify the remote revision and file set; and retain a tested rollback or
 forward-recovery target.
+
+Committed generated artifacts must have one canonical authored input set and a
+pinned build recipe. Regenerate them through that recipe; do not edit them independently.
+Before rewriting an output, inspect supported identity, link, and ownership
+evidence. When another generation may share the object or ownership is unknown,
+validate fresh output and atomically replace only the intended path. Proven
+exclusive disposable output may be written in place; different pathnames alone
+do not prove distinct objects. Unknown alias coverage must not authorize an
+in-place rewrite of retained or frozen inputs.
+Keep authored semantic diffs distinguishable from generated diffs in review and
+verify exact regeneration with the repository's build check before publication.
+Distribution requirements may justify committed bundles or copied assets; prove
+their provenance and package inclusion rather than banning them. If exact bytes
+cannot be reproduced, declare and independently verify the permitted variance
+and retained source/build identity instead of claiming reproducibility.
 
 Derive the release fingerprint inventory from the union of runtime-selected
 source, configuration, schema, launcher, dependency, and package-inclusion
