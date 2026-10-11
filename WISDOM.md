@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-08 (America/New_York)
+Last updated: 2026-10-10 (America/New_York)
 
-Product version: 1.15.0
+Product version: 1.16.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -2014,10 +2014,11 @@ wholesale rewrite. Before expanding an already duplicated family, resolve its
 shared owner or justify and test the semantic difference. Size, method count,
 file count, and similarity are inspection signals, never automatic rejection
 thresholds. Reject abstraction that only relocates complexity. After correctness
-review, use the existing simplification pass to remove concrete redundant work
-or owners while preserving invariants; stop when another pass cannot change the
-decision. Product progress still needs a terminal vertical-slice witness, not
-only more profiles, proof scaffolding, or passing counts.
+review, the implementer and reviewer must apply the existing `SEM-01`
+simplification pass to affected code and real callers, removing concrete
+redundant work or owners while preserving invariants; stop when another pass
+cannot change the decision. Product progress still needs a terminal vertical-slice
+witness, not only more profiles, proof scaffolding, or passing counts.
 
 Once a producer discovers an exact identity or capability, every downstream
 carrier must preserve its exact scope or end it through an explicit typed
@@ -3721,11 +3722,21 @@ logic between files is not simplification. Record the owner, consumed and
 produced identities/states, canonical representation or typed transition, and
 nearest substitution adversary in the existing contract or test evidence.
 
-Before copying policy or extracting a helper, check the canonical owner, exact
-types, and lifecycle contract. Reuse that owner when semantics fit; changed
-contracts need one explicit replacement owner. Extraction must remove duplicate
-policy, reconstruction, or work and clarify real callers. A second parser,
-wrapper, file move, or stale fixture assumption alone does not establish benefit.
+While writing code, implementation must consider known reuse and reuse compatible
+owners. Before copying policy or extracting a helper, check its owner, types
+and lifecycle. Extract genuinely shared behavior for real callers that
+removes duplicate policy or work; preserve semantic differences and one owner
+for changed contracts.
+
+After writing code, the implementer must inspect affected code and real callers
+for consolidation and naming. Use the simplest readable representation.
+Cohesive typed objects or structs must remove ambiguity or duplication.
+Reject speculative frameworks, unneeded wrappers and broad cosmetic refactors.
+
+The reviewer must challenge stale copies, actual caller adoption and required
+semantic differences in normal source/integration review. Preserve authority,
+freshness and recovery; use existing contracts/witnesses; no new checklist,
+form or review stage.
 
 Before expanding a variant family, `SEM-01` implementation review must check
 its owning reuse, dispatch, and lifecycle contracts through the real callers.

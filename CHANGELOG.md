@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.16.0 - 2026-10-10
+
+- Strengthen existing SEM-01: consider known compatible reuse while writing,
+  extract genuinely shared behavior, then inspect affected code and real callers
+  for useful consolidation, clearer names, and cohesive typed representations.
+- Require normal source and integration review to challenge stale copies, caller
+  adoption, and required semantic differences; reject speculative frameworks,
+  unnecessary wrappers, and broad cosmetic refactoring without another ceremony.
+- Preserve the fast kernel, rule IDs, route topology, source schema, and semantic
+  revision. Source/routing, loader, and deterministic-package checks establish
+  instruction delivery, not improved model application; empirical drills remain
+  open.
+
 ## 1.15.0 - 2026-10-08
 
 - Enforce canonical policy reuse, closed dispatch refusal, cohesive authority
