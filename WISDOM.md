@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-10 (America/New_York)
+Last updated: 2026-10-13 (America/New_York)
 
-Product version: 1.16.0
+Product version: 1.17.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -18,6 +18,14 @@ Use this as a standalone operating seed for an AI agent doing consequential
 software development, research, operations, or product work. Project-specific
 wisdom may extend it but may not silently weaken its authority, evidence, or
 completion rules.
+
+When a task introduces or materially changes acquisition, a schema, retained
+history, a large query or replay, or data growth and retirement, automatically
+add the discovered `storage` route and the applicable performance and external-
+effect owners before design or implementation. Select by the mechanism even
+when the request never says "database" or "big data". A small answer, routine
+edit, or already bounded unchanged path needs no new data platform, benchmark,
+artifact, or review stage.
 
 <!-- WISDOM-MANIFEST-BEGIN
 {
@@ -2079,6 +2087,77 @@ relational model with key-value records merely because either structure sounds
 more flexible. Keep large payloads behind narrow typed keys or projections when
 consumers usually need only a small decision surface.
 
+Use the model to choose and challenge operations; use deterministic tools to
+compute consequential results over large data. Return bounded results with
+their source generation, units, selection, coverage, and uncertainty to the
+model instead of filling its context with the corpus. Inspect the real schema,
+statistics and access plan through an appropriately authorized, bounded tool;
+a read-only query can still disclose private data, occupy a writer's resources,
+or exhaust memory. Read-only access is not unrestricted access. A model's
+explanation, a small sample or a compact summary cannot establish an exact
+whole-population result. Keep exact, approximate, sampled, partial and truncated
+outputs distinguishable; expose the missing scope rather than silently limiting
+the answer. Verify engine-specific plan formats and execution effects before
+using them as a stable tool interface.
+
+For large filtering, joins, ordering and aggregation, identify the invariant
+that the next operator requires and check that its actual input supplies it.
+Sorted batches are not a globally sorted stream; local uniqueness is not global
+deduplication; compatible values are not necessarily the same identity namespace,
+collation or source generation. Prefer the loaded engine's supported indexes,
+predicate/projection pushdown, joins and spill operators before writing a custom
+planner or operator. When native mechanisms do not meet a measured requirement,
+compare a minimal bounded streaming, partitioned or external-sort/merge correction
+against an independent result oracle. Preserve duplicate, null, ordering and
+numeric semantics, including skewed keys and many-to-many result expansion.
+Never infer bounded work from a small final result or a streaming API alone.
+
+Budget the largest intermediate state as well as the final result: buffers,
+sort runs, hash tables, groups, join expansion, merge fan-in, open files, copies,
+temporary disk, I/O, CPU, wall time and concurrent workers. Spill transfers pressure to I/O and
+storage; it does not make a workload unlimited or prove all operators can spill.
+Bind scratch to the admitted operation, enforce aggregate memory and disk limits,
+and retain cancellation, interruption and residue custody until actual release.
+If the engine cannot bound the selected shape, return an explicit admission
+failure or use a separately validated partitioned/resumable path. Test a skewed
+or oversized intermediate and its valid bounded neighbor, not only a friendly
+uniform corpus. A new analytics engine or columnar format is justified by a
+measured scan workload and must preserve authoritative transactional state,
+source lineage, precision, publication generations and coherent recovery; it
+does not become a second decision authority or a mandatory storage default.
+
+For collection, begin with the supported consumers' explicit observation needs,
+then plan bounded endpoint, page, symbol and time-window children using actual
+provider capabilities and the shared `EXT-01` admission owner. Demand planning
+itself need not construct a network client or perform a fetch. Coalesce compatible
+needs within the same rights, identity, semantics and freshness scope; share
+immutable input references instead of creating a database or acquisition loop
+per recipe. Compatible overlap may be reused; unsupported intervals, revisions,
+authorization scopes or resolutions may not be merged merely to reduce requests.
+Equal content may share an admitted body reference while distinct acquisitions
+retain their own attempt, causality and authority identities.
+Preserve stable child identities and original deadlines through deferral and
+retry. Distinguish no-send waiting, attempted transport, committed observation,
+failed acquisition and uncertain external effect. Quota waiting supplies no
+observation and no financial authority. Do external I/O outside scarce SQL or
+account locks, then revalidate the selected grant, source and publication operands
+at their existing owning boundaries.
+
+Validate and persist admitted observations before publishing a typed immutable
+input generation to a consumer that requires durable evidence. Preserve original
+source/event and receipt times, instrument or record identity, grain, units,
+revision, missingness and coverage. Several child commits are not automatically
+one atomic point-in-time snapshot: seal the exact member set and cutoff, or
+publish explicit partial coverage with the unsupported consumers blocked. Later
+repairs create a new generation; they do not rewrite a past decision's inputs.
+Fetch success, stored bytes and immutability each prove different properties and
+none proves completeness, current authorization or decision readiness. A consumer
+may intentionally use a nonpersistent bounded result, but it must not advertise
+that result as retained or replayable. Raw and normalized representations can
+both be necessary for a declared replay; hashes and summaries cannot reconstruct
+discarded bodies. Deduplication must preserve distinct events and corrections,
+and historical evaluation must respect what was actually available at its cutoff.
+
 At a bounded data boundary, admit every selected variable field before native
 hydration or parser construction allocates its body: establish type, absence
 versus genuine null versus malformed value, actual byte size, row/edge or node
@@ -2171,6 +2250,39 @@ independently verify an idle worker does not retain unrelated settled work.
 Account the supported lifetime without requiring wrappers around every primitive
 or claiming process RSS reduction or secret zeroization.
 
+Design sustainable retention before sustained unattended accumulation. Identify
+the real incoming references, active readers, unresolved obligations, promised
+replay inputs and recovery pins for each retained class. Reuse existing owners
+to revalidate eligibility transactionally and retire metadata and external bodies
+with an interruption/reopen protocol; age, a completed job or a larger quota is
+not sufficient. An additive schema or payload family must update the actual
+reference-census, retention and recovery consumers along with its descriptors
+and version gates. A table-count allowance or a hash list cannot establish that
+new reference edges are understood. Keep required financial or other unresolved
+evidence, and distinguish reclaimable space from space actually released.
+
+Account for the whole physical footprint without double-counting shared files
+or layers: database and indexes, journals and sidecars, objects, staging and
+spill, logs, Git/reference material, environments and caches, images/build output,
+backups and transient migration/restore/compaction peaks. Logical body quotas and
+freed rows are not physical ceilings. Measure net growth after eligible retirement
+and actual reclamation, and estimate exhaustion only from evidenced rates and
+headroom. Maintain required recovery reserves separately from steady-state demand.
+Optimize repeated whole-catalogue or directory scans only after measuring their
+terminal cost; a faster counter or projection must retain authoritative accounting
+and residue reconciliation. Never answer capacity pressure with blanket pruning,
+deleting sidecars or keys, removing unresolved evidence, or lifting tighter limits
+without the existing ownership and authorization contract.
+
+Keep schema guides and data reports truthful to one declared source/runtime
+generation. State which shapes are registered, proposed, populated, exercised or
+deployed; inventory counts and source acceptance cannot prove operational use or
+readiness. Describe actual units, keys, null semantics, constraints, purpose and
+retention rather than inferring them from names. Distinguish a count of records
+from people, sessions or activity, and unsupported or missing facts from zero.
+Do not merge distinct evidence, identity and recovery owners merely to reduce
+table count, or preserve a redundant representation without a named consumer.
+
 Attest the **effective** storage capability rather than a configured label.
 Record the loaded engine and driver identity and verify required isolation,
 durability, atomic constraints, locking and writer model, journal/checkpoint or
@@ -2229,6 +2341,10 @@ Retain these representative cases or equivalent go-red assertions:
 | warm cache hides an unbounded cold path or expiry wave | cold, warm, simultaneous-miss, expiry, restart, and sustained-background envelopes are separately reported | one warm median is generalized to lifecycle performance |
 | candidate backend is faster but weakens semantics or operability | candidate is rejected until it preserves invariants, recovery, deployment, and inspection | backend name or synthetic throughput substitutes for lifecycle proof |
 | batching improves aggregate throughput under foreground contention | required atomicity and foreground tail-latency budgets both survive representative concurrent load | larger batches starve foreground work, or hidden intermediate commits make a partial operation visible |
+| many individually sorted input batches feed a set operator | the final stream satisfies its required global ordering, namespace and duplicate semantics against an independent oracle | local ordering or disjoint-looking IDs are treated as global ordering or identity proof |
+| a tiny result hides a skewed join, aggregation or spill | intermediate memory, temporary disk and cancellation/residue stay within the admitted envelope | final LIMIT, streaming syntax or a configured memory knob is treated as a whole-operation bound |
+| collection children partially complete or repair later | consumers receive an exact sealed generation with honest coverage; past decision inputs remain unchanged | successful children or later repairs are presented as an original complete atomic snapshot |
+| retained growth and additive schemas | reference-aware retirement, actual physical accounting and a coherent restore preserve required evidence | age-only deletion, cap inflation, table counts or logical quotas substitute for lifecycle ownership |
 
 Engine documentation provides evidence about a candidate, never a portable
 default. For example, the official [SQLite WAL

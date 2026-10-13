@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.17.0 - 2026-10-13
+
+- Automatically route material acquisition, schema, large-query/replay and data
+  growth work to the existing storage and applicable execution owners before
+  implementation; keep routine bounded work proportionate.
+- Let deterministic tools own exact large-data computation and return compact,
+  source-bound results to the model with honest partial/approximate coverage.
+- Preserve global ordering, identity, null and duplicate semantics through
+  native or justified custom operators; budget intermediate expansion, memory,
+  spill, I/O, CPU, wall time, fan-in and concurrency rather than final rows alone.
+- Connect compatible collection demand to bounded physical requests, validated
+  observations and immutable complete-or-partial generations; preserve rights,
+  acquisition causality, historical cutoffs and durable replay distinctions.
+- Make retention reference-aware and account for actual physical growth,
+  staging/residue and recovery peaks; keep schema guides truthful about registered,
+  proposed, exercised and deployed states.
+- Extend existing DATA-01 and the routing preamble without a new rule, tag,
+  module, mandatory backend, framework, hosted service or worker topology.
+  Deterministic route/loader/package checks verify delivery and integrity;
+  comparative model-application and portability drills remain open.
+
 ## 1.16.0 - 2026-10-10
 
 - Strengthen existing SEM-01: consider known compatible reuse while writing,

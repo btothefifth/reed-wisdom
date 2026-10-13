@@ -77,6 +77,15 @@ persistent schema evolution, or generated distribution artifacts are affected;
 these rules stay with their existing owners rather than adding a separate
 architecture workflow.
 
+Material acquisition, schema, large-query/replay and data growth work selects
+the existing storage route automatically, even when phrased as collection or
+analysis. For example, add `--tag storage` to the implementation profile before
+designing a historical-input pipeline. The model plans with compact verified
+results; deterministic tools compute the large-data results within explicit
+intermediate-state and lifecycle budgets. Read-only access and disk spill do
+not remove resource, privacy or recovery obligations. A routine bounded edit
+does not require a new engine, benchmark, artifact or workflow.
+
 When discovery advertises phases, add the current phase to select its required
 rules and re-route before each later phase's protected action. An unknown phase
 requires the full source. Optional selected-context accounting reports the
