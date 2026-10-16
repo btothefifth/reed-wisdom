@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-13 (America/New_York)
+Last updated: 2026-10-16 (America/New_York)
 
-Product version: 1.17.0
+Product version: 1.18.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -2014,6 +2014,7 @@ agree that the abstraction looks cleaner. Use the existing `CHANGE-01` and
 | Repeated policy or lifecycle phases | Reuse the existing compatible owner/helper; share genuinely identical pure checks and immutable comparisons, while keeping distinct authority, freshness, reservation, and recovery rules explicit. Differential witnesses prove common invariants and required divergent results. | Copying a phase checker into another profile leaves two patch owners. Deliberately different semantics may remain separate when their difference is explicit and tested; textual similarity alone is not equivalence. |
 | Intentionally closed dispatch | One inspectable closed type/variant mapping owns handler selection; adding a supported variant updates that mapping and its bounded coverage. Unsupported inputs must reach an explicit typed refusal before mutation or privilege expansion. | A type cascade silently falls through to an ordinary or privileged handler. A small exhaustive conditional, exact-type mapping, or switch is valid; an open plugin contract instead needs explicit registration, capability admission, and unknown-handler refusal. |
 | Concentrated orchestration | Keep the authoritative writer and transaction/permission boundary cohesive; separate pure decoding, validation, preparation, and projection only where real callers gain a narrower contract and fewer coupled responsibilities. | A new family requires coordinated edits to several independent handler matrices or duplicated state maps. Moving those maps into wrappers is insufficient. A large cohesive owner may remain when splitting it would introduce dual authority or a more complex lifecycle. |
+| Author-facing extension interface | Let an extension author express the domain decision with the smallest semantic inputs and result it actually needs. A cohesive platform owner supplies acquisition, assembly, provenance validation, and lifecycle machinery. Inspect a real caller to show which responsibilities the interface removes. | A supposedly generic interface requires every extension to reproduce one implementation's stages or pass platform bookkeeping it does not own. Keep richer inputs or explicit stages when the domain contract requires them; hiding a material semantic choice or weakening a trust boundary is not simplification. |
 | Presentation mixed with request custody | When timeout, cancellation, recovery, owner/permission change, or persistence policy can change user behavior, make its transitions independently exercisable from presentation/effect wiring. Preserve opaque identity, permission, epoch, unknown-outcome, and retirement rules at actual consumers. | Rendering code independently reconstructs recovery or persistence policy, or a timeout is presented as proof of no effect. A small local interaction may remain inline when its lifecycle is direct and the owning tests reach it without reconstructing policy. |
 
 A material violation in the affected frontier blocks acceptance of that change
@@ -3844,10 +3845,26 @@ and lifecycle. Extract genuinely shared behavior for real callers that
 removes duplicate policy or work; preserve semantic differences and one owner
 for changed contracts.
 
+Before introducing an abstraction, demonstrate the concrete caller work or
+duplicate ownership it removes. Prefer direct functions when no owned state,
+lifecycle, or real substitutable behavior requires an object or protocol.
+Remove an unused layer rather than inventing a caller to justify it. Judge the
+result at the adopting entrypoint as well as inside the new helper; relocating
+assembly, branches, or bookkeeping into several wrappers does not reduce them.
+
 After writing code, the implementer must inspect affected code and real callers
 for consolidation and naming. Use the simplest readable representation.
 Cohesive typed objects or structs must remove ambiguity or duplication.
 Reject speculative frameworks, unneeded wrappers and broad cosmetic refactors.
+
+Keep control flow readable in execution order, with descriptive names and
+explicit intermediate values where they clarify a decision. Reduce unnecessary
+nesting and indirection; fewer lines alone are not a readability improvement.
+Comment non-obvious intent, units, ordering constraints, and edge cases at their
+owning code. Comments must explain a remaining constraint, not compensate for
+convoluted code or restate each operation. During the same simplification pass,
+trace the intended and rejected or preserved path from the real caller and
+check that both the code and its explanation expose the governing decision.
 
 The reviewer must challenge stale copies, actual caller adoption and required
 semantic differences in normal source/integration review. Preserve authority,

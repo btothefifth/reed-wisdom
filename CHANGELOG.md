@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.18.0 - 2026-10-16
+
+- Clarify existing architecture acceptance: extension authors supply the
+  semantic inputs and result their decision needs; a cohesive platform owner
+  handles acquisition, assembly, provenance validation and lifecycle machinery.
+- Strengthen existing SEM-01 with concrete caller benefit before abstraction,
+  direct functions when state, lifecycle or real substitution does not require
+  an object or protocol, and removal of unused layers.
+- Require readable execution order, descriptive names and useful comments for
+  non-obvious intent, units, ordering constraints and edge cases; inspect real
+  intended and preserved or rejected paths in the same simplification pass.
+- Preserve correctness, causality, authority and recovery boundaries. Existing
+  independent-validation and fixture-reachability rules already cover self-
+  attesting provenance and tests that bypass the changed production consumer;
+  these failures call for enforcement, not duplicate rules.
+- Preserve the fast kernel, rule IDs, route topology, source schema and semantic
+  revision. Deterministic source, loader and package checks prove instruction
+  delivery and integrity; release evidence remains
+  `contract-complete, empirical-drills-open` without a new model evaluation claim.
+
 ## 1.17.0 - 2026-10-13
 
 - Automatically route material acquisition, schema, large-query/replay and data

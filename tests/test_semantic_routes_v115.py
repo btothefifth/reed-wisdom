@@ -22,8 +22,11 @@ import compile_wisdom as compiler  # noqa: E402
 RULE_OWNERS = (
     (b"Keep the existing owner/dependency map usable for change review", "recursive_contract", "architecture"),
     (b"Apply these architecture acceptance conditions in design and code review", "recursive_contract", "architecture"),
+    (b"Author-facing extension interface", "recursive_contract", "architecture"),
     (b"Before expanding a variant family, `SEM-01` implementation review must check", "implementation", "implementation"),
     (b"While writing code, implementation must consider known reuse", "implementation", "implementation"),
+    (b"Before introducing an abstraction, demonstrate the concrete caller work", "implementation", "implementation"),
+    (b"Keep control flow readable in execution order", "implementation", "implementation"),
     (b"After writing code, the implementer must inspect affected code and real callers", "implementation", "implementation"),
     (b"The reviewer must challenge stale copies, actual caller adoption and required", "implementation", "implementation"),
     (b"Before adding a persistent shape for another fixture", "storage_design", "storage"),
