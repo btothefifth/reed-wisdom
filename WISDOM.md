@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-16 (America/New_York)
+Last updated: 2026-10-17 (America/New_York)
 
-Product version: 1.18.0
+Product version: 1.18.1
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be
@@ -3403,7 +3403,9 @@ harness.
 
 When a test carrier, fixture composition, child entry, or execution guard
 changes, check semantic compatibility through the actual entry context before
-an expensive batch. Use ordinary discovery to detect duplicate or missing cases,
+an expensive batch. Reusing or freezing a fixture must preserve its required
+members and consumer-visible metadata, including file modes; matching bytes
+alone do not preserve the fixture contract. Use ordinary discovery to detect duplicate or missing cases,
 and the smallest owning case to exercise changed imports, callbacks, guards,
 child startup, output framing, and cleanup. Inspect the executable actually
 launched, including installed scripts. A hash match or successful collection

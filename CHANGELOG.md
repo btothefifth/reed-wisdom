@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.18.1 - 2026-10-17
+
+- Clarify that reused or frozen fixtures retain required members and
+  consumer-visible metadata, including file modes; byte equality alone
+  does not preserve the fixture contract.
+- Keep the existing test-harness compatibility rule, manifest, rule
+  IDs, route topology and semantic revision unchanged; add no new gate
+  or proof framework.
+
 ## 1.18.0 - 2026-10-16
 
 - Clarify existing architecture acceptance: extension authors supply the
