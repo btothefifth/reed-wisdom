@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.19.1 - 2026-10-19
+
+- Clarify the existing implementation isolation rule: verify owned files and
+  resolved parents before editing an isolated work tree, donor, or overlay;
+  shared source links stay read-only until replaced by an independent regular
+  copy in a verified private parent.
+- Preserve rule IDs, routes, semantic revision 21 and the simplicity contract.
+  Source, loader and bundle checks establish instruction delivery and integrity,
+  not measured improvement in agent behavior.
+
 ## 1.19.0 - 2026-10-18
 
 - Extend the optional portable setup helper to detect OpenCode and Claude Code
