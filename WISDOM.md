@@ -1,8 +1,8 @@
 # WISDOM: General Software-Engineering Bootstrap
 
-Last updated: 2026-10-17 (America/New_York)
+Last updated: 2026-10-18 (America/New_York)
 
-Product version: 1.18.1
+Product version: 1.19.0
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be

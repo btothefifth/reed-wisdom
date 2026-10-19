@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Optional, consent-gated Codex setup for this exact WISDOM installation.
+"""Optional, consent-gated setup for supported WISDOM coding agents.
 
-This tool reads only its WISDOM source, the effective global instruction file,
-Codex config, and optional schema/model evidence. It never installs defaults.
+This tool reads only its WISDOM source, global agent instruction files, Codex
+config, and optional schema/model evidence. It never installs defaults.
 """
 
 from __future__ import annotations
@@ -540,16 +540,45 @@ def _approve(input_func: Callable[[str], str], target: Path) -> bool:
         return False
 
 
+def _report_agents_delta(
+    label: str,
+    before: bytes | None,
+    after: bytes,
+    output: Callable[[str], None],
+) -> None:
+    output(f"{label} exact delta: before sha256={digest(before or b'')}; after sha256={digest(after)}")
+    if after.startswith(before or b""):
+        appended = after[len(before or b""):]
+        output(f"Append exact UTF-8 bytes: {appended!r}")
+        for line in appended.decode("utf-8").splitlines():
+            output(f"+ {line}")
+        return
+    output("Replace the exact setup-generated version block:")
+    delta = difflib.unified_diff(
+        (before or b"").decode("utf-8").splitlines(),
+        after.decode("utf-8").splitlines(),
+        n=0,
+    )
+    for line in delta:
+        if line.startswith(("+", "-")) and not line.startswith(("+++", "---")):
+            output(line)
+
+
 def run_setup(
     source: Path,
     home: Path,
     *,
+    opencode_home: Path | None = None,
+    claude_home: Path | None = None,
     schema_path: Path | None = None,
     catalog_path: Path | None = None,
     interactive: bool = False,
     input_func: Callable[[str], str] = input,
     output: Callable[[str], None] = print,
     probe_cli: bool = True,
+    probe_opencode: bool = True,
+    probe_claude: bool = True,
+    probe_cursor: bool = True,
 ) -> None:
     source = source.resolve(strict=True)
     home = home.expanduser().resolve()
@@ -560,6 +589,30 @@ def run_setup(
     schema = _parse_json(schema_path, required=schema_path is not None)
     catalog = _parse_json(catalog_path, required=catalog_path is not None)
     findings, proposals = config_diagnostics(config_raw, schema, catalog)
+    opencode_binary = shutil.which("opencode") if probe_opencode else None
+    opencode_agents: Path | None = None
+    old_opencode_agents: bytes | None = None
+    new_opencode_agents: bytes | None = None
+    if opencode_binary is not None:
+        opencode_home = (opencode_home or (Path.home() / ".config" / "opencode")).expanduser().resolve()
+        opencode_agents = opencode_home / "AGENTS.md"
+        old_opencode_agents = read_existing(opencode_agents)
+        # Validate the second target before any consented Codex write, so a
+        # conflicting OpenCode WISDOM instruction cannot cause a partial setup.
+        new_opencode_agents = proposed_agents(old_opencode_agents, source)
+    claude_binary = shutil.which("claude") if probe_claude else None
+    claude_instructions: Path | None = None
+    old_claude_instructions: bytes | None = None
+    new_claude_instructions: bytes | None = None
+    if claude_binary is not None:
+        claude_home = (claude_home or (Path.home() / ".claude")).expanduser().resolve()
+        claude_instructions = claude_home / "CLAUDE.md"
+        old_claude_instructions = read_existing(claude_instructions)
+        # Preflight every file target before making any approved edit.
+        new_claude_instructions = proposed_agents(old_claude_instructions, source)
+    cursor_binary = None
+    if probe_cursor:
+        cursor_binary = shutil.which("cursor-agent") or shutil.which("cursor")
     output(f"WISDOM source: {source}")
     output(f"Effective global instruction target: {agent_path}")
     if new_agents is None:
@@ -567,27 +620,55 @@ def run_setup(
     elif len(new_agents) > _instruction_limit(config_raw):
         output("AGENTS guidance exceeds this config's instruction byte limit; no edit proposed. Review the effective limit and instruction chain manually.")
     else:
-        output(f"AGENTS exact delta: before sha256={digest(old_agents or b'')}; after sha256={digest(new_agents)}")
-        if new_agents.startswith(old_agents or b""):
-            appended = new_agents[len(old_agents or b""):]
-            output(f"Append exact UTF-8 bytes: {appended!r}")
-            for line in appended.decode("utf-8").splitlines():
-                output(f"+ {line}")
-        else:
-            output("Replace the exact setup-generated version block:")
-            delta = difflib.unified_diff(
-                (old_agents or b"").decode("utf-8").splitlines(),
-                new_agents.decode("utf-8").splitlines(),
-                n=0,
-            )
-            for line in delta:
-                if line.startswith(("+", "-")) and not line.startswith(("+++", "---")):
-                    output(line)
+        _report_agents_delta("AGENTS", old_agents, new_agents, output)
         if interactive and _approve(input_func, agent_path):
             _commit(agent_path, old_agents, new_agents)
             output("AGENTS guidance written and verified. Verify in a fresh Codex session.")
         else:
             output("AGENTS guidance skipped; no instruction-file write.")
+    if opencode_binary is None:
+        output("OpenCode CLI: not detected; no OpenCode setup proposed.")
+    else:
+        assert opencode_agents is not None
+        output(f"OpenCode CLI detected: {opencode_binary}")
+        output(f"OpenCode global instruction target: {opencode_agents}")
+        if new_opencode_agents is None:
+            output("OpenCode AGENTS guidance: equivalent source-specific loading instruction already present.")
+        else:
+            _report_agents_delta(
+                "OpenCode AGENTS", old_opencode_agents, new_opencode_agents, output,
+            )
+            if interactive and _approve(input_func, opencode_agents):
+                _commit(opencode_agents, old_opencode_agents, new_opencode_agents)
+                output("OpenCode AGENTS guidance written and verified. Verify in a fresh OpenCode session.")
+            else:
+                output("OpenCode AGENTS guidance skipped; no OpenCode instruction-file write.")
+    if claude_binary is None:
+        output("Claude Code CLI: not detected; no Claude Code setup proposed.")
+    else:
+        assert claude_instructions is not None
+        output(f"Claude Code CLI detected: {claude_binary}")
+        output(f"Claude Code user instruction target: {claude_instructions}")
+        if new_claude_instructions is None:
+            output("Claude Code guidance: equivalent source-specific loading instruction already present.")
+        else:
+            _report_agents_delta(
+                "Claude Code instructions", old_claude_instructions,
+                new_claude_instructions, output,
+            )
+            if interactive and _approve(input_func, claude_instructions):
+                _commit(claude_instructions, old_claude_instructions, new_claude_instructions)
+                output("Claude Code user guidance written and verified. Verify in a fresh Claude Code session.")
+            else:
+                output("Claude Code guidance skipped; no instruction-file write.")
+    if cursor_binary is None:
+        output("Cursor CLI/editor: not detected; no Cursor setup recommendation.")
+    else:
+        output(f"Cursor CLI/editor detected: {cursor_binary}")
+        output("Cursor global User Rules are managed in Cursor Settings > Rules; no supported global rule file is documented.")
+        output("Add this plain-text rule there to load WISDOM in Cursor Agent sessions:")
+        for line in _guidance_text(source.resolve(strict=True).as_posix()).splitlines():
+            output(line)
     version = cli_version() if probe_cli else None
     output(f"Codex CLI version: {version or 'unavailable'}; local schema: {'available' if schema else 'unavailable'}; model catalog: {'available' if catalog else 'unavailable'}.")
     output("Diagnostics cover this CODEX_HOME config only; active CLI flags, profiles, project layers, and fresh-session behavior require separate verification.")
@@ -619,12 +700,16 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parents[1] / "WISDOM.md")
     parser.add_argument("--codex-home", type=Path, default=Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex"))
+    parser.add_argument("--opencode-config-home", type=Path, help="OpenCode global config directory (default: ~/.config/opencode)")
+    parser.add_argument("--claude-config-home", type=Path, help="Claude Code config directory (default: ~/.claude)")
     parser.add_argument("--schema", type=Path, help="optional local installed Codex JSON schema")
     parser.add_argument("--model-catalog", type=Path, help="optional local installed model catalog JSON")
     parser.add_argument("--no-cli-probe", action="store_true")
     args = parser.parse_args(argv)
     try:
-        run_setup(args.source, args.codex_home, schema_path=args.schema, catalog_path=args.model_catalog,
+        run_setup(args.source, args.codex_home, opencode_home=args.opencode_config_home,
+                  claude_home=args.claude_config_home,
+                  schema_path=args.schema, catalog_path=args.model_catalog,
                   interactive=sys.stdin.isatty(), probe_cli=not args.no_cli_probe)
     except (OSError, SetupError) as exc:
         print(f"Setup stopped: {exc}", file=sys.stderr)

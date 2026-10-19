@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.19.0 - 2026-10-18
+
+- Extend the optional portable setup helper to detect OpenCode and Claude Code
+  and offer separate, exact-consent updates to their global instruction files.
+- Detect Cursor and print the exact WISDOM User Rule with its documented
+  Settings location; do not write to an undocumented settings store.
+- Preserve each product's existing guidance and settings unless the user
+  approves the specific supported instruction-file change.
+
 ## 1.18.1 - 2026-10-17
 
 - Clarify that reused or frozen fixtures retain required members and

@@ -5,19 +5,33 @@ agent. `WISDOM.md` is the sole authored authority. The bundled tools use only
 the Python standard library to create and verify smaller exact-byte views;
 they do not add rules and their output has no independent authority.
 
-## Optional Codex setup
+## Optional coding-agent setup
 
-After extraction, a Codex user may run the bundled setup helper:
+After extraction, users of Codex, OpenCode, Claude Code, or Cursor may run the
+bundled setup helper:
 
 ```text
 python scripts/setup_wisdom.py --source WISDOM.md
 ```
 
 It checks the effective global `AGENTS.md`/`AGENTS.override.md` guidance and
-the `config.toml` in that `CODEX_HOME`, then shows any proposed WISDOM-specific edit and asks for
-separate explicit consent before writing it. Declining or running without an
-interactive input leaves those files unchanged. It does not ask about, inspect,
-or change workflows. Model-context numbers and experimental feature flags are
+the `config.toml` in that `CODEX_HOME`. When the `opencode` CLI is on `PATH`, it
+also offers a WISDOM-specific edit to OpenCode's global
+`~/.config/opencode/AGENTS.md`. When the `claude` CLI is on `PATH`, it offers a
+separate edit to Claude Code's user-wide `~/.claude/CLAUDE.md`, shared by its
+CLI and desktop app. Each instruction-file target has its own exact preview
+and separate explicit consent; declining or running without interactive input
+leaves that target unchanged. Use `--opencode-config-home` or
+`--claude-config-home` when those config directories are elsewhere.
+
+When `cursor-agent` or `cursor` is on `PATH`, the helper prints the exact
+WISDOM instruction and directs you to add it manually under Cursor Settings >
+Rules. Cursor documents User Rules as global plain text settings, but does not
+document a supported global rule-file path for the helper to edit. The helper
+does not modify Cursor settings or OpenCode's `opencode.json`, model settings,
+or workflows.
+
+Codex model-context numbers and experimental feature flags are
 environment-dependent suggestions, not portable defaults; unsupported or
 uncertain settings are reported rather than silently applied. Existing user
 content remains authoritative unless the user approves a specific edit.
@@ -28,8 +42,8 @@ instructions, CLI flags, selected profiles, project config layers, or live
 model capabilities. After an approved edit, verify the effective guidance and
 settings in a fresh Codex session.
 
-This helper is optional and Codex-specific. File/Python-capable agents can use
-the complete WISDOM source without installation or configuration changes.
+This helper is optional. File/Python-capable agents can use the complete WISDOM
+source without installation or configuration changes.
 
 ## File/Python-capable coding agents
 

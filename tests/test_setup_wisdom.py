@@ -22,13 +22,17 @@ def installation(tmp_path: Path) -> tuple[Path, Path]:
     return source, home
 
 
-def run(source: Path, home: Path, *, answers=(), schema=None, catalog=None, interactive=True):
+def run(source: Path, home: Path, *, answers=(), schema=None, catalog=None,
+        interactive=True, opencode_home=None, detect_opencode=False,
+        claude_home=None, detect_claude=False, detect_cursor=False):
     messages: list[str] = []
     choices = iter(answers)
     setup.run_setup(
         source, home, schema_path=schema, catalog_path=catalog,
         interactive=interactive, input_func=lambda _: next(choices),
-        output=messages.append, probe_cli=False,
+        output=messages.append, probe_cli=False, probe_opencode=detect_opencode,
+        opencode_home=opencode_home, claude_home=claude_home,
+        probe_claude=detect_claude, probe_cursor=detect_cursor,
     )
     return "\n".join(messages)
 
@@ -50,6 +54,184 @@ def test_noninteractive_and_decline_leave_everything_unchanged(installation):
     result = run(source, home, answers=["no"])
     assert "AGENTS guidance skipped" in result
     assert (agents.read_bytes(), config.read_bytes(), workflow.read_bytes()) == before
+
+
+def test_opencode_is_offered_only_when_cli_is_detected(installation, monkeypatch):
+    source, home = installation
+    opencode_home = home / "opencode"
+    original_which = setup.shutil.which
+
+    def no_opencode(command):
+        if command == "opencode":
+            return None
+        return original_which(command)
+
+    monkeypatch.setattr(setup.shutil, "which", no_opencode)
+    result = run(source, home, detect_opencode=True, opencode_home=opencode_home, answers=["no"])
+    assert "OpenCode CLI: not detected" in result
+    assert not opencode_home.exists()
+
+
+def test_opencode_setup_has_separate_exact_consent_and_is_idempotent(installation, monkeypatch):
+    source, home = installation
+    opencode_home = home / "opencode"
+    opencode_home.mkdir()
+    agents = opencode_home / "AGENTS.md"
+    agents.write_bytes(b"Personal OpenCode guidance.\r\n")
+    original_which = setup.shutil.which
+
+    def installed(command):
+        if command == "opencode":
+            return "/usr/bin/opencode"
+        return original_which(command)
+
+    monkeypatch.setattr(setup.shutil, "which", installed)
+    before = agents.read_bytes()
+    result = run(
+        source, home, opencode_home=opencode_home, detect_opencode=True,
+        answers=["YES", "no"],
+    )
+    assert "OpenCode CLI detected: /usr/bin/opencode" in result
+    assert "OpenCode global instruction target" in result
+    assert "OpenCode AGENTS exact delta" in result
+    assert "OpenCode AGENTS guidance skipped" in result
+    assert agents.read_bytes() == before
+    assert not list(opencode_home.glob("*.bak"))
+    assert source.resolve().as_posix().encode() in (home / "AGENTS.md").read_bytes()
+
+    result = run(
+        source, home, opencode_home=opencode_home, detect_opencode=True,
+        answers=["YES"],
+    )
+    assert "OpenCode AGENTS guidance written and verified" in result
+    assert agents.read_bytes().startswith(before)
+    assert setup.guidance(source).replace(b"\n", b"\r\n") in agents.read_bytes()
+    assert len(list(opencode_home.glob("AGENTS.md.before-wisdom-*.bak"))) == 1
+
+    prior = agents.read_bytes()
+    result = run(source, home, opencode_home=opencode_home, detect_opencode=True)
+    assert "equivalent source-specific loading instruction" in result
+    assert agents.read_bytes() == prior
+
+
+def test_opencode_conflict_is_found_before_any_codex_write(installation, monkeypatch):
+    source, home = installation
+    opencode_home = home / "opencode"
+    opencode_home.mkdir()
+    (opencode_home / "AGENTS.md").write_text(
+        "Read and follow `C:/old/WISDOM.md` for all tasks.\n", encoding="utf-8"
+    )
+    original_which = setup.shutil.which
+    monkeypatch.setattr(
+        setup.shutil, "which",
+        lambda command: "/usr/bin/opencode" if command == "opencode" else original_which(command),
+    )
+
+    with pytest.raises(setup.SetupError, match="different WISDOM guidance"):
+        run(source, home, opencode_home=opencode_home, detect_opencode=True, answers=["YES"])
+
+    assert not (home / "AGENTS.md").exists()
+    assert not list(home.glob("*.bak"))
+
+
+def test_claude_code_is_offered_only_when_cli_is_detected(installation, monkeypatch):
+    source, home = installation
+    claude_home = home / "claude"
+    original_which = setup.shutil.which
+
+    def no_claude(command):
+        if command == "claude":
+            return None
+        return original_which(command)
+
+    monkeypatch.setattr(setup.shutil, "which", no_claude)
+    result = run(source, home, detect_claude=True, claude_home=claude_home, interactive=False)
+    assert "Claude Code CLI: not detected" in result
+    assert not claude_home.exists()
+
+
+def test_claude_setup_has_separate_exact_consent_and_is_idempotent(installation, monkeypatch):
+    source, home = installation
+    claude_home = home / "claude"
+    claude_home.mkdir()
+    instructions = claude_home / "CLAUDE.md"
+    instructions.write_bytes(b"Personal Claude guidance.\r\n")
+    codex_instructions = home / "AGENTS.md"
+    codex_instructions.write_bytes(setup.guidance(source))
+    original_which = setup.shutil.which
+
+    def installed(command):
+        if command == "claude":
+            return "/usr/bin/claude"
+        return original_which(command)
+
+    monkeypatch.setattr(setup.shutil, "which", installed)
+    before = instructions.read_bytes()
+    result = run(
+        source, home, claude_home=claude_home, detect_claude=True, answers=["no"],
+    )
+    assert "Claude Code CLI detected: /usr/bin/claude" in result
+    assert "Claude Code user instruction target" in result
+    assert "Claude Code instructions exact delta" in result
+    assert "Claude Code guidance skipped" in result
+    assert instructions.read_bytes() == before
+    assert not list(claude_home.glob("*.bak"))
+
+    result = run(
+        source, home, claude_home=claude_home, detect_claude=True, answers=["YES"],
+    )
+    assert "Claude Code user guidance written and verified" in result
+    assert instructions.read_bytes().startswith(before)
+    assert setup.guidance(source).replace(b"\n", b"\r\n") in instructions.read_bytes()
+    assert len(list(claude_home.glob("CLAUDE.md.before-wisdom-*.bak"))) == 1
+
+    prior = instructions.read_bytes()
+    result = run(source, home, claude_home=claude_home, detect_claude=True)
+    assert "equivalent source-specific loading instruction" in result
+    assert instructions.read_bytes() == prior
+
+
+def test_claude_conflict_is_found_before_any_codex_write(installation, monkeypatch):
+    source, home = installation
+    claude_home = home / "claude"
+    claude_home.mkdir()
+    (claude_home / "CLAUDE.md").write_text(
+        "Read and follow `C:/old/WISDOM.md` for all tasks.\n", encoding="utf-8"
+    )
+    original_which = setup.shutil.which
+    monkeypatch.setattr(
+        setup.shutil, "which",
+        lambda command: "/usr/bin/claude" if command == "claude" else original_which(command),
+    )
+
+    with pytest.raises(setup.SetupError, match="different WISDOM guidance"):
+        run(source, home, claude_home=claude_home, detect_claude=True, answers=["YES"])
+
+    assert not (home / "AGENTS.md").exists()
+    assert not list(home.glob("*.bak"))
+
+
+def test_cursor_detection_prints_manual_global_user_rule_without_writing(installation, monkeypatch):
+    source, home = installation
+    original_which = setup.shutil.which
+
+    def installed(command):
+        if command == "cursor-agent":
+            return "/usr/bin/cursor-agent"
+        if command == "cursor":
+            return None
+        return original_which(command)
+
+    monkeypatch.setattr(setup.shutil, "which", installed)
+    before = sorted(path.relative_to(home).as_posix() for path in home.rglob("*"))
+    result = run(source, home, detect_cursor=True, interactive=False)
+    after = sorted(path.relative_to(home).as_posix() for path in home.rglob("*"))
+
+    assert "Cursor CLI/editor detected: /usr/bin/cursor-agent" in result
+    assert "Cursor Settings > Rules" in result
+    assert "no supported global rule file is documented" in result
+    assert setup._guidance_text(source.resolve().as_posix()).strip() in result
+    assert after == before
 
 
 def test_effective_override_wins_and_rerun_is_idempotent(installation):
@@ -419,7 +601,8 @@ def test_config_change_after_diagnostics_refuses_stale_remediation(installation)
 
     with pytest.raises(setup.SetupError, match="changed after diagnostics"):
         setup.run_setup(source, home, catalog_path=catalog, interactive=True,
-                        input_func=change_during_agents_prompt, output=lambda _: None, probe_cli=False)
+                    input_func=change_during_agents_prompt, output=lambda _: None,
+                    probe_cli=False, probe_opencode=False)
     assert b"model = 'different-model'" in config.read_bytes()
     assert not list(home.glob("*.bak"))
 
