@@ -34,7 +34,7 @@ def example(authored, section, name, language):
 
 def run_python(tmp_path, source, harness):
     path = tmp_path / 'example.py'
-    path.write_text(source + '\n' + harness)
+    path.write_text(source + '\n' + harness, encoding='utf-8', newline='\n')
     return subprocess.run([sys.executable, '-I', str(path)], capture_output=True,
                           text=True, timeout=10)
 
@@ -133,15 +133,15 @@ def test_authored_rust_capture_compiles_and_overcapture_goes_red(authored, tmp_p
     rustc = native_tool('rustc', (1, 85, 0))
     source = example(authored, 'rust_api', 'rust_precise_capture', 'rust')
     path = tmp_path / 'capture.rs'
-    output = tmp_path / ('capture.exe' if sys.platform == 'win32' else 'capture')
-    command = [rustc, '--edition=2024', '--error-format=json', str(path), '-o', str(output)]
-    path.write_text(source)
+    # Borrow checking is the oracle; a platform linker/executable adds no proof.
+    output = tmp_path / 'capture.rmeta'
+    command = [rustc, '--edition=2024', '--emit=metadata', '--error-format=json',
+               str(path), '-o', str(output)]
+    path.write_text(source, encoding='utf-8', newline='\n')
     good = subprocess.run(command, capture_output=True, text=True, timeout=30)
     assert good.returncode == 0, good.stderr
-    ran = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
-    assert ran.returncode == 0, ran.stderr
     assert source.count(' + use<>') == 1
-    path.write_text(source.replace(' + use<>', ''))
+    path.write_text(source.replace(' + use<>', ''), encoding='utf-8', newline='\n')
     bad = subprocess.run(command, capture_output=True, text=True, timeout=30)
     assert bad.returncode != 0
     errors = [json.loads(line) for line in bad.stderr.splitlines() if line.startswith('{')]
@@ -154,12 +154,13 @@ def test_authored_rust_generic_caller_needs_the_public_future_bound(authored, tm
     path = tmp_path / 'future.rs'
     command = [rustc, '--edition=2021', '--crate-type=lib', '--emit=metadata', '--error-format=json',
                str(path), '-o', str(tmp_path / 'future.rmeta')]
-    path.write_text(source)
+    path.write_text(source, encoding='utf-8', newline='\n')
     good = subprocess.run(command, capture_output=True, text=True, timeout=30)
     assert good.returncode == 0, good.stderr
     signature = 'fn run(&self) -> impl Future<Output = ()> + Send;'
     assert source.count(signature) == 1
-    path.write_text(source.replace(signature, 'fn run(&self) -> impl Future<Output = ()>;'))
+    path.write_text(source.replace(signature, 'fn run(&self) -> impl Future<Output = ()>;'),
+                    encoding='utf-8', newline='\n')
     bad = subprocess.run(command, capture_output=True, text=True, timeout=30)
     assert bad.returncode != 0
     errors = [json.loads(line) for line in bad.stderr.splitlines() if line.startswith('{')]
@@ -189,13 +190,14 @@ assert.equal(requests.getStore(), undefined, 'request context leaked to the call
 console.log('node:ok');
 '''
     path = tmp_path / 'context.mjs'
-    path.write_text(source + harness)
+    path.write_text(source + harness, encoding='utf-8', newline='\n')
     good = subprocess.run([node, str(path)], capture_output=True, text=True, timeout=10)
     assert good.returncode == 0, good.stderr
     assert good.stdout == 'node:ok\n'
     call = 'return requests.run(Object.freeze({ requestId }), work);'
     assert source.count(call) == 1
-    path.write_text(source.replace(call, 'requests.enterWith(Object.freeze({ requestId })); return work();') + harness)
+    path.write_text(source.replace(call, 'requests.enterWith(Object.freeze({ requestId })); return work();') + harness,
+                    encoding='utf-8', newline='\n')
     bad = subprocess.run([node, str(path)], capture_output=True, text=True, timeout=10)
     assert bad.returncode != 0
     assert 'request context leaked to the caller' in bad.stderr

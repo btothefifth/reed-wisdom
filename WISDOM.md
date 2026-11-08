@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-07 (America/New_York)
 
-Product version: 1.20.0
+Product version: 1.20.1
 
 > **Intent and ethical precedence.** Some language here may sound philosophical
 > or prescriptive; that is not the intent, and the author does not claim to be

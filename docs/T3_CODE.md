@@ -83,7 +83,7 @@ reads the resulting files and verifies T3's unrelated preference file stayed
 unchanged. This proves packaged installer behavior, not a model session.
 
 The current complete repository suite passed on Linux with CPython 3.12.15
-(421 passed, one Queue.shutdown version skip) and 3.14.4 (422 passed).
+(422 passed, one Queue.shutdown version skip) and 3.14.4 (423 passed).
 Installer/extraction cases passed within both complete runs. A disposable-copy
 mutation removing explicit off-PATH OpenCode selection
 made its owning regression fail at the intended routing assertion. The real
@@ -91,19 +91,19 @@ source stayed unchanged during that probe. The generated rule inventory and
 rebuilt archive pass their drift checks. Hosted checks are reported by the
 release workflow; fresh-session and compaction trials were not run locally.
 
-## Local 1.20.0 installation
+## Local 1.20.1 installation
 
 The authorized local release installation extracts the deterministic archive
-to `/home/reed/.local/share/reed-wisdom/v1.20.0`, verifies all ten members, and
+to `/home/reed/.local/share/reed-wisdom/v1.20.1`, verifies all ten members, and
 keeps their files read-only. Its source SHA-256 is
-`6cde9077fe9dd210f31684b2aeea3d0e9143c9328bbeaf674f88ed2b07400799`;
+`2c0c01b249627fbdf496f0861eb0bf3835467e32f129fcde3450ac998b0df4ea`;
 the archive SHA-256 is
-`0ba3d5ff993e9ab6016cc68c02bfc69faf3cfd6e9a51f3204452462da0621bd3`.
-The local Codex and OpenCode routers now select that fixed source. Their prior
-exact generated blocks were independently reviewed before migration, and the
-installer's atomic writer preserved `.before-wisdom-233ed850a22b61f2.bak`
-backups beside each instruction file. Provider settings and credentials were
-not edited; the active T3 Codex provider's existing home is `/home/reed/.codex`.
+`d49f85890baa878c4ee629b045e5f85e55b70ac10dcc89ba3d1321c83b629adb`.
+The installed setup CLI migrated the exact sibling-version blocks in the local
+Codex and OpenCode routers. It preserved each previous block in a
+`.before-wisdom-aaa9dbd5647f498d.bak` backup beside the instruction file.
+Provider settings and credentials were not edited; the active T3 Codex
+provider's existing home is `/home/reed/.codex`.
 
 The actual installed setup CLI reports both routers present. T3 supplied the
 updated source-specific AGENTS instruction block in the active conversation
@@ -113,7 +113,16 @@ segments, with no unrelated Python asyncio guidance. All installed file names
 and hashes remained unchanged. This proves the observed router delivery and
 installed loading path; it does not prove model compliance or post-compaction
 retention. Local installation receipts live outside the release tree at
-`/home/reed/.local/share/reed-wisdom/installation-1.20.0.json`.
+`/home/reed/.local/share/reed-wisdom/installation-1.20.1.json`.
+
+The earlier v1.20.0 tag remains immutable. Its release gate prevented archive
+publication after Windows fixture encoding/newline failures and a Rust native
+compilation timeout. Version 1.20.1 repairs the test surface: explicit UTF-8
+source bytes, LF/CRLF byte-accounting cases, and compile-only borrowing checks
+with the same E0505 negative oracle. The affected tests also pass locally with
+UTF-8 mode disabled. Native linking is no longer claimed by the Rust capture
+check; the timeout's underlying host cause was not established. The retained
+v1.20.0 installation and its earlier backups provide local recovery evidence.
 
 ## Fresh-session follow-up
 

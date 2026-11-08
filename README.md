@@ -8,8 +8,8 @@ The complete authority is [`WISDOM.md`](WISDOM.md). The compiler and loader are
 optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
-**Current source:** 1.20.0, including the checked-in [WISDOM.zip](WISDOM.zip).
-Download the pinned [v1.20.0 release archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.20.0/reed-wisdom.zip).
+**Current source:** 1.20.1, including the checked-in [WISDOM.zip](WISDOM.zip).
+Download the pinned [v1.20.1 release archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.20.1/reed-wisdom.zip).
 
 **Published downloads:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
 or the previous pinned [v1.19.1 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.19.1/reed-wisdom.zip).
@@ -71,7 +71,7 @@ python scripts/report_technology_modules.py --check
 python scripts/build_wisdom_bundle.py --check
 ```
 
-The 1.20.0 source adds 79 conditional technology modules and 362 identified
+The 1.20.1 source adds 79 conditional technology modules and 362 identified
 rules for language design, concurrency, testing, web frameworks, databases, and
 common operations stacks. Read the complete [rule inventory](docs/TECHNOLOGY_MODULES.md)
 and [adoption/uncertainty report](docs/TECHNOLOGY_DECISIONS.md).

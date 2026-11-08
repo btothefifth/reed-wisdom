@@ -282,11 +282,12 @@ def test_rejected_non_utf8_files_consume_the_total_read_budget(tmp_path):
     assert result['status'] == 'partial'
 
 
-def test_oversized_files_are_skipped_before_reading_without_starving_small_evidence(tmp_path):
+@pytest.mark.parametrize('small_evidence', [b'import asyncio\n', b'import asyncio\r\n'])
+def test_oversized_files_are_skipped_before_reading_without_starving_small_evidence(tmp_path, small_evidence):
     (tmp_path / 'a.py').write_bytes(b'x' * 33)
-    (tmp_path / 'b.py').write_text('import asyncio\n')
+    (tmp_path / 'b.py').write_bytes(small_evidence)
     result = inspector.inspect_project(SOURCE, tmp_path, max_file_bytes=32, max_total_bytes=32)
-    assert result['bytes_read'] == len(b'import asyncio\n')
+    assert result['bytes_read'] == len(small_evidence)
     assert result['evidence_bytes'] == result['bytes_read']
     assert 'python_asyncio' in result['candidate_tags']
     assert {'path': 'a.py', 'reason': 'byte_limit'} in result['issues']
@@ -392,7 +393,7 @@ def test_successive_cli_checkpoints_refresh_every_historical_route_owner(route, 
         '--phase', 'validate', '--save-route', str(second_path)],
         check=True, capture_output=True, timeout=10).stdout)
 
-    raw = source.read_text()
+    raw = source.read_bytes().decode('utf-8')
     start = raw.index('{', raw.index('<!-- WISDOM-MANIFEST-BEGIN'))
     end = raw.index('WISDOM-MANIFEST-END -->', start)
     manifest = json.loads(raw[start:end])
@@ -403,7 +404,7 @@ def test_successive_cli_checkpoints_refresh_every_historical_route_owner(route, 
         row['tags'].append('node')
     else:
         row['id'] = 'renamed_' + old_id
-    source.write_text(raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:])
+    source.write_bytes((raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:]).encode('utf-8'))
     compiler.compile_and_install(source, cache)
 
     resumed_command = command + ['--resume-route', str(second_path)]
@@ -502,12 +503,12 @@ def test_source_change_between_route_expansion_and_loading_requires_full_source(
     saved = loader.read_route_checkpoint(checkpoint, source_path=source,
                                          project_root=project, task_id='change-42')
     options, _ = loader.resume_route_options(saved, source_path=source)
-    raw = source.read_text()
+    raw = source.read_bytes().decode('utf-8')
     start = raw.index('{', raw.index('<!-- WISDOM-MANIFEST-BEGIN'))
     end = raw.index('WISDOM-MANIFEST-END -->', start)
     manifest = json.loads(raw[start:end])
     next(row for row in manifest['task_profiles'] if row['id'] == 'vite_ui')['tags'].append('node')
-    source.write_text(raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:])
+    source.write_bytes((raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:]).encode('utf-8'))
     compiler.compile_and_install(source, cache)
     # Cache is current; only the independently changed route definition is stale.
     assert loader.load_plan(source, cache, task_profile='vite_ui')['status'] == 'compiled'
@@ -519,7 +520,7 @@ def test_source_change_between_route_expansion_and_loading_requires_full_source(
 @pytest.mark.parametrize('change', ['expand', 'narrow', 'remove'])
 def test_current_profile_changes_do_not_drop_saved_scope(route, change):
     _, source, cache, old, _ = route
-    raw = source.read_text()
+    raw = source.read_bytes().decode('utf-8')
     start = raw.index('{', raw.index('<!-- WISDOM-MANIFEST-BEGIN'))
     end = raw.index('WISDOM-MANIFEST-END -->', start)
     manifest = json.loads(raw[start:end])
@@ -530,7 +531,7 @@ def test_current_profile_changes_do_not_drop_saved_scope(route, change):
         profile['tags'].remove('web_accessibility')
     else:
         profile['id'] = 'renamed_vite_profile'
-    source.write_text(raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:])
+    source.write_bytes((raw[:start] + json.dumps(manifest, indent=2) + '\n' + raw[end:]).encode('utf-8'))
     compiler.compile_and_install(source, cache)
     resumed = restore(route)
     if change == 'remove':

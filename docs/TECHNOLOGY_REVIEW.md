@@ -1,7 +1,7 @@
 # Technology implementation review: prose, context, and enforcement
 
 Review baseline: 2026-11-07. This is an authoring report, not portable authority.
-Reviewed source SHA-256: `6cde9077fe9dd210f31684b2aeea3d0e9143c9328bbeaf674f88ed2b07400799`.
+Reviewed source SHA-256: `2c0c01b249627fbdf496f0861eb0bf3835467e32f129fcde3450ac998b0df4ea`.
 
 The review covers every rule, trigger, preference surface, dependency, proof
 prompt, and reference placement in the technology library: 79 modules and 362

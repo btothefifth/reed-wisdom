@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.20.1 - 2026-11-07
+
+- Deliver the modern technology library: 79 conditional modules and 362 rules,
+  version-aware preferences, advisory stack inspection, durable route recovery,
+  and native-provider installation for T3 Code. See the 1.20.0 entry for the
+  complete implementation inventory and the repository's technology reports.
+- Fix Windows test fixtures to preserve UTF-8 source bytes and explicit line
+  endings; exercise byte accounting with both LF and CRLF evidence.
+- Check the Rust precise-capture example with compiler metadata and retain its
+  independent E0505 negative oracle. This tests borrowing without requiring a
+  platform linker or executable; the compiler timeout remains bounded.
+- Keep the failed v1.20.0 tag immutable. Its release gate prevented archive
+  publication; this patch supplies the corrected cross-platform test surface.
+  Portable rules and semantic revision 23 are unchanged.
+
 ## 1.20.0 - 2026-11-07
 
 - Add 79 independently selected technology modules with 362 identified rules:
