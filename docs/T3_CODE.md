@@ -124,6 +124,17 @@ UTF-8 mode disabled. Native linking is no longer claimed by the Rust capture
 check; the timeout's underlying host cause was not established. The retained
 v1.20.0 installation and its earlier backups provide local recovery evidence.
 
+## Published release verification
+
+The [v1.20.1 tag workflow](https://github.com/btothefifth/reed-wisdom/actions/runs/42429767139)
+passed all six Linux/Windows/macOS and Python 3.12/3.14 jobs, then published
+[the release](https://github.com/btothefifth/reed-wisdom/releases/tag/v1.20.1).
+The public archive was downloaded after publication and matched the local
+830,082-byte archive and the installation receipt's SHA-256 above. GitHub's
+latest-release endpoint also selected v1.20.1. The installed ten-file inventory
+and hashes were checked again and stayed unchanged. The receipt records the
+release commit, annotated tag, workflow, asset URL, and downloaded hash.
+
 ## Fresh-session follow-up
 
 After installation, verify the actual provider session separately:

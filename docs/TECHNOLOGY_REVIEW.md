@@ -436,7 +436,8 @@ The GitHub release job runs only for a tag matching VERSION, requires the full
 platform/Python matrix, checks the deterministic archive, uploads it as a draft,
 and publishes afterward. Repository write permission is limited to that job.
 
-The complete suite passed on Linux with CPython 3.14.4: **422 passed** in 22.95s;
+Before the release-gate fixture repairs, the complete suite passed on Linux
+with CPython 3.14.4: **422 passed** in 22.95s;
 CPython 3.12.15: **421 passed, one version-gated skip** in 22.78s for Queue.shutdown.
 The suite includes 44 technology-library checks, 69 continuity/discovery cases,
 and five authored-example tests, plus compiler, setup, archive, route, and
@@ -450,8 +451,8 @@ and section bodies. Baseline mode/phase selections remain unchanged.
 The generated rule report and deterministic archive pass their `--check`
 commands. Changed-text preflight passes for all 35 touched text files, and
 `git diff --check` passes. The hosted Python 3.12.10/3.14.4 Linux/Windows/macOS matrix
-was not run from this checkout. Runtime tools still use only the standard
-library. Existing source/load-plan/delivery schema identifiers are retained;
+was subsequently run on GitHub; the final release evidence is recorded below.
+Runtime tools still use only the standard library. Existing source/load-plan/delivery schema identifiers are retained;
 the loader adds optional route-checkpoint flags and extends delivery identity
 with encoding and tool bindings. New route checkpoints use version 2 with
 version 1 read compatibility; discovery adds authored applicability metadata.
@@ -494,3 +495,26 @@ cluster, container workload, deployment, or provider account was changed by the
 technology implementation. Local installation and GitHub publication are separate
 authorized distribution steps; neither establishes runtime model compliance.
 No new comparative model-effectiveness trial was run.
+
+
+## Published 1.20.1 evidence
+
+The corrected release passed 423 tests locally on Python 3.14.4 and 422 plus
+one Queue.shutdown version skip on Python 3.12.15. Its 70 continuity/discovery
+cases and five authored-example tests also passed with UTF-8 mode disabled.
+The Rust precise-capture check now proves borrowing through compiler metadata
+and the independent E0505 mutation, without a native linking/execution claim.
+The complete [tag workflow](https://github.com/btothefifth/reed-wisdom/actions/runs/42429767139)
+passed both Python versions on Linux, Windows, and macOS, then published the
+[1.20.1 release](https://github.com/btothefifth/reed-wisdom/releases/tag/v1.20.1).
+The immutable release commit is `95b01fb4b4393f5858af2f624f001ee509ff4a0b`.
+
+The public 830,082-byte archive was downloaded and matched the checked-in and
+installed archive exactly: SHA-256
+`d49f85890baa878c4ee629b045e5f85e55b70ac10dcc89ba3d1321c83b629adb`.
+GitHub's latest release was independently checked as v1.20.1. Installation,
+observed T3 router delivery, immutable-file checks, and full/segmented loader
+output are recorded in [the T3 report](T3_CODE.md). These distribution receipts
+do not establish model adherence, host-compaction retention, or unexecuted
+application/cloud/cluster behavior. This evidence update changes only reports;
+the tagged rules, runtime tools, and portable archive remain unchanged.

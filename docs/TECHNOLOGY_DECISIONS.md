@@ -1,7 +1,7 @@
 # Technology guidance: adoption, uncertainty, and research limits
 
-This is the implementation report for the 1.20.0 technology library, researched
-on 2026-11-07. It records decisions and open candidates; it does not add portable
+This is the implementation report for the technology library introduced in
+1.20.0 and released in 1.20.1, researched on 2026-11-07. It records decisions and open candidates; it does not add portable
 rules. [WISDOM.md](../WISDOM.md) is the authority, and the generated
 [rule inventory](TECHNOLOGY_MODULES.md) reports every added principle verbatim.
 The [follow-up implementation review](TECHNOLOGY_REVIEW.md) covers the full
@@ -182,7 +182,7 @@ replace application-specific tests, or certify every referenced future release.
 The representative proof paragraphs are prompts to select relevant evidence,
 not a requirement to build 79 new test suites for ordinary work.
 
-## Implementation validation
+## Initial implementation validation
 
 The final follow-up results are recorded in the
 [implementation review](TECHNOLOGY_REVIEW.md). The checks cover positive and
@@ -196,8 +196,10 @@ commands. The changed-text preflight and `git diff --check` cover text integrity
 The inventory measures every route's context; the fast kernel does not acquire
 all technology modules. The existing CI
 matrix targets Python 3.12.10 and 3.14.4 on Linux, Windows, and macOS; those hosted
-runs were not executed from this local checkout. No release was published and
-no model-effectiveness evaluation was run.
+runs were outside the initial local implementation pass, which published no
+release. The subsequent 1.20.1 matrix, installation, publication, and public
+download verification are recorded in [the T3 integration report](T3_CODE.md).
+No model-effectiveness evaluation was run.
 
 ## Coverage deferred rather than guessed
 
