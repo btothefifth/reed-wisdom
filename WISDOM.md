@@ -5522,6 +5522,14 @@ integration, publication, deployment, and external mutation. Parallelize only
 disjoint reads, files, experiments, and falsification surfaces whose contention
 cannot invalidate one another.
 
+Before editing an isolated work tree, donor, or overlay, verify that each owned
+file and its resolved parent chain are private to the authorized write root.
+Inspect symbolic links, reparse points, and hardlink identity or link count;
+a separate pathname does not establish a separate object. Shared source links
+remain read-only inputs. Before editing a linked input, create an independent
+regular copy under a verified private parent; do not write through the link.
+Uncertain aliasing or ownership blocks that write until isolation is resolved.
+
 **`CHANGE-01` makes each material implementation and review packet a checkable
 change contract.** For focused or substantial implementation, bug repair, or
 review, bind the work to one inspectable contract in the existing controlling

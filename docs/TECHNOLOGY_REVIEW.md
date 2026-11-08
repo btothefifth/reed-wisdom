@@ -1,14 +1,14 @@
 # Technology implementation review: prose, context, and enforcement
 
 Review baseline: 2026-11-07. This is an authoring report, not portable authority.
-Reviewed source SHA-256: `b997973ab8c44fe052329c82e80eb4922f4abb9f608e0161b39a132fb59418f1`.
+Reviewed source SHA-256: `6cde9077fe9dd210f31684b2aeea3d0e9143c9328bbeaf674f88ed2b07400799`.
 
 The review covers every rule, trigger, preference surface, dependency, proof
 prompt, and reference placement in the technology library: 79 modules and 362
 identified rules. It includes all 66 modules from the first draft plus 13 new
 modules. It is a serial author review with primary-source checks and independent
 mechanical delivery tests, not a separate reviewer or a model-effectiveness
-experiment. The 26 pre-existing modules are retained and byte-checked; their
+experiment. The 26 pre-existing modules are retained from upstream 1.19.1 and byte-checked; their
 entire prose was not rewritten in this change.
 
 The complete final wording is in [the generated inventory](TECHNOLOGY_MODULES.md).
@@ -95,8 +95,8 @@ edits improve Sol, Luna, Astra, or any other model. See
 
 This continuation retained the 79-module boundary and refined 18 modules,
 adding 13 rules to reach 362. It advanced semantic revision 22 to 23 within
-the unreleased 1.20.0 candidate. The always-loaded kernel remains 32,606 bytes;
-the complete source is 623,430 bytes. The table below records all current rules,
+the 1.20.0 candidate. The always-loaded kernel remains 32,606 bytes;
+the complete source is 623,977 bytes. The table below records all current rules,
 including the additions, rather than only the changed modules.
 
 1. **Source-wide design pass.** Read all 79 technology modules and their
@@ -285,16 +285,16 @@ messages, conversation, tool schemas/results, code, and output headroom.
 | Route | Exact UTF-8 bytes | o200k_base tokens |
 | --- | ---: | ---: |
 | mode:fast | 32,606 | 6,348 |
-| mode:focused | 98,191 | 18,671 |
-| mode:substantial | 355,003 | 67,442 |
-| mode:full | 623,430 | 125,177 |
-| profile:rust_api_change | 118,845 | 22,892 |
-| profile:vite_ui | 119,712 | 22,964 |
-| profile:node_service | 118,824 | 22,779 |
-| profile:cloud_design | 111,510 | 21,240 |
-| profile:container_build | 110,122 | 21,013 |
-| profile:kubernetes_workload | 110,728 | 21,090 |
-| profile:technology_resume | 108,813 | 20,712 |
+| mode:focused | 98,738 | 18,776 |
+| mode:substantial | 355,550 | 67,547 |
+| mode:full | 623,977 | 125,282 |
+| profile:rust_api_change | 119,392 | 22,997 |
+| profile:vite_ui | 120,259 | 23,069 |
+| profile:node_service | 119,371 | 22,884 |
+| profile:cloud_design | 112,057 | 21,345 |
+| profile:container_build | 110,669 | 21,118 |
+| profile:kubernetes_workload | 111,275 | 21,195 |
+| profile:technology_resume | 109,360 | 20,817 |
 
 The local Codex configuration inspected for this task explicitly sets
 `project_doc_max_bytes = 131072`, `model_context_window = 500000`, and
@@ -429,8 +429,15 @@ Complete-suite and portable-artifact results below qualify the final candidate.
 
 ## Validation and remaining limits
 
+Release integration preserves upstream commit `0b29ef25ff8fbba8f697962fa341fd452cc0f1ad`
+and its private-overlay isolation clarification. The retained implementation
+fingerprint comes from that independent upstream source, rather than the candidate.
+The GitHub release job runs only for a tag matching VERSION, requires the full
+platform/Python matrix, checks the deterministic archive, uploads it as a draft,
+and publishes afterward. Repository write permission is limited to that job.
+
 The complete suite passed on Linux with CPython 3.14.4: **422 passed** in 22.95s;
-CPython 3.12.15: **421 passed, one version-gated skip** in 22.72s for Queue.shutdown.
+CPython 3.12.15: **421 passed, one version-gated skip** in 22.78s for Queue.shutdown.
 The suite includes 44 technology-library checks, 69 continuity/discovery cases,
 and five authored-example tests, plus compiler, setup, archive, route, and
 existing evaluation-kit coverage. Fresh subprocesses and extracted archives
@@ -448,8 +455,8 @@ library. Existing source/load-plan/delivery schema identifiers are retained;
 the loader adds optional route-checkpoint flags and extends delivery identity
 with encoding and tool bindings. New route checkpoints use version 2 with
 version 1 read compatibility; discovery adds authored applicability metadata.
-No global instruction/configuration files or
-host lifecycle hooks were changed.
+Technology authoring installed no host lifecycle hooks. The separately authorized
+local release installation is recorded in [the T3 integration report](T3_CODE.md).
 
 T3 Code setup now uses provider-native instruction discovery, with explicit
 off-PATH Claude/OpenCode targets, environment defaults, effective Codex override
@@ -467,9 +474,10 @@ cleanup, and Node context leakage reach their intended predicates. Removing read
 accounting in a disposable copy made the real inspector CLI admit later content
 past a 16-byte budget; the final source rejects it. Fresh-process project/tool
 file-frontier checks and ordinary version-value tests pass alongside opaque
-reference non-echo checks. All 36 reviewed paths, including intended untracked
-files, stayed byte-identical during both final complete runs. Only this evidence
-report and the T3 report were updated afterward, with their affected checks rerun.
+reference non-echo checks. Earlier technology-review runs bound all 36 reviewed
+paths, including intended untracked files. The complete suites were repeated
+after upstream 1.19.1 integration and release-workflow preparation. Only evidence
+reports were updated afterward, with their affected checks rerun.
 
 The Go executable is installed, but its snap-confine version probe failed because
 cap_dac_override is unavailable. Go's new API recommendations were source-checked;
@@ -482,5 +490,7 @@ not a claim that each corresponding runtime is absent.
 Primary references are a checked research baseline, not a live feed.
 Preview/experimental status, SDK defaults, service plans, platform support,
 and security policy must still match the actual project. No production cloud,
-cluster, container workload, deployment, or provider account was changed. No
-release was published, and no new comparative model-effectiveness trial was run.
+cluster, container workload, deployment, or provider account was changed by the
+technology implementation. Local installation and GitHub publication are separate
+authorized distribution steps; neither establishes runtime model compliance.
+No new comparative model-effectiveness trial was run.

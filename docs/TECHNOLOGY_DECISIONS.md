@@ -8,7 +8,8 @@ The [follow-up implementation review](TECHNOLOGY_REVIEW.md) covers the full
 technology-rule audit, deployment additions, measured context, and enforcement.
 
 The update adds 79 modules and 362 individually owned rules. All 26 incumbent
-module definitions and their section bodies remain unchanged. The manifest
+module definitions and their section bodies remain unchanged from upstream
+1.19.1, including its private-overlay isolation clarification. The manifest
 advances from semantic revision 21 to 23 without a compiler-schema change.
 Technology sections are separate generated module files in a compiled cache;
 the standalone WISDOM source still contains the entire library. Ordinary fast,

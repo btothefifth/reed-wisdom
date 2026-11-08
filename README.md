@@ -9,11 +9,10 @@ optional standard-library tools that create smaller byte-verified views; they
 never add authority or replace the source.
 
 **Current source:** 1.20.0, including the checked-in [WISDOM.zip](WISDOM.zip).
-The pinned [v1.20.0 release archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.20.0/reed-wisdom.zip)
-becomes available after release publication.
+Download the pinned [v1.20.0 release archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.20.0/reed-wisdom.zip).
 
 **Published downloads:** [latest `reed-wisdom.zip`](https://github.com/btothefifth/reed-wisdom/releases/latest/download/reed-wisdom.zip)
-or the previous pinned [v1.19.0 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.19.0/reed-wisdom.zip).
+or the previous pinned [v1.19.1 archive](https://github.com/btothefifth/reed-wisdom/releases/download/v1.19.1/reed-wisdom.zip).
 
 ## Start
 
@@ -58,6 +57,9 @@ changes and is intentionally separate from the product version.
 
 The deterministic `WISDOM.zip` is rebuilt from the tracked portable inputs and
 checked in with each release. Releases publish it as `reed-wisdom.zip`.
+Pushing a matching version tag runs the platform/Python test matrix before a
+release job uploads that archive as a draft and publishes it. Only that job
+receives repository-content write permission. Existing releases are not overwritten.
 
 ## Development
 

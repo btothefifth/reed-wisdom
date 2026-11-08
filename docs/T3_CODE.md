@@ -88,8 +88,34 @@ Installer/extraction cases passed within both complete runs. A disposable-copy
 mutation removing explicit off-PATH OpenCode selection
 made its owning regression fail at the intended routing assertion. The real
 source stayed unchanged during that probe. The generated rule inventory and
-rebuilt archive pass their drift checks. Hosted Windows/macOS checks and live
-provider-loading/compaction trials were not run here.
+rebuilt archive pass their drift checks. Hosted checks are reported by the
+release workflow; fresh-session and compaction trials were not run locally.
+
+## Local 1.20.0 installation
+
+The authorized local release installation extracts the deterministic archive
+to `/home/reed/.local/share/reed-wisdom/v1.20.0`, verifies all ten members, and
+keeps their files read-only. Its source SHA-256 is
+`6cde9077fe9dd210f31684b2aeea3d0e9143c9328bbeaf674f88ed2b07400799`;
+the archive SHA-256 is
+`0ba3d5ff993e9ab6016cc68c02bfc69faf3cfd6e9a51f3204452462da0621bd3`.
+The local Codex and OpenCode routers now select that fixed source. Their prior
+exact generated blocks were independently reviewed before migration, and the
+installer's atomic writer preserved `.before-wisdom-233ed850a22b61f2.bak`
+backups beside each instruction file. Provider settings and credentials were
+not edited; the active T3 Codex provider's existing home is `/home/reed/.codex`.
+
+The actual installed setup CLI reports both routers present. T3 supplied the
+updated source-specific AGENTS instruction block in the active conversation
+after installation. The installed loader then returned a verified Rust/Tokio
+route; its 42,608 content bytes matched complete emission and two generation-bound
+segments, with no unrelated Python asyncio guidance. All installed file names
+and hashes remained unchanged. This proves the observed router delivery and
+installed loading path; it does not prove model compliance or post-compaction
+retention. Local installation receipts live outside the release tree at
+`/home/reed/.local/share/reed-wisdom/installation-1.20.0.json`.
+
+## Fresh-session follow-up
 
 After installation, verify the actual provider session separately:
 

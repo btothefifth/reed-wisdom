@@ -249,7 +249,8 @@ def test_reference_and_critical_preference_limits_are_explicit(parsed):
     assert "does not enforce row uniqueness" in clickhouse
 
 
-# Independently retained v1.19.0 module definitions and exact section bytes.
+# Independently retained v1.19.1 module definitions and exact section bytes.
+# The implementation hash includes upstream's private-overlay isolation clarification.
 INCUMBENT_MODULE_SHA256 = {
     'agency_ethics': 'a605532eeb54af97157e6d3714f028ed1b3be02e9f6ef5445c58fc8f0cfd4bf1',
     'bootstrap_contract': '99e3265aaff970806756f81dee6c5c4ea124aa6c6a568bf8523ccdfadaf3a9c4',
@@ -263,7 +264,7 @@ INCUMBENT_MODULE_SHA256 = {
     'source_fence': '00696cb5d9448166798697f19d8108aa530de5bc4565867ef3ab4c32eeb8c88b',
     'testing': 'dcab1bc4051c9982f2058c5d674f145546f3177905d95b9322a981041c447e60',
     'test_harness': '64366c1903dfba244b60819f53bd0dc590c2c3be032fbffe1af1c03ef940c78b',
-    'implementation_performance': '5e9f4b111eba51559486dc9bf795042f0d442bed1dfede73fce7c1f54508e0c1',
+    'implementation_performance': '73f28f3829e971919e203756d2ea424f8f5769bdb7a3f1d95fd9f0a11413e3a1',
     'decision_judgment': 'e90b55a3012594065b0782cdcdc640d6b4b18171a1c5d1163ce2f226114cb000',
     'decision_budget': '5c5905f8aa341ab7fc8c6ec40537e53d2115a81d6ae5400bbf7cc5c3b5f65dbd',
     'execution_efficiency': '58944ff5cfc3f05081cc441e3e569917d375edb5087efd0b7c6d1a6707eee6ca',

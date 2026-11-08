@@ -66,6 +66,19 @@
 - Extend route, extraction, profile, archive, and report checks. These establish
   instruction delivery and integrity, not improved model behavior; empirical
   application-fidelity evaluation remains open.
+- Preserve the upstream 1.19.1 private-overlay isolation clarification. Publish
+  matching version tags through a matrix-gated GitHub release job that uploads
+  the deterministic archive before making the release public.
+
+## 1.19.1 - 2026-10-19
+
+- Clarify the existing implementation isolation rule: verify owned files and
+  resolved parents before editing an isolated work tree, donor, or overlay;
+  shared source links stay read-only until replaced by an independent regular
+  copy in a verified private parent.
+- Preserve rule IDs, routes, semantic revision 21 and the simplicity contract.
+  Source, loader and bundle checks establish instruction delivery and integrity,
+  not measured improvement in agent behavior.
 
 ## 1.19.0 - 2026-10-18
 
