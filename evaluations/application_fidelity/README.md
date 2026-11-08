@@ -10,6 +10,11 @@ The kit requires only Python's standard library. It does not call a model API,
 use the network, require CI, install hooks, or modify the repository under test.
 The evaluator chooses and launches the model separately.
 
+For the technology library's post-compaction/restart trial design, see the
+[loading and continuity guide](../../docs/TECHNOLOGY_CONTINUITY.md#host-integration-and-evaluation-boundary).
+Its deterministic fresh-process recovery tests are separate from model trials;
+no technology-specific comparative model result is recorded here yet.
+
 ## Protocol
 
 1. Prepare an isolated workspace:

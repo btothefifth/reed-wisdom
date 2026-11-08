@@ -23,6 +23,7 @@ BUNDLE_PATHS = {
     "scripts/compile_wisdom.py": Path("scripts/compile_wisdom.py"),
     "scripts/check_changed_text.py": Path("scripts/check_changed_text.py"),
     "scripts/load_compiled_wisdom.py": Path("scripts/load_compiled_wisdom.py"),
+    "scripts/inspect_wisdom_stack.py": Path("scripts/inspect_wisdom_stack.py"),
     "scripts/setup_wisdom.py": Path("scripts/setup_wisdom.py"),
 }
 

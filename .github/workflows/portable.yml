@@ -11,20 +11,23 @@ permissions:
 
 jobs:
   portable:
-    name: ${{ matrix.os }} / Python 3.12.10
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, windows-2025, macos-15]
+        python-version: ["3.12.10", "3.14.4"]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12.10"
+          python-version: ${{ matrix.python-version }}
       - name: Install test dependency
         run: python -m pip install pytest==9.1.1
       - name: Portable tests
-        run: python -m pytest
+        run: python -m pytest -rs
       - name: Check deterministic archive
         run: python scripts/build_wisdom_bundle.py --check
+      - name: Check technology rule report
+        run: python scripts/report_technology_modules.py --check

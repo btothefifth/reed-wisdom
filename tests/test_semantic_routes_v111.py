@@ -66,9 +66,9 @@ def _independent_lesson_bytes(raw: bytes, heading: str) -> bytes:
 
 def test_v111_preserves_single_rule_owners_and_existing_schemas() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 21
-    assert len(parsed.manifest["modules"]) == 26
-    assert len(parsed.manifest["allowed_tags"]) == 40
+    assert parsed.manifest["semantic_revision"] == 23
+    assert len(parsed.manifest["modules"]) == 105
+    assert len(parsed.manifest["allowed_tags"]) == 119
     assert parsed.manifest["schema"] == "wisdom.portable_bootstrap.source.v1"
     assert loader.LOAD_PLAN_SCHEMA == "wisdom.compiled.load_plan.v2"
     owners = {

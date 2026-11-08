@@ -32,9 +32,9 @@ def _assert_phrases(text: str, phrases: tuple[str, ...]) -> None:
 
 def test_v112_preserves_route_schema() -> None:
     parsed = compiler.parse_source(SOURCE)
-    assert parsed.manifest["semantic_revision"] == 21
-    assert len(parsed.manifest["modules"]) == 26
-    assert len(parsed.manifest["allowed_tags"]) == 40
+    assert parsed.manifest["semantic_revision"] == 23
+    assert len(parsed.manifest["modules"]) == 105
+    assert len(parsed.manifest["allowed_tags"]) == 119
     assert parsed.manifest["schema"] == "wisdom.portable_bootstrap.source.v1"
 
 

@@ -34,8 +34,8 @@ def test_initial_route_teaches_data_mechanisms_without_new_topology():
     assert b"automatically\nadd the discovered `storage` route" in parsed.kernel
     assert b'when the request never says "database" or "big data"' in parsed.kernel
     assert b"already bounded unchanged path needs no new data platform" in parsed.kernel
-    assert parsed.manifest["semantic_revision"] == 21
-    assert len(parsed.manifest["modules"]) == 26
-    assert len(parsed.manifest["allowed_tags"]) == 40
+    assert parsed.manifest["semantic_revision"] == 23
+    assert len(parsed.manifest["modules"]) == 105
+    assert len(parsed.manifest["allowed_tags"]) == 119
     assert compiler.resolve_module_ids(parsed, mode="fast", tags=[]) == ()
     assert len(parsed.kernel) < parsed.manifest["kernel_max_bytes"]

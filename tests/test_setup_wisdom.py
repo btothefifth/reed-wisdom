@@ -24,7 +24,8 @@ def installation(tmp_path: Path) -> tuple[Path, Path]:
 
 def run(source: Path, home: Path, *, answers=(), schema=None, catalog=None,
         interactive=True, opencode_home=None, detect_opencode=False,
-        claude_home=None, detect_claude=False, detect_cursor=False):
+        claude_home=None, detect_claude=False, detect_cursor=False,
+        detect_t3=False, t3=False):
     messages: list[str] = []
     choices = iter(answers)
     setup.run_setup(
@@ -33,6 +34,7 @@ def run(source: Path, home: Path, *, answers=(), schema=None, catalog=None,
         output=messages.append, probe_cli=False, probe_opencode=detect_opencode,
         opencode_home=opencode_home, claude_home=claude_home,
         probe_claude=detect_claude, probe_cursor=detect_cursor,
+        probe_t3=detect_t3, t3=t3,
     )
     return "\n".join(messages)
 
@@ -56,6 +58,16 @@ def test_noninteractive_and_decline_leave_everything_unchanged(installation):
     assert (agents.read_bytes(), config.read_bytes(), workflow.read_bytes()) == before
 
 
+def test_new_router_contains_recovery_without_replacing_equivalent_user_guidance(installation):
+    source, _ = installation
+    generated = setup.guidance(source)
+    assert b"After compaction, restart, or handoff" in generated
+    assert b"preserve current user preferences and unresolved failures" in generated
+    assert len(list(setup._GENERATED_GUIDANCE_RE.finditer(generated.decode()))) == 1
+    custom = f"Load `{source.as_posix()}` for every task.\n".encode()
+    assert setup.proposed_agents(custom, source) is None
+
+
 def test_opencode_is_offered_only_when_cli_is_detected(installation, monkeypatch):
     source, home = installation
     opencode_home = home / "opencode"
@@ -67,7 +79,7 @@ def test_opencode_is_offered_only_when_cli_is_detected(installation, monkeypatch
         return original_which(command)
 
     monkeypatch.setattr(setup.shutil, "which", no_opencode)
-    result = run(source, home, detect_opencode=True, opencode_home=opencode_home, answers=["no"])
+    result = run(source, home, detect_opencode=True, answers=["no"])
     assert "OpenCode CLI: not detected" in result
     assert not opencode_home.exists()
 
@@ -145,7 +157,7 @@ def test_claude_code_is_offered_only_when_cli_is_detected(installation, monkeypa
         return original_which(command)
 
     monkeypatch.setattr(setup.shutil, "which", no_claude)
-    result = run(source, home, detect_claude=True, claude_home=claude_home, interactive=False)
+    result = run(source, home, detect_claude=True, interactive=False)
     assert "Claude Code CLI: not detected" in result
     assert not claude_home.exists()
 
@@ -232,6 +244,93 @@ def test_cursor_detection_prints_manual_global_user_rule_without_writing(install
     assert "no supported global rule file is documented" in result
     assert setup._guidance_text(source.resolve().as_posix()).strip() in result
     assert after == before
+
+
+def test_t3_uses_effective_codex_router_and_preserves_other_files(installation, monkeypatch):
+    source, home = installation
+    monkeypatch.setattr(setup.shutil, "which", lambda name: "/bin/t3" if name == "t3" else None)
+    base = home / "AGENTS.md"
+    override = home / "AGENTS.override.md"
+    base.write_bytes(b"Keep this base file.\n")
+    override.write_bytes(b"Personal override.\n")
+    config = home / "config.toml"
+    config.write_bytes(b'model = "chosen-by-user"\n')
+    result = run(source, home, detect_t3=True, answers=["YES"])
+    assert "T3 Code CLI detected: /bin/t3" in result
+    assert f"T3 Code / Codex: router present at {override}" in result
+    assert "provider loading not observed" in result
+    assert "shared CODEX_HOME" in result
+    assert base.read_bytes() == b"Keep this base file.\n"
+    assert config.read_bytes() == b'model = "chosen-by-user"\n'
+    assert override.read_bytes() == b"Personal override.\n\n" + setup.guidance(source)
+    assert len(list(home.glob("AGENTS.override.md.before-wisdom-*.bak"))) == 1
+    assert not (home / ".t3").exists()
+    before = {p.name: p.read_bytes() for p in home.iterdir() if p.is_file()}
+    result = run(source, home, detect_t3=True)
+    assert f"T3 Code / Codex: router present at {override}" in result
+    assert before == {p.name: p.read_bytes() for p in home.iterdir() if p.is_file()}
+
+
+def test_t3_can_be_selected_without_a_cli_and_does_not_claim_proposed_router_is_installed(installation, monkeypatch):
+    source, home = installation
+    monkeypatch.setattr(setup.shutil, "which", lambda _: None)
+    assert "T3 Code" not in run(source, home, detect_t3=True, interactive=False)
+    result = run(source, home, t3=True, interactive=False)
+    assert "T3 Code integration explicitly selected; CLI not detected" in result
+    assert f"T3 Code / Codex: router missing at {home / 'AGENTS.md'}" in result
+    assert not list(home.iterdir())
+
+
+def test_t3_explicit_off_path_provider_targets_install_separately_and_are_idempotent(installation):
+    source, home = installation
+    opencode_home, claude_home = home / "oc-account", home / "claude-account"
+    result = run(source, home, t3=True, opencode_home=opencode_home,
+                 claude_home=claude_home, answers=["YES", "no", "YES"])
+    assert "OpenCode config directory explicitly selected; CLI not detected" in result
+    assert "Claude Code config directory explicitly selected; CLI not detected" in result
+    assert not opencode_home.exists()
+    assert (claude_home / "CLAUDE.md").read_bytes() == setup.guidance(source)
+    assert "T3 Code / OpenCode: router missing" in result
+    assert "T3 Code / Claude Code: router present" in result
+    result = run(source, home, t3=True, opencode_home=opencode_home,
+                 claude_home=claude_home, answers=["YES"])
+    assert (opencode_home / "AGENTS.md").read_bytes() == setup.guidance(source)
+    assert "T3 Code / OpenCode: router present" in result
+    run(source, home, t3=True, opencode_home=opencode_home, claude_home=claude_home)
+    assert not list(home.rglob("*.bak"))
+
+
+@pytest.mark.parametrize("provider,filename", [("opencode", "AGENTS.md"), ("claude", "CLAUDE.md")])
+def test_off_path_provider_conflict_preflights_before_any_write(installation, provider, filename):
+    source, home = installation
+    selected = home / "conflicting-account"
+    selected.mkdir()
+    original = b"Read and follow `/other/WISDOM.md` for every task.\n"
+    (selected / filename).write_bytes(original)
+    with pytest.raises(setup.SetupError, match="different WISDOM guidance"):
+        run(source, home, t3=True, answers=["YES"], **{provider + "_home": selected})
+    assert not (home / "AGENTS.md").exists()
+    assert (selected / filename).read_bytes() == original
+    assert not list(home.rglob("*.bak"))
+
+
+def test_detected_provider_environment_homes_and_explicit_overrides(installation, monkeypatch):
+    source, home = installation
+    xdg = home / "xdg"
+    claude_env = home / "claude-env"
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(claude_env))
+    monkeypatch.setattr(setup.shutil, "which", lambda name: f"/bin/{name}")
+    result = run(source, home, detect_opencode=True, detect_claude=True, interactive=False)
+    assert f"OpenCode global instruction target: {xdg / 'opencode' / 'AGENTS.md'}" in result
+    assert f"Claude Code user instruction target: {claude_env / 'CLAUDE.md'}" in result
+    explicit_oc, explicit_claude = home / "oc-explicit", home / "claude-explicit"
+    result = run(source, home, opencode_home=explicit_oc, claude_home=explicit_claude,
+                 detect_opencode=True, detect_claude=True, answers=["YES", "YES", "YES"])
+    assert (explicit_oc / "AGENTS.md").read_bytes() == setup.guidance(source)
+    assert (explicit_claude / "CLAUDE.md").read_bytes() == setup.guidance(source)
+    assert not xdg.exists()
+    assert not claude_env.exists()
 
 
 def test_effective_override_wins_and_rerun_is_idempotent(installation):

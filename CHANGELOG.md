@@ -1,5 +1,72 @@
 # Changelog
 
+## 1.20.0 - 2026-11-07
+
+- Add 79 independently selected technology modules with 362 identified rules:
+  language design, concurrency, testing, web UI/frameworks, database families,
+  API/job boundaries, security, dependencies, and deployment/operations tools.
+- Keep explicit user preferences and controlling project conventions above
+  technology defaults. Require actual-version checks for stable, preview,
+  experimental, and deprecated features; add no mandatory package or platform.
+- Refine 18 technology modules with concrete version gates and 13 further rules:
+  modern Python annotations/queue shutdown/eager tasks, Rust async-trait future
+  bounds and opaque captures, Go task accounting and deterministic tests, Java
+  ScopedValue, React stores/effect events, Node request context, SQLite driver
+  initialization, PostgreSQL RLS, and Kotlin flow ownership. Clarify Vue cleanup,
+  Next.js linting, Rails parameters, C# ValueTask, and C++ library feature checks.
+- Execute five examples extracted from the authored source, with deliberate
+  defects that fail at the intended consumer. Preserve runtime-specific skips
+  and use installed native toolchains only. Add Python 3.14.4 to the hosted
+  matrix so the modern Python example is exercised alongside the older target.
+- Support automatic loading in T3 Code through provider-native routers. Detect
+  `t3` or select `--t3`, report installed router files, respect provider config
+  environment defaults, and allow explicit Claude/OpenCode targets off `PATH`.
+  Document shared/shadow Codex homes, remote environments, fresh-session checks,
+  and compaction limits without modifying T3 settings or installing hooks.
+- Add 19 optional stack profiles and a small preamble route; ordinary modes and
+  phases retain their existing module selections. The loader continues to
+  resolve explicit tags and dependencies, without automatic stack detection.
+- Deepen Rust API idioms and Node runtime/testing guidance. Add Vite, cloud
+  architecture/identity, serverless, AWS/GCP/Azure, Docker build, and Kubernetes
+  security modules. Treat known deployment targets as application-design inputs.
+- Consolidate repeated proof-scope prose into one shared owner and add practical
+  technology verification guidance. Report exact dependency-closed context sizes;
+  retain the existing kernel guard and non-truncating advisory target behavior.
+- Add bounded, read-only technology candidate inspection with path/reason and
+  file-hash evidence. Add immutable project/task-bound route checkpoints and
+  fresh resumption that preserves earlier tags and companion bindings, reports
+  drift, and prevents silent mode narrowing or stale segmented delivery.
+- Retain all accumulated profile/phase identities in version 2 route checkpoints,
+  refresh each owner's current obligations across successive recoveries, and
+  fall back to full source on lost owners or expansion/loading source drift.
+  Read version 1 checkpoints compatibly. Expose current authored loading
+  conditions and preference fields in discovery to improve explicit selection.
+- Keep read-only loading and discovery free of sibling bytecode-cache writes
+  by loading the exact compiler source directly.
+- Report source-bound version declarations/selectors without claiming resolved
+  compatibility or probing runtimes; recognize more test dependencies and source
+  hints. Hash opaque reference values and scope syntax hints to compatible source
+  families. Charge rejected content to the actual read budget and preserve partial
+  outcomes for malformed metadata and exhausted bounds.
+- Keep delivery segments independently valid UTF-8 and byte-exact on reassembly;
+  bind delivery identity to current tools even for full-source fallback, and
+  reject invalid UTF-8 instruction content before emission.
+- Add conditional technology continuity rules and a recovery profile. Strengthen
+  setup-generated routers and the project template for compaction/restart;
+  preserve equivalent user guidance and install no host lifecycle hook.
+- Include verification in every technology profile, connect principles to
+  changed owners and invariants, and revalidate only affected evidence.
+- Preserve all incumbent section bodies and module definitions. Advance the
+  semantic revision to 23; retain the existing source/compiler/loader schemas
+  and standalone, offline, standard-library loading contract. The loader gains
+  optional checkpoint flags without changing existing plan/delivery schemas.
+- Add a generated, drift-checked inventory of every technology rule and a
+  research/adoption report covering conditional preferences, unselected ideas,
+  documented AI failure mechanisms, and evidence limits.
+- Extend route, extraction, profile, archive, and report checks. These establish
+  instruction delivery and integrity, not improved model behavior; empirical
+  application-fidelity evaluation remains open.
+
 ## 1.19.0 - 2026-10-18
 
 - Extend the optional portable setup helper to detect OpenCode and Claude Code

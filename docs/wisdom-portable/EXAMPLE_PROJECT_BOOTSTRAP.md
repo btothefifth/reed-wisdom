@@ -1,20 +1,28 @@
-# Example project bootstrap for WISDOM v1.19.0
+# Example project bootstrap for WISDOM v1.20.0
 
 This is a template for a project's short `AGENTS.md` router, not an additional
 WISDOM authority. Replace the example paths and frozen companion receipt before
-using it. Keep the complete v1.19.0 archive under the governing project root,
-for example at `vendor/wisdom/v1.19.0/`.
+using it. Keep the complete v1.20.0 archive under the governing project root,
+for example at `vendor/wisdom/v1.20.0/`.
 
 > Resolve the governing repository root first. Treat
-> `<root>/vendor/wisdom/v1.19.0/WISDOM.md` as the sole portable WISDOM source.
+> `<root>/vendor/wisdom/v1.20.0/WISDOM.md` as the sole portable WISDOM source.
 > Run its own `scripts/load_compiled_wisdom.py --source
-> <root>/vendor/wisdom/v1.19.0/WISDOM.md --discover` before routing. Choose the
+> <root>/vendor/wisdom/v1.20.0/WISDOM.md --discover` before routing. Choose the
 > smallest discovered task profile, phase, or tag set that includes every
 > applicable hard rule. When impact or mapping is uncertain, use
 > `--unknown-impact` and read the full current source. Read every path in the
 > verified load plan, or every generation-bound segment in order. A plan or
 > cache receipt alone is not instruction content. Explicit user instructions
 > and verified facts take precedence.
+>
+> After compaction, restart, or handoff, recover the current task state and its
+> task-specific route checkpoint before dependent work. Reload complete current
+> rule bytes with `--resume-route` and the explicit project root/task ID, or
+> reconstruct the route from current evidence if recovery is unavailable.
+> Preserve current user preferences, open failures, and still-applicable tags;
+> recheck changed callers, supported versions, and the deployment target. A
+> summary or checkpoint is navigation, not proof of retention or compliance.
 
 If the project has a separate rule source, bind it to the same load call with
 the **frozen** byte length and SHA-256 recorded by the project owner:

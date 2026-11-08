@@ -38,9 +38,9 @@ def test_enforcement_has_one_owner_and_reaches_its_existing_route(marker, sectio
 
 def test_v114_preserves_fast_kernel_and_existing_rule_topology():
     parsed = compiler.parse_source(ROOT / "WISDOM.md")
-    assert parsed.manifest["semantic_revision"] == 21
-    assert len(parsed.manifest["modules"]) == 26
-    assert len(parsed.manifest["allowed_tags"]) == 40
+    assert parsed.manifest["semantic_revision"] == 23
+    assert len(parsed.manifest["modules"]) == 105
+    assert len(parsed.manifest["allowed_tags"]) == 119
     assert hashlib.sha256(parsed.kernel[len(parsed.preamble):]).hexdigest() == (
         "22179848023a8a539524d7a97df795ef9d8a79f6517c78cb62fdcc83e6448528"
     )
@@ -115,7 +115,7 @@ runpy.run_path(loader, run_name='__main__')
     assert receipt["status"] == "discovery"
     assert receipt["authority"] is False
     assert receipt["source_sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
-    assert receipt["semantic_revision"] == 21
+    assert receipt["semantic_revision"] == 23
     assert list(tmp_path.iterdir()) == []
 
 

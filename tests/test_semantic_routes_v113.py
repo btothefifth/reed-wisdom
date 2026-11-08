@@ -10,9 +10,9 @@ import compile_wisdom as compiler
 
 def test_v113_keeps_kernel_and_route_topology_unchanged():
     parsed = compiler.parse_source(ROOT / 'WISDOM.md')
-    assert parsed.manifest['semantic_revision'] == 21
-    assert len(parsed.manifest['modules']) == 26
-    assert len(parsed.manifest['allowed_tags']) == 40
+    assert parsed.manifest['semantic_revision'] == 23
+    assert len(parsed.manifest['modules']) == 105
+    assert len(parsed.manifest['allowed_tags']) == 119
     # The v1.12 compiled kernel is an independent retained release baseline.
     assert hashlib.sha256(parsed.kernel[len(parsed.preamble):]).hexdigest() == (
         '22179848023a8a539524d7a97df795ef9d8a79f6517c78cb62fdcc83e6448528'

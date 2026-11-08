@@ -37,12 +37,18 @@ ASSIGN_RE = re.compile(r"^\s*([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\s*=\s*([0-9]+
 SECTION_RE = re.compile(r"^\s*\[([A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*)\]\s*$")
 _UNSET = object()
 _VERSION_DIRECTORY_RE = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")
+_RECOVERY_GUIDANCE = (
+    "After compaction, restart, or handoff, recover the current task route and "
+    "reload its complete current rule bytes before dependent work; preserve "
+    "current user preferences and unresolved failures."
+)
 _GENERATED_GUIDANCE_RE = re.compile(
     r"^## WISDOM operating kernel\n\n"
     r"For each task, load a verified view of `(?P<location>[^`\r\n]+)` using this "
     r"installation's loader when practical, then read and follow it proportionately\. "
     r"Explicit current instructions and verified facts take precedence\. "
-    r"If a compiled view is unavailable or uncertain, read the full current source\.\n",
+    r"If a compiled view is unavailable or uncertain, read the full current source\."
+    r"(?: " + re.escape(_RECOVERY_GUIDANCE) + r")?\n",
     re.MULTILINE,
 )
 _INACTIVE_CONTEXT_LABEL_RE = re.compile(
@@ -87,7 +93,8 @@ def _guidance_text(location: str) -> str:
         f"For each task, load a verified view of `{location}` using this "
         "installation's loader when practical, then read and follow it proportionately. "
         "Explicit current instructions and verified facts take precedence. "
-        "If a compiled view is unavailable or uncertain, read the full current source.\n"
+        "If a compiled view is unavailable or uncertain, read the full current source. "
+        + _RECOVERY_GUIDANCE + "\n"
     )
 
 
@@ -579,6 +586,8 @@ def run_setup(
     probe_opencode: bool = True,
     probe_claude: bool = True,
     probe_cursor: bool = True,
+    probe_t3: bool = True,
+    t3: bool = False,
 ) -> None:
     source = source.resolve(strict=True)
     home = home.expanduser().resolve()
@@ -593,8 +602,11 @@ def run_setup(
     opencode_agents: Path | None = None
     old_opencode_agents: bytes | None = None
     new_opencode_agents: bytes | None = None
-    if opencode_binary is not None:
-        opencode_home = (opencode_home or (Path.home() / ".config" / "opencode")).expanduser().resolve()
+    # Explicit targets also support T3 providers whose configured executable is
+    # outside this shell's PATH. Environment defaults alone do not opt one in.
+    if opencode_binary is not None or opencode_home is not None:
+        config_home = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+        opencode_home = (opencode_home or (config_home / "opencode")).expanduser().resolve()
         opencode_agents = opencode_home / "AGENTS.md"
         old_opencode_agents = read_existing(opencode_agents)
         # Validate the second target before any consented Codex write, so a
@@ -604,8 +616,8 @@ def run_setup(
     claude_instructions: Path | None = None
     old_claude_instructions: bytes | None = None
     new_claude_instructions: bytes | None = None
-    if claude_binary is not None:
-        claude_home = (claude_home or (Path.home() / ".claude")).expanduser().resolve()
+    if claude_binary is not None or claude_home is not None:
+        claude_home = (claude_home or Path(os.environ.get("CLAUDE_CONFIG_DIR") or Path.home() / ".claude")).expanduser().resolve()
         claude_instructions = claude_home / "CLAUDE.md"
         old_claude_instructions = read_existing(claude_instructions)
         # Preflight every file target before making any approved edit.
@@ -613,6 +625,7 @@ def run_setup(
     cursor_binary = None
     if probe_cursor:
         cursor_binary = shutil.which("cursor-agent") or shutil.which("cursor")
+    t3_binary = shutil.which("t3") if probe_t3 else None
     output(f"WISDOM source: {source}")
     output(f"Effective global instruction target: {agent_path}")
     if new_agents is None:
@@ -626,11 +639,10 @@ def run_setup(
             output("AGENTS guidance written and verified. Verify in a fresh Codex session.")
         else:
             output("AGENTS guidance skipped; no instruction-file write.")
-    if opencode_binary is None:
+    if opencode_agents is None:
         output("OpenCode CLI: not detected; no OpenCode setup proposed.")
     else:
-        assert opencode_agents is not None
-        output(f"OpenCode CLI detected: {opencode_binary}")
+        output(f"OpenCode CLI detected: {opencode_binary}" if opencode_binary else "OpenCode config directory explicitly selected; CLI not detected.")
         output(f"OpenCode global instruction target: {opencode_agents}")
         if new_opencode_agents is None:
             output("OpenCode AGENTS guidance: equivalent source-specific loading instruction already present.")
@@ -643,11 +655,10 @@ def run_setup(
                 output("OpenCode AGENTS guidance written and verified. Verify in a fresh OpenCode session.")
             else:
                 output("OpenCode AGENTS guidance skipped; no OpenCode instruction-file write.")
-    if claude_binary is None:
+    if claude_instructions is None:
         output("Claude Code CLI: not detected; no Claude Code setup proposed.")
     else:
-        assert claude_instructions is not None
-        output(f"Claude Code CLI detected: {claude_binary}")
+        output(f"Claude Code CLI detected: {claude_binary}" if claude_binary else "Claude Code config directory explicitly selected; CLI not detected.")
         output(f"Claude Code user instruction target: {claude_instructions}")
         if new_claude_instructions is None:
             output("Claude Code guidance: equivalent source-specific loading instruction already present.")
@@ -669,6 +680,21 @@ def run_setup(
         output("Add this plain-text rule there to load WISDOM in Cursor Agent sessions:")
         for line in _guidance_text(source.resolve(strict=True).as_posix()).splitlines():
             output(line)
+    if t3 or t3_binary is not None:
+        output(f"T3 Code CLI detected: {t3_binary}" if t3_binary else "T3 Code integration explicitly selected; CLI not detected.")
+        output("T3 Code loads WISDOM through the selected provider's native instructions. Match these directories to Settings > Providers on the agent's environment machine.")
+        targets = [("Codex", agent_path)]
+        if opencode_agents is not None:
+            targets.append(("OpenCode", opencode_agents))
+        if claude_instructions is not None:
+            targets.append(("Claude Code", claude_instructions))
+        for label, target in targets:
+            present = has_equivalent_guidance(read_existing(target) or b"", source)
+            output(f"T3 Code / {label}: router {'present' if present else 'missing'} at {target} (file check only; provider loading not observed).")
+        output("For a Codex shadow home, install into its shared CODEX_HOME; T3 prepares shared entries when starting the provider. Repeat setup for separate provider homes.")
+        output("Run setup inside each WSL/SSH/container environment where agents run; the WISDOM source and loader must be readable there. Restart the provider session or use a fresh thread to verify loading.")
+        output("An explicit --claude-config-home or --opencode-config-home works without a CLI on PATH. Other T3 providers need their own verified instruction route; no universal provider coverage is claimed.")
+        output("No T3 settings or hooks were changed. Source-control writing-style instructions are not an agent-wide WISDOM loader. Compaction recovery uses the router and task checkpoint, not a T3 callback.")
     version = cli_version() if probe_cli else None
     output(f"Codex CLI version: {version or 'unavailable'}; local schema: {'available' if schema else 'unavailable'}; model catalog: {'available' if catalog else 'unavailable'}.")
     output("Diagnostics cover this CODEX_HOME config only; active CLI flags, profiles, project layers, and fresh-session behavior require separate verification.")
@@ -700,8 +726,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path(__file__).resolve().parents[1] / "WISDOM.md")
     parser.add_argument("--codex-home", type=Path, default=Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex"))
-    parser.add_argument("--opencode-config-home", type=Path, help="OpenCode global config directory (default: ~/.config/opencode)")
-    parser.add_argument("--claude-config-home", type=Path, help="Claude Code config directory (default: ~/.claude)")
+    parser.add_argument("--opencode-config-home", type=Path, help="explicitly set up OpenCode here, including off-PATH T3 providers (default when detected: $XDG_CONFIG_HOME/opencode or ~/.config/opencode)")
+    parser.add_argument("--claude-config-home", type=Path, help="explicitly set up Claude Code here, including off-PATH T3 providers (default when detected: $CLAUDE_CONFIG_DIR or ~/.claude)")
+    parser.add_argument("--t3", action="store_true", help="show T3 Code provider-loading checks even when its CLI is not on PATH")
     parser.add_argument("--schema", type=Path, help="optional local installed Codex JSON schema")
     parser.add_argument("--model-catalog", type=Path, help="optional local installed model catalog JSON")
     parser.add_argument("--no-cli-probe", action="store_true")
@@ -709,6 +736,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         run_setup(args.source, args.codex_home, opencode_home=args.opencode_config_home,
                   claude_home=args.claude_config_home,
+                  t3=args.t3,
                   schema_path=args.schema, catalog_path=args.model_catalog,
                   interactive=sys.stdin.isatty(), probe_cli=not args.no_cli_probe)
     except (OSError, SetupError) as exc:

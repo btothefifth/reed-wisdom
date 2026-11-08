@@ -5,18 +5,31 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+from importlib.machinery import SourceFileLoader
 import importlib.util
+import os
 import sys
+import tempfile
 from pathlib import Path
 from types import ModuleType
 from typing import Any, Iterable, Mapping, Sequence
+
+
+class _SourceOnlyLoader(SourceFileLoader):
+    """Read the exact sibling source without consuming or creating bytecode."""
+
+    def get_code(self, fullname):
+        return self.source_to_code(self.get_data(self.path), self.path)
 
 
 def _load_path_bound_compiler() -> ModuleType:
     compiler_path = Path(__file__).resolve().with_name("compile_wisdom.py")
     module_suffix = hashlib.sha256(str(compiler_path).casefold().encode("utf-8")).hexdigest()[:16]
     module_name = f"_wisdom_compile_{module_suffix}"
-    spec = importlib.util.spec_from_file_location(module_name, compiler_path)
+    spec = importlib.util.spec_from_file_location(
+        module_name, compiler_path,
+        loader=_SourceOnlyLoader(module_name, str(compiler_path)),
+    )
     if spec is None or spec.loader is None:
         raise ImportError(f"cannot load exact sibling compiler: {compiler_path}")
     module = importlib.util.module_from_spec(spec)
@@ -49,6 +62,9 @@ compile_and_install = _compiler.compile_and_install
 LOAD_PLAN_SCHEMA = "wisdom.compiled.load_plan.v2"
 DISCOVERY_SCHEMA = "wisdom.compiled.discovery.v1"
 DELIVERY_SCHEMA = "wisdom.compiled.segmented_delivery.v1"
+ROUTE_CHECKPOINT_SCHEMA = "wisdom.route_checkpoint.v2"
+LEGACY_ROUTE_CHECKPOINT_SCHEMA = "wisdom.route_checkpoint.v1"
+MAX_CHECKPOINT_BYTES = 64 * 1024
 DEFAULT_SEGMENT_BYTES = 32 * 1024
 MIN_SEGMENT_BYTES = 4 * 1024
 MAX_SEGMENT_BYTES = 256 * 1024
@@ -211,6 +227,26 @@ def _validate_current_pointer(raw: bytes, expected: bytes) -> None:
         raise WisdomCompileError("CURRENT.json does not bind current source and tools")
 
 
+def _routing_hints(parsed: Any, module_id: str) -> list[dict[str, str]]:
+    """Expose authored applicability metadata, never a substitute for rule bytes."""
+    hints = []
+    for section_id in parsed.module_by_id[module_id]["sections"]:
+        section = parsed.section_by_id[section_id]
+        # Only the introductory metadata precedes the first authored rule.
+        intro = section.body.decode("utf-8").split("**`", 1)[0]
+        paragraphs = intro.replace("\r\n", "\n").split("\n\n")
+        hint = {"section_id": section_id, "heading": section.heading}
+        for label, field in (("Load when:", "load_when"),
+                             ("Engineering preferences:", "engineering_preferences")):
+            for paragraph in paragraphs:
+                if paragraph.startswith(label):
+                    hint[field] = " ".join(paragraph[len(label):].split())
+                    break
+        if "load_when" in hint:
+            hints.append(hint)
+    return hints
+
+
 def discover_capabilities(source_path: Path | str) -> Mapping[str, Any]:
     source = Path(source_path).resolve()
     try:
@@ -251,6 +287,7 @@ def discover_capabilities(source_path: Path | str) -> Mapping[str, Any]:
                 "sections": list(parsed.module_by_id[module_id]["sections"]),
                 "tags": list(parsed.module_by_id[module_id]["tags"]),
                 "requires": list(parsed.module_by_id[module_id]["requires"]),
+                "routing_hints": _routing_hints(parsed, module_id),
             }
             for module_id in parsed.module_order
         ]
@@ -315,6 +352,7 @@ def load_plan(
     companion_source_path: Path | str | None = None,
     expected_companion_sha256: str | None = None,
     expected_companion_bytes: int | None = None,
+    expected_source_sha256: str | None = None,
 ) -> Mapping[str, Any]:
     source = Path(source_path).resolve()
     explicit_mode = mode
@@ -359,6 +397,8 @@ def load_plan(
         )
     try:
         parsed = parse_source(source)
+        if expected_source_sha256 is not None and parsed.source_sha256 != expected_source_sha256:
+            raise WisdomCompileError("source changed after route expansion; full source required")
         if phase is not None:
             if not isinstance(phase, str) or phase not in parsed.phase_by_id:
                 raise WisdomPhaseError(f"unknown phase: {phase!r}")
@@ -640,6 +680,10 @@ def read_plan_content(plan: Mapping[str, Any]) -> bytes:
         expected_status = {"kind": "within_target", "excess_bytes": 0}
     if context.get("target_status") != expected_status:
         raise WisdomCompileError("selected context target status is malformed")
+    try:
+        joined.decode("utf-8", errors="strict")
+    except UnicodeDecodeError as exc:
+        raise WisdomCompileError("planned instructions are not valid UTF-8") from exc
     return joined
 
 
@@ -663,6 +707,7 @@ def _segmented_delivery(
     segment_bytes: int = DEFAULT_SEGMENT_BYTES,
 ) -> tuple[Mapping[str, Any], bytes]:
     size = _validated_segment_bytes(segment_bytes)
+    delivery_tools = _tool_hashes()
     content = read_plan_content(plan)
     content_sha256 = sha256_bytes(content)
     identity = {
@@ -678,21 +723,31 @@ def _segmented_delivery(
         "content_sha256": content_sha256,
         "content_bytes": len(content),
         "segment_bytes": size,
+        "segment_encoding": "utf-8",
+        "delivery_tool_hashes": delivery_tools,
     }
     delivery_id = sha256_bytes(canonical_json_bytes(identity))
     segments = []
-    for index, offset in enumerate(range(0, len(content), size)):
-        segment = content[offset : offset + size]
+    offset = 0
+    while offset < len(content):
+        end = min(offset + size, len(content))
+        # End before an incomplete code point so every text-tool response decodes.
+        while end < len(content) and content[end] & 0xC0 == 0x80:
+            end -= 1
+        segment = content[offset:end]
         segments.append(
             {
-                "index": index,
+                "index": len(segments),
                 "offset": offset,
                 "bytes": len(segment),
                 "sha256": sha256_bytes(segment),
             }
         )
+        offset = end
     if not segments:
         raise WisdomCompileError("verified content is unexpectedly empty")
+    if _tool_hashes() != delivery_tools:
+        raise WisdomCompileError("delivery tools changed while segmenting instructions")
     return (
         {
             **identity,
@@ -786,6 +841,215 @@ def read_plan_content_or_current_source(plan: Mapping[str, Any]) -> bytes:
         return read_plan_content(fallback)
 
 
+def _route_identity(project_root: Path | str, task_id: str) -> tuple[str, str]:
+    root = Path(project_root).resolve(strict=True)
+    if not root.is_dir():
+        raise WisdomCompileError("route project root must be a directory")
+    if not isinstance(task_id, str) or not 1 <= len(task_id) <= 128 or any(
+        not (char.isascii() and (char.isalnum() or char in "._:-")) for char in task_id
+    ):
+        raise WisdomCompileError("route task ID must be 1-128 ASCII letters, digits, or ._:-")
+    return str(root), task_id
+
+
+def save_route_checkpoint(
+    plan: Mapping[str, Any], destination: Path | str, *,
+    project_root: Path | str, task_id: str,
+) -> Mapping[str, Any]:
+    """Publish an immutable navigation hint; never certify model retention."""
+    root, task = _route_identity(project_root, task_id)
+    content = read_plan_content(plan)
+    previous = plan.get("continuity", {})
+    profile = plan.get("task_profile") or previous.get("task_profile_hint")
+    profiles = list(dict.fromkeys((*previous.get("task_profiles", ()), *filter(None, (profile,)))))
+    phases = list(dict.fromkeys((*previous.get("phases", ()), *filter(None, (plan.get("phase"),)))))
+    body = {
+        "schema": ROUTE_CHECKPOINT_SCHEMA,
+        "authority": False,
+        "project_root": root,
+        "task_id": task,
+        "source_path": plan["source_path"],
+        "source_sha256": plan["source_sha256"],
+        "content_sha256": sha256_bytes(content),
+        "module_ids": list(plan.get("module_ids", [])),
+        "selection": {
+            # A full-source fallback must not silently resume as a narrower route.
+            "mode": "full" if plan["status"] == "full_source_required" else plan["mode"],
+            "tags": list(plan["tags"]),
+            "task_profile_hint": profile,
+            "phase": plan.get("phase"),
+            "task_profiles": profiles,
+            "phases": phases,
+            "selected_context_target_bytes": plan["selected_context"]["target_bytes"],
+        },
+        "companion_source": plan.get("companion_source"),
+    }
+    envelope = {"body": body, "body_sha256": sha256_bytes(canonical_json_bytes(body))}
+    raw = canonical_json_bytes(envelope)
+    if len(raw) > MAX_CHECKPOINT_BYTES:
+        raise WisdomCompileError("route checkpoint exceeds its byte bound")
+    output = Path(destination).absolute()
+    if output.is_symlink() or output.exists():
+        raise WisdomCompileError("route checkpoint already exists; use a new generation path")
+    if not output.resolve().is_relative_to(Path(root)):
+        raise WisdomCompileError("route checkpoint must stay inside its project root")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    temporary: str | None = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=output.parent, prefix=".wisdom-route-", delete=False) as stream:
+            temporary = stream.name
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Publish complete bytes without replacing another task/generation.
+        os.link(temporary, output)
+    except OSError as exc:
+        raise WisdomCompileError(f"cannot publish route checkpoint: {exc}") from exc
+    finally:
+        if temporary is not None:
+            Path(temporary).unlink(missing_ok=True)
+    return {"path": str(output.resolve()), "sha256": sha256_bytes(raw), "reload_required": True}
+
+
+def read_route_checkpoint(
+    checkpoint: Path | str, *, source_path: Path | str,
+    project_root: Path | str, task_id: str,
+) -> Mapping[str, Any]:
+    root, task = _route_identity(project_root, task_id)
+    path = Path(checkpoint)
+    try:
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_CHECKPOINT_BYTES + 1)
+        with path.open("rb") as stream:
+            second = stream.read(MAX_CHECKPOINT_BYTES + 1)
+    except OSError as exc:
+        raise WisdomCompileError("route checkpoint is unavailable") from exc
+    if len(raw) > MAX_CHECKPOINT_BYTES or raw != second:
+        raise WisdomCompileError("route checkpoint is oversized or changed during reading")
+    value = strict_json_loads(raw, label="route checkpoint")
+    if not isinstance(value, dict) or set(value) != {"body", "body_sha256"}:
+        raise WisdomCompileError("route checkpoint envelope is malformed")
+    body = value["body"]
+    expected = {"schema", "authority", "project_root", "task_id", "source_path",
+                "source_sha256", "content_sha256", "module_ids", "selection", "companion_source"}
+    if not isinstance(body, dict) or set(body) != expected or (
+        body.get("schema") not in (ROUTE_CHECKPOINT_SCHEMA, LEGACY_ROUTE_CHECKPOINT_SCHEMA)
+        or body.get("authority") is not False
+        or value["body_sha256"] != sha256_bytes(canonical_json_bytes(body))
+    ):
+        raise WisdomCompileError("route checkpoint body or checksum is invalid")
+    if body["project_root"] != root or body["task_id"] != task:
+        raise WisdomCompileError("route checkpoint belongs to a different project or task")
+    if body["source_path"] != str(Path(source_path).resolve()):
+        raise WisdomCompileError("route checkpoint belongs to a different WISDOM source")
+    for key in ("source_sha256", "content_sha256"):
+        digest = body[key]
+        if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise WisdomCompileError("route checkpoint digest is malformed")
+    selection = body["selection"]
+    selection_keys = {
+        "mode", "tags", "task_profile_hint", "phase", "selected_context_target_bytes"
+    }
+    if body["schema"] == ROUTE_CHECKPOINT_SCHEMA:
+        selection_keys.update(("task_profiles", "phases"))
+    if not isinstance(selection, dict) or set(selection) != selection_keys or not isinstance(selection.get("mode"), str) or selection["mode"] not in {"fast", "focused", "substantial", "full"}:
+        raise WisdomCompileError("route checkpoint selection is malformed")
+    for items in (selection["tags"], body["module_ids"]):
+        if not isinstance(items, list) or any(not isinstance(item, str) for item in items) or len(items) != len(set(items)):
+            raise WisdomCompileError("route checkpoint tags/modules are malformed")
+    for key in ("task_profile_hint", "phase"):
+        if selection[key] is not None and not isinstance(selection[key], str):
+            raise WisdomCompileError("route checkpoint profile/phase is malformed")
+    if body["schema"] == ROUTE_CHECKPOINT_SCHEMA:
+        for key, hint in (("task_profiles", "task_profile_hint"), ("phases", "phase")):
+            owners = selection[key]
+            if (not isinstance(owners, list)
+                or any(not isinstance(owner, str) or not owner for owner in owners)
+                or len(owners) != len(set(owners))
+                or (selection[hint] is not None and selection[hint] not in owners)):
+                raise WisdomCompileError("route checkpoint profile/phase lineage is malformed")
+    target = selection["selected_context_target_bytes"]
+    if target is not None and (type(target) is not int or target < 1):
+        raise WisdomCompileError("route checkpoint context target is malformed")
+    companion = body["companion_source"]
+    if companion is not None and (not isinstance(companion, dict) or set(companion) != {"path", "bytes", "sha256"}):
+        raise WisdomCompileError("route checkpoint companion is malformed")
+    if companion is not None and (
+        not isinstance(companion["path"], str) or not isinstance(companion["sha256"], str)
+        or type(companion["bytes"]) is not int or companion["bytes"] < 1
+    ):
+        raise WisdomCompileError("route checkpoint companion binding is malformed")
+    return {"body": body, "checkpoint_sha256": sha256_bytes(raw)}
+
+
+def resume_route_options(
+    checkpoint: Mapping[str, Any], *, source_path: Path | str,
+    mode: str | None = None, tags: Iterable[str] = (),
+    task_profile: str | None = None, phase: str | None = None,
+    selected_context_target_bytes: int | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Restore scope, refreshing every historical profile and phase from source."""
+    body = checkpoint["body"]
+    saved = body["selection"]
+    levels = {"fast": 0, "focused": 1, "substantial": 2, "full": 3}
+    chosen = saved["mode"]
+    if mode is not None:
+        if mode not in levels or levels[mode] < levels[chosen]:
+            raise WisdomCompileError("resumption cannot narrow a saved mode; establish a fresh reviewed route")
+        chosen = mode
+    selected = set(saved["tags"]) | set(tags)
+    profile_hint = task_profile or saved["task_profile_hint"]
+    profiles = list(saved.get("task_profiles", filter(None, (saved["task_profile_hint"],))))
+    phases = list(saved.get("phases", filter(None, (saved["phase"],))))
+    if task_profile is not None and task_profile not in profiles:
+        profiles.append(task_profile)
+    if phase is not None and phase not in phases:
+        phases.append(phase)
+    force_full = False
+    route_source_sha256 = None
+    try:
+        parsed = parse_source(Path(source_path).resolve())
+        route_source_sha256 = parsed.source_sha256
+        if "technology_continuity" in parsed.manifest["allowed_tags"]:
+            selected.add("technology_continuity")
+        # Expanded tags alone cannot refresh obligations after a source update.
+        for profile in profiles:
+            profile_mode, profile_tags = resolve_task_profile(parsed, profile)
+            chosen = max((chosen, profile_mode), key=levels.__getitem__)
+            selected.update(profile_tags)
+        for phase_id in phases:
+            selected.update(parsed.phase_by_id[phase_id]["tags"])
+        if not set(body["module_ids"]).issubset(resolve_module_ids(parsed, mode=chosen, tags=selected)):
+            force_full = True
+    except (OSError, WisdomCompileError, KeyError, TypeError, ValueError):
+        force_full = True
+    companion = body["companion_source"]
+    options = {
+        "mode": "full" if force_full else chosen,
+        "tags": sorted(selected),
+        # Profiles were expanded above; preserving their old tags prevents narrowing.
+        "task_profile": None,
+        "phase": phase if phase is not None else saved["phase"],
+        "selected_context_target_bytes": selected_context_target_bytes if selected_context_target_bytes is not None else saved["selected_context_target_bytes"],
+        "companion_source_path": companion["path"] if companion else None,
+        "expected_companion_sha256": companion["sha256"] if companion else None,
+        "expected_companion_bytes": companion["bytes"] if companion else None,
+        "expected_source_sha256": route_source_sha256,
+    }
+    continuity = {
+        "checkpoint_sha256": checkpoint["checkpoint_sha256"],
+        "previous_source_sha256": body["source_sha256"],
+        "previous_content_sha256": body["content_sha256"],
+        "task_profile_hint": profile_hint,
+        "task_profiles": profiles,
+        "phases": phases,
+        "route_expanded_to_full": force_full,
+        "reload_required": True,
+        "project_evidence_recheck_required": True,
+    }
+    return options, continuity
+
+
 def _default_source() -> Path:
     return Path(__file__).resolve().parents[1] / "WISDOM.md"
 
@@ -808,6 +1072,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--expected-companion-sha256")
     parser.add_argument("--expected-companion-bytes", type=int)
     parser.add_argument("--discover", action="store_true")
+    parser.add_argument("--save-route", type=Path, help="publish a new immutable task route checkpoint")
+    parser.add_argument("--resume-route", type=Path, help="reload current rules from a saved task route")
+    parser.add_argument("--project-root", type=Path, help="explicit project binding for route checkpoints")
+    parser.add_argument("--task-id", help="explicit task binding for route checkpoints")
     parser.add_argument(
         "--prepare-cache",
         action="store_true",
@@ -825,6 +1093,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         _validated_segment_bytes(args.segment_bytes)
+        route_requested = args.save_route is not None or args.resume_route is not None
+        if route_requested and (args.project_root is None or args.task_id is None):
+            raise WisdomCompileError("route checkpoints require --project-root and --task-id")
+        if not route_requested and (args.project_root is not None or args.task_id is not None):
+            raise WisdomCompileError("project/task bindings require --save-route or --resume-route")
+        if args.save_route is not None and (args.emit_content or args.emit_content_segment is not None):
+            raise WisdomCompileError("save a route with a non-content plan, then read its complete delivery")
         if args.emit_content and args.emit_content_segment is not None:
             raise WisdomCompileError(
                 "--emit-content and --emit-content-segment are mutually exclusive"
@@ -835,14 +1110,41 @@ def main(argv: Sequence[str] | None = None) -> int:
                 or args.emit_content_segment is not None
                 or args.expected_delivery_id is not None
                 or args.prepare_cache
+                or route_requested
             ):
                 raise WisdomCompileError(
                     "--discover cannot be combined with preparation or content emission"
                 )
             plan = discover_capabilities(args.source)
         else:
+            options = {
+                "mode": args.mode, "tags": args.tag, "task_profile": args.task_profile,
+                "phase": args.phase, "selected_context_target_bytes": args.selected_context_target_bytes,
+                "companion_source_path": args.companion_source,
+                "expected_companion_sha256": args.expected_companion_sha256,
+                "expected_companion_bytes": args.expected_companion_bytes,
+            }
+            continuity = None
+            if args.resume_route is not None:
+                checkpoint = read_route_checkpoint(
+                    args.resume_route, source_path=args.source,
+                    project_root=args.project_root, task_id=args.task_id,
+                )
+                options, continuity = resume_route_options(
+                    checkpoint, source_path=args.source, mode=args.mode, tags=args.tag,
+                    task_profile=args.task_profile, phase=args.phase,
+                    selected_context_target_bytes=args.selected_context_target_bytes,
+                )
+                if any(value is not None for value in (
+                    args.companion_source, args.expected_companion_sha256, args.expected_companion_bytes
+                )):
+                    options.update(
+                        companion_source_path=args.companion_source,
+                        expected_companion_sha256=args.expected_companion_sha256,
+                        expected_companion_bytes=args.expected_companion_bytes,
+                    )
             if args.prepare_cache:
-                if args.unknown_impact or args.mode == "full":
+                if args.unknown_impact or options["mode"] == "full":
                     raise WisdomCompileError(
                         "cache preparation is not used for full-source loading"
                     )
@@ -850,16 +1152,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             plan = load_plan(
                 args.source,
                 args.cache_root,
-                mode=args.mode,
-                tags=args.tag,
-                task_profile=args.task_profile,
-                phase=args.phase,
-                selected_context_target_bytes=args.selected_context_target_bytes,
                 unknown_impact=args.unknown_impact,
-                companion_source_path=args.companion_source,
-                expected_companion_sha256=args.expected_companion_sha256,
-                expected_companion_bytes=args.expected_companion_bytes,
+                **options,
             )
+            if continuity is not None:
+                plan = dict(plan)
+                continuity["source_changed"] = plan["source_sha256"] != continuity["previous_source_sha256"]
+                continuity["content_changed"] = sha256_bytes(read_plan_content(plan)) != continuity["previous_content_sha256"]
+                plan["continuity"] = continuity
         if args.discover:
             print(canonical_json_bytes(plan).decode("utf-8"))
         elif args.emit_content:
@@ -887,8 +1187,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                 plan,
                 segment_bytes=args.segment_bytes,
             )
+            if args.save_route is not None:
+                planned["saved_route"] = save_route_checkpoint(
+                    plan, args.save_route, project_root=args.project_root, task_id=args.task_id,
+                )
             print(canonical_json_bytes(planned).decode("utf-8"))
-    except WisdomCompileError as exc:
+    except (WisdomCompileError, OSError) as exc:
         print(f"wisdom load failed: {exc}", file=sys.stderr)
         return 2
     return 0
